@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "843849987770",
+    "project_id": "whatsapp-d2c19",
+    "storage_bucket": "whatsapp-d2c19.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:843849987770:android:1aa20de79c807050a8b483",
+        "android_client_info": {
+          "package_name": "com.sushant.whatsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "843849987770-2imhf1vifnfvsms5c512r88op2pjkqav.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHCTnxP2jMgwc3IKH5VH0FzE58AgNHigI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "843849987770-2imhf1vifnfvsms5c512r88op2pjkqav.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
