@@ -1,7 +1,7 @@
 # WhatsAppClone
 First Android Project using Java.<br><br>
 
-<i># A Realtime Chat App that includes features:</i><br> 
+<i><b>A Realtime Chat App that includes features:</b></i><br> 
 <ul>
 <li>Authentication</li>
 <li>Email verification </li>
