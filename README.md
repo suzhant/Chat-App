@@ -9,5 +9,6 @@ First Android Project using Java.<br><br>
 <li>Email and Password update</li>
 <li>Password reset </li>
 <li>Account deletion</li>
+<li>Profile Settings</li>
   </i>
 </ul>
