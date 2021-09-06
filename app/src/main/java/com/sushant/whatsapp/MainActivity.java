@@ -132,11 +132,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         token=getIntent().getStringExtra("googleToken");
 
 
-
-        //checking users presence
-        manageConnection();
-//        updateStatus("online");
-
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         tabLayout = findViewById(R.id.tabLayout);
@@ -178,8 +173,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //check email verification
         FirebaseUser user=auth.getCurrentUser();
+        assert user != null;
         if (!user.isEmailVerified()){
-            showErrorDialog();
+            //checking users presence
+            manageConnection();
+//            showErrorDialog();
             nav_verify.setVisibility(View.VISIBLE);
             Menu nav_Menu = navigationView.getMenu();
             nav_Menu.findItem(R.id.nav_link).setVisible(false);
@@ -207,8 +205,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
 
-
-
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
@@ -232,9 +228,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onMoveToForeground() {
         // app moved to foreground
-        database.goOnline();
-        if (!auth.getCurrentUser().isEmailVerified() && auth.getCurrentUser()!=null){
-            showErrorDialog();
+        if (auth.getCurrentUser()!=null){
+            database.goOnline();
+            if (!auth.getCurrentUser().isEmailVerified()){
+                showErrorDialog();
+            }
         }
 //        updateStatus("online");
     }
@@ -242,10 +240,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onMoveToBackground() {
         // app moved to background
-       database.goOffline();
-       if (!auth.getCurrentUser().isEmailVerified()  && auth.getCurrentUser()!=null){
-           showErrorDialog();
-       }
+        if (auth.getCurrentUser()!=null){
+            database.goOffline();
+            if (!auth.getCurrentUser().isEmailVerified()){
+                showErrorDialog();
+            }
+        }
 //        updateStatus("offline");
     }
 
@@ -493,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             deleteUser(user.getUid());
+//                                            database.getReference().child("Users").child(auth.getUid()).removeValue();
                                             Toast.makeText(getApplicationContext(), "Re-authenticated", Toast.LENGTH_SHORT).show();
                                             user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
@@ -536,6 +537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         obj.put(userid,null);
         database.getReference().child("Users").updateChildren(obj);
     }
+
 
 
 
