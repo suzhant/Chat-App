@@ -14,6 +14,8 @@
         <item
             android:id="@+id/nav_delete"
             android:icon="@drawable/ic_delete"
+            android:checked="false"
+            android:checkable="true"
             android:title="Delete account" />
         <item
             android:id="@+id/nav_link"

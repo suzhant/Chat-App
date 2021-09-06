@@ -130,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         registerBroadcastReceiver();
 
         token=getIntent().getStringExtra("googleToken");
+        manageConnection();
 
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -176,7 +177,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert user != null;
         if (!user.isEmailVerified()){
             //checking users presence
-            manageConnection();
 //            showErrorDialog();
             nav_verify.setVisibility(View.VISIBLE);
             Menu nav_Menu = navigationView.getMenu();
@@ -469,14 +469,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void showDeleteDialog() {
         final EditText edittext = new EditText(MainActivity.this);
+        edittext.setHint("Password");
+
         AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
         builder.setMessage("Enter Password")
                 .setTitle("Delete Account")
                 .setCancelable(false)
                 .setView(edittext)
+                .setIcon(R.drawable.ic_delete)
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        String pass= edittext.getText().toString();
+                        if (pass.isEmpty()){
+                            Toast.makeText(getApplicationContext(), "Empty Field not allowed.", Toast.LENGTH_SHORT).show();
+                            navigationView.getMenu().findItem(R.id.nav_delete).setChecked(false);
+                            return;
+                        }
                        final FirebaseUser user=auth.getCurrentUser();
                         assert user != null;
                         AuthCredential credential;
@@ -520,6 +529,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }).setNegativeButton("Exit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                navigationView.getMenu().findItem(R.id.nav_delete).setChecked(false);
                 dialogInterface.dismiss();
             }
         }).show();
