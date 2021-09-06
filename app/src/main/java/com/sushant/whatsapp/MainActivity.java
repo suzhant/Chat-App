@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert user != null;
         if (!user.isEmailVerified()){
             //checking users presence
-//            showErrorDialog();
+            showErrorDialog();
             nav_verify.setVisibility(View.VISIBLE);
             Menu nav_Menu = navigationView.getMenu();
             nav_Menu.findItem(R.id.nav_link).setVisible(false);
