@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //check email verification
         FirebaseUser user=auth.getCurrentUser();
         if (!user.isEmailVerified()){
-//            showErrorDialog();
+            showErrorDialog();
             nav_verify.setVisibility(View.VISIBLE);
             Menu nav_Menu = navigationView.getMenu();
             nav_Menu.findItem(R.id.nav_link).setVisible(false);
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // app moved to foreground
         database.goOnline();
         if (!auth.getCurrentUser().isEmailVerified() && auth.getCurrentUser()!=null){
-//            showErrorDialog();
+            showErrorDialog();
         }
 //        updateStatus("online");
     }
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // app moved to background
        database.goOffline();
        if (!auth.getCurrentUser().isEmailVerified()  && auth.getCurrentUser()!=null){
-//           showErrorDialog();
+           showErrorDialog();
        }
 //        updateStatus("offline");
     }
