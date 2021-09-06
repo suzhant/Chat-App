@@ -51,6 +51,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DatabaseReference infoConnected;
     BroadcastReceiver broadcastReceiver;
     String token;
-    AuthCredential credential;
+
 
 
     @Override
@@ -178,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //check email verification
         FirebaseUser user=auth.getCurrentUser();
         if (!user.isEmailVerified()){
-            showErrorDialog();
+//            showErrorDialog();
             nav_verify.setVisibility(View.VISIBLE);
             Menu nav_Menu = navigationView.getMenu();
             nav_Menu.findItem(R.id.nav_link).setVisible(false);
@@ -233,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // app moved to foreground
         database.goOnline();
         if (!auth.getCurrentUser().isEmailVerified() && auth.getCurrentUser()!=null){
-            showErrorDialog();
+//            showErrorDialog();
         }
 //        updateStatus("online");
     }
@@ -243,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // app moved to background
        database.goOffline();
        if (!auth.getCurrentUser().isEmailVerified()  && auth.getCurrentUser()!=null){
-           showErrorDialog();
+//           showErrorDialog();
        }
 //        updateStatus("offline");
     }
@@ -478,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialogInterface, int i) {
                        final FirebaseUser user=auth.getCurrentUser();
                         assert user != null;
+                        AuthCredential credential;
                         if (token == null) {
                             credential = EmailAuthProvider.getCredential(user.getEmail(), edittext.getText().toString());
                         } else {
@@ -490,22 +492,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
+                                            deleteUser(user.getUid());
                                             Toast.makeText(getApplicationContext(), "Re-authenticated", Toast.LENGTH_SHORT).show();
                                             user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()){
-                                                        HashMap<String,Object> obj= new HashMap<>();
-                                                        obj.put(auth.getUid(),null);
-                                                        database.getReference().child("Users").updateChildren(obj);
-
                                                         Intent intent= new Intent(MainActivity.this,SignInActivity.class);
                                                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                                         startActivity(intent);
                                                         finish();
+                                                        Log.d("TAG", "onComplete: User deleted"+user.getEmail());
                                                         Toast.makeText(getApplicationContext(), "User Account has been Deleted", Toast.LENGTH_SHORT).show();
                                                     }else {
-                                                        Toast.makeText(getApplicationContext(), "Account coudnt be deleted", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(getApplicationContext(), "Account couldn't be deleted", Toast.LENGTH_SHORT).show();
                                                     }
 
                                                 }
@@ -529,6 +529,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status",status);
         database.getReference().child("Users").child(auth.getUid()).child("Connection").updateChildren(obj);
+    }
+
+    void deleteUser(String userid){
+        HashMap<String,Object> obj= new HashMap<>();
+        obj.put(userid,null);
+        database.getReference().child("Users").updateChildren(obj);
     }
 
 
