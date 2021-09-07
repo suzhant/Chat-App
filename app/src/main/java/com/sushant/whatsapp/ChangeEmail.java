@@ -148,7 +148,7 @@ public class ChangeEmail extends AppCompatActivity {
                                                                         Toast.makeText(getApplicationContext(), "Sign Out failed", Toast.LENGTH_SHORT).show();
                                                                     }
                                                                 });
-                                                                FirebaseDatabase.getInstance().goOffline();
+//                                                                FirebaseDatabase.getInstance().goOffline();
                                                                 Intent intent = new Intent(ChangeEmail.this, SignInActivity.class);
                                                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                                                 startActivity(intent);

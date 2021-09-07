@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DatabaseReference infoConnected;
     BroadcastReceiver broadcastReceiver;
     String token;
+    DatabaseReference reference;
 
 
 
@@ -123,7 +124,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-        database= FirebaseDatabase.getInstance();;
+        database= FirebaseDatabase.getInstance();
+        reference=database.getReference().child("Users");
         auth = FirebaseAuth.getInstance();
 
         broadcastReceiver=new InternetCheckServices();
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         nav_verify=header.findViewById(R.id.nav_verify);
 
         //retrieving logged in user data from real time database into the nav header views
-        database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()))
+        reference.child(Objects.requireNonNull(auth.getUid()))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -202,24 +204,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
         }else {
             nav_verify.setVisibility(View.GONE);
-        }
-
-
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (!task.isSuccessful()){
-                    return;
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()){
+                        return;
+                    }
+                    String token=task.getResult();
+                    FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+                    assert user != null;
+                    String uid=user.getUid();
+                    HashMap<String,Object> obj= new HashMap<>();
+                    obj.put("Token",token);
+                    reference.child(uid).updateChildren(obj);
                 }
-                String token=task.getResult();
-                FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
-                assert user != null;
-                String uid=user.getUid();
-                HashMap<String,Object> obj= new HashMap<>();
-                obj.put("Token",token);
-                database.getReference().child("Users").child(uid).updateChildren(obj);
-            }
-        });
+            });
+        }
 
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
@@ -229,24 +229,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onMoveToForeground() {
         // app moved to foreground
         if (auth.getCurrentUser()!=null){
-            database.goOnline();
+//            database.goOnline();
+            updateStatus("online");
             if (!auth.getCurrentUser().isEmailVerified()){
                 showErrorDialog();
             }
         }
-//        updateStatus("online");
+
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onMoveToBackground() {
         // app moved to background
         if (auth.getCurrentUser()!=null){
-            database.goOffline();
+//            database.goOffline();
+            updateStatus("offline");
             if (!auth.getCurrentUser().isEmailVerified()){
                 showErrorDialog();
             }
         }
-//        updateStatus("offline");
+
     }
 
 
@@ -317,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 deleteToken();
                 infoConnected.removeEventListener(eventListener);
-                database.goOffline();
+//                database.goOffline();
                 auth.signOut();
 
                 Intent intentLogout = new Intent(getApplicationContext(), SignInActivity.class);
@@ -363,10 +365,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 boolean connected = snapshot.getValue(Boolean.class);
                 if (connected) {
                     status.setValue("online");
-                    status.onDisconnect().setValue("offline");
-                    lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
                     lastOnlineRef.setValue(ServerValue.TIMESTAMP);
                 }else{
+                    status.onDisconnect().setValue("offline");
                     lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
                 }
             }
@@ -384,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String uid=user.getUid();
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Token",null);
-        database.getReference().child("Users").child(uid).updateChildren(obj);
+        reference.child(uid).updateChildren(obj);
     }
 
     //check connection
@@ -458,7 +459,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }).setNegativeButton("Go to Sign In Page", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                database.goOffline();
+//                database.goOffline();
+                deleteToken();
                 updateStatus("offline");
                 auth.signOut();
                 startActivity(new Intent(MainActivity.this,SignInActivity.class));
@@ -536,16 +538,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-        void updateStatus(String status){
+    void updateStatus(String status){
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status",status);
-        database.getReference().child("Users").child(auth.getUid()).child("Connection").updateChildren(obj);
+        reference.child(auth.getUid()).child("Connection").updateChildren(obj);
     }
 
     void deleteUser(String userid){
         HashMap<String,Object> obj= new HashMap<>();
         obj.put(userid,null);
-        database.getReference().child("Users").updateChildren(obj);
+       reference.updateChildren(obj);
     }
 
 

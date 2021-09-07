@@ -160,7 +160,7 @@ public class ChangePassword extends AppCompatActivity {
                                                     Toast.makeText(getApplicationContext(), "SignOut failed", Toast.LENGTH_SHORT).show();
                                                 }
                                             });
-                                            FirebaseDatabase.getInstance().goOffline();
+//                                            FirebaseDatabase.getInstance().goOffline();
                                             Intent intent= new Intent(ChangePassword.this,SignInActivity.class);
                                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                             startActivity(intent);
