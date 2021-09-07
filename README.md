@@ -15,3 +15,9 @@ First Android Project using Java.<br><br>
 </ul>
 
 <b>There are still lots of bugs to be fixed and features to be added. I will continue the project after exam.</b>
+
+# ScreenShots
+
+<img src="images/Biometric%20login.png" width="300"> <img src="images/Email%20not%20verified.png" width="300"> <img src="images/Home%20Page.png" width="300">
+<img src="images/Navigation%20drawer.png" width="300"> <img src="images/Sign%20In%20Page.png" width="300"> <img src="images/Sign%20Up%20Page.png" width="300">
+<img src="images/setting%20page.png" width="300">
