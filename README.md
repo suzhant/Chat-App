@@ -1,4 +1,4 @@
-# WhatsAppClone
+# SusIna
 First Android Project using Java.<br><br>
 
 <i><b>A Realtime Chat App that includes features:</b></i><br> 
