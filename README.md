@@ -4,6 +4,7 @@ First Android Project using Java.<br><br>
 <i><b>A Realtime Chat App that includes features:</b></i><br> 
 <ul>
   <i>
+<li>Real-time Chat</li>
 <li>Authentication</li>
 <li>Biometric login</ii>
 <li>Email verification </li>
