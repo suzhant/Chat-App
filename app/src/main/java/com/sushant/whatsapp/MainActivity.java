@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NavigationView navigationView;
     TabLayout tabLayout;
     ViewPager viewPager;
-    TextView nav_username, nav_email,nav_verify,nav_delete;
+    TextView nav_username, nav_email,nav_verify;
     CircleImageView nav_profile;
     FirebaseAuth auth;
     FirebaseDatabase database;
@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         nav_username = header.findViewById(R.id.nav_username);
         nav_profile = header.findViewById(R.id.nav_profilePic);
         nav_verify=header.findViewById(R.id.nav_verify);
+
 
         //retrieving logged in user data from real time database into the nav header views
         reference.child(Objects.requireNonNull(auth.getUid()))
@@ -299,6 +300,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent);
                 break;
 
+            case R.id.nav_findFriend:
+                Intent intent2= new Intent(MainActivity.this,FindFriendActivity.class);
+                startActivity(intent2);
+                break;
+
             case R.id.nav_link:
                 Intent intent1 = new Intent(MainActivity.this,LinkAccount.class);
                 startActivity(intent1);
@@ -307,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_delete:
                 showDeleteDialog();
                 break;
-
 
             case R.id.nav_logout:
                 Log.d("TAG", "onSuccess: logout started");
