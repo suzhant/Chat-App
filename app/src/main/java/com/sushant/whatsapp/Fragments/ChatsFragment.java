@@ -1,6 +1,7 @@
 package com.sushant.whatsapp.Fragments;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -47,6 +48,7 @@ public class ChatsFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentChatsBinding.inflate(inflater, container, false);
         database = FirebaseDatabase.getInstance();
+
 
         adapter = new UsersAdapter(list, getContext());
         binding.chatRecyclerView.setAdapter(adapter);
