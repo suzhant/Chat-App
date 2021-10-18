@@ -34,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivitySignUpBinding;
 
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,9 +104,8 @@ public class SignUpActivity extends AppCompatActivity {
                                     Users user = new Users(binding.editName.getEditText().getText().toString(), binding.editEmail.getEditText().getText().toString(), binding.editPass.getEditText().getText().toString());
                                     String id = task.getResult().getUser().getUid();
                                     user.setUserId(id);
-//                                    user.setUserStatus("offline");
                                     database.getReference().child("Users").child(id).setValue(user);
-
+                                    database.getReference().child("Users").child(id).child("Connection").child("Status").setValue("offline");
                                     binding.etName.setText("");
                                     binding.etEmail.setText("");
                                     binding.etPass.setText("");
