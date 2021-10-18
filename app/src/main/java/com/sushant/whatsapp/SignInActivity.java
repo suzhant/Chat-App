@@ -374,11 +374,7 @@ public class SignInActivity extends AppCompatActivity {
                             editor.putBoolean("isLogin", true);
                             editor.putBoolean("isGoogle", flag);
                             editor.apply();
-                            HashMap<String,Object> map= new HashMap<>();
-                            map.put("password",password);
-                            FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).updateChildren(map);
 
-//                            database.getReference().child("Users").child(user.getUid()).setValue(users);
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                             Toast.makeText(SignInActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
