@@ -27,6 +27,7 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.FragmentChatsBinding;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class ChatsFragment extends Fragment {
@@ -55,7 +56,7 @@ public class ChatsFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getContext());
         binding.chatRecyclerView.setLayoutManager(layoutManager);
 
-        database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
+        database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends").addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
