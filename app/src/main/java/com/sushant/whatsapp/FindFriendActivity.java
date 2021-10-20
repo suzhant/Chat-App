@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.sushant.whatsapp.Adapters.ProfileAdapter;
 import com.sushant.whatsapp.Adapters.UsersAdapter;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityFindFriendBinding;
@@ -38,7 +39,7 @@ public class FindFriendActivity extends AppCompatActivity{
     ArrayList<Users> list = new ArrayList<>();
     FirebaseDatabase database;
     LinearLayoutManager layoutManager;
-    UsersAdapter adapter;
+    ProfileAdapter adapter;
     DatabaseReference ref;
     ValueEventListener valueEventListener1;
 
@@ -54,7 +55,7 @@ public class FindFriendActivity extends AppCompatActivity{
 
         database = FirebaseDatabase.getInstance();
 
-        adapter = new UsersAdapter(list, this);
+        adapter = new ProfileAdapter(list, this);
         findFriendBinding.findFriendRecycleView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(this);
         findFriendBinding.findFriendRecycleView.setLayoutManager(layoutManager);
