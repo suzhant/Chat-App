@@ -164,7 +164,6 @@ public class ChangePassword extends AppCompatActivity {
                                             Intent intent= new Intent(ChangePassword.this,SignInActivity.class);
                                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                             startActivity(intent);
-                                            finish();
                                             } else { Toast.makeText(getApplicationContext(), "Password Couldn't be changed", Toast.LENGTH_SHORT).show();
                                             }
                                         }

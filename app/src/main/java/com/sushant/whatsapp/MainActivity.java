@@ -305,6 +305,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent2);
                 break;
 
+            case R.id.nav_friendRequest:
+                Intent intent3= new Intent(MainActivity.this,FriendRequestActivity.class);
+                startActivity(intent3);
+                break;
+
             case R.id.nav_link:
                 Intent intent1 = new Intent(MainActivity.this,LinkAccount.class);
                 startActivity(intent1);

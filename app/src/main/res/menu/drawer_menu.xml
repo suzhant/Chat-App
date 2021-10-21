@@ -17,6 +17,13 @@
             android:checked="false"
             android:checkable="true"
             android:title="Find Friend" />
+
+        <item
+            android:id="@+id/nav_friendRequest"
+            android:icon="@drawable/ic_friend_request"
+            android:checked="false"
+            android:checkable="true"
+            android:title="Friend Request" />
         <item
             android:id="@+id/nav_delete"
             android:icon="@drawable/ic_delete"

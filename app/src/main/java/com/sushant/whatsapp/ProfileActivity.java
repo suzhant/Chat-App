@@ -71,9 +71,22 @@ public class ProfileActivity extends AppCompatActivity {
                     for (DataSnapshot snapshot1:snapshot.getChildren()){
                         Users users=snapshot1.getValue(Users.class);
                         if (users.getUserId().equals(Receiverid)){
+                        if (users.getRequest().equals("Accepted")){
                             binding.btnAddFriend.setText("Unfriend");
                             binding.btnAddFriend.setBackgroundColor(Color.RED);
                             friend=true;
+                        }
+                        if (users.getRequest().equals("Req_Sent")){
+                            binding.btnAddFriend.setText("Cancel Friend Request");
+                            binding.btnAddFriend.setBackgroundColor(Color.RED);
+                            friend=true;
+                        }
+
+                        if (users.getRequest().equals("Req_Pending")){
+                            binding.btnAddFriend.setVisibility(View.GONE);
+                            binding.btnAccept.setVisibility(View.VISIBLE);
+                            binding.btnReject.setVisibility(View.VISIBLE);
+                        }
                         }
 //                        else{
 //                            binding.btnAddFriend.setText("Add Friend");
@@ -95,11 +108,13 @@ public class ProfileActivity extends AppCompatActivity {
                             user1.setMail(email);
                             user1.setUserName(userName);
                             user1.setUserId(Receiverid);
+                            user1.setRequest("Req_Sent");
 
                             Users user2 = new Users();
                             user2.setMail(user.getEmail());
                             user2.setUserName(sendername);
                             user2.setUserId(user.getUid());
+                            user2.setRequest("Req_Pending");
 
                             database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1);
                             database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
@@ -109,13 +124,46 @@ public class ProfileActivity extends AppCompatActivity {
 
                     }
                 });
+
+                binding.btnAccept.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Users user1 = new Users();
+                        user1.setMail(email);
+                        user1.setUserName(userName);
+                        user1.setUserId(Receiverid);
+                        user1.setRequest("Accepted");
+
+                        Users user2 = new Users();
+                        user2.setMail(user.getEmail());
+                        user2.setUserName(sendername);
+                        user2.setUserId(user.getUid());
+                        user2.setRequest("Accepted");
+
+                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1);
+                        database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                        binding.btnAccept.setVisibility(View.GONE);
+                        binding.btnReject.setVisibility(View.GONE);
+                        binding.btnAddFriend.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                binding.btnReject.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue();
+                        database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
+                        binding.btnAccept.setVisibility(View.GONE);
+                        binding.btnReject.setVisibility(View.GONE);
+                        binding.btnAddFriend.setVisibility(View.VISIBLE);
+                    }
+                });
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
-
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override

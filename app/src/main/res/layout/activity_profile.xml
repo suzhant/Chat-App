@@ -102,7 +102,30 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:backgroundTint="#09af00"
+                android:layout_centerHorizontal="true"
                 android:text="Add Friend" />
+
+            <Button
+                android:id="@+id/btnAccept"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#09af00"
+                android:layout_below="@+id/btnAddFriend"
+                android:visibility="gone"
+                android:text="Accept" />
+
+            <Button
+                android:id="@+id/btnReject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/red"
+                android:layout_below="@+id/btnAddFriend"
+                android:layout_toEndOf="@+id/btnAccept"
+                android:layout_marginLeft="4dp"
+                android:visibility="gone"
+                android:text="Reject" />
         </RelativeLayout>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
