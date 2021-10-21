@@ -64,6 +64,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         String receiverId = getIntent().getStringExtra("UserId");
         String userName = getIntent().getStringExtra("UserName");
         String profilePic = getIntent().getStringExtra("ProfilePic");
+        String email=getIntent().getStringExtra("userEmail");
         String Status = getIntent().getStringExtra("Status");
 
         binding.userName.setText(userName);
@@ -76,6 +77,19 @@ public class ChatDetailsActivity extends AppCompatActivity {
 ////            binding.txtStatus.setTextColor(Color.WHITE);
 //            binding.imgStatus.setColorFilter(Color.GRAY);
 //        }
+
+        binding.icSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            Intent intent= new Intent(getApplicationContext(),ProfileActivity.class);
+            intent.putExtra("UserIdPA",receiverId);
+            intent.putExtra("UserNamePA",userName);
+            intent.putExtra("ProfilePicPA",profilePic);
+            intent.putExtra("EmailPA",email);
+            startActivity(intent);
+            }
+        });
+
 
         Picasso.get().load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
         binding.backButton.setOnClickListener(new View.OnClickListener() {

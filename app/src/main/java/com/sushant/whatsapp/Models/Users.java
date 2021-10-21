@@ -1,7 +1,7 @@
 package com.sushant.whatsapp.Models;
 
 public class Users {
-    private String profilePic,userName,mail,password,userId,lastMessage,status,userStatus;
+    private String profilePic,userName,mail,password,userId,lastMessage,status,userStatus,request;
 
     public Users(String profilePic, String userName, String mail, String password, String userId, String lastMessage, String status) {
         this.profilePic = profilePic;
@@ -23,6 +23,13 @@ public class Users {
         this.password = password;
     }
 
+    public String getRequest() {
+        return request;
+    }
+
+    public void setRequest(String request) {
+        this.request = request;
+    }
 
     public String getUserStatus() {
         return userStatus;
