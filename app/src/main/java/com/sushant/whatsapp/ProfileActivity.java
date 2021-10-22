@@ -119,66 +119,6 @@ public class ProfileActivity extends AppCompatActivity {
 
                             database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1);
                             database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
-                            database.getReference().child("Users").child(user.getUid()).addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    if (snapshot.exists() && snapshot.hasChild("Friends")){
-                                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("Friends");
-                                                Query checkStatus = reference.orderByChild("userId").equalTo(Receiverid);
-                                                checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                        if (snapshot.exists()) {
-                                                            HashMap<String,Object> map= new HashMap<>();
-                                                            map.put("profilePic",profilePic);
-                                                            reference.child(Receiverid).updateChildren(map);
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                                    }
-                                                });
-                                            }
-                                    }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-
-                            database.getReference().child("Users").child(Receiverid).addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    if (snapshot.exists() && snapshot.hasChild("Friends")){
-                                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(Receiverid).child("Friends");
-                                                Query checkStatus = reference.orderByChild("userId").equalTo(user.getUid());
-                                                checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                        if (snapshot.exists()) {
-                                                            HashMap<String,Object> map= new HashMap<>();
-                                                            map.put("profilePic",user.getPhotoUrl().toString());
-                                                            reference.child(user.getUid()).updateChildren(map);
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                                    }
-                                                });
-                                        }
-                                    }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
-
                             binding.btnAddFriend.setText("Unfriend");
                             binding.btnAddFriend.setBackgroundColor(Color.RED);
                         }
