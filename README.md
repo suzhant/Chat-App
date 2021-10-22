@@ -13,6 +13,8 @@ First Android Project using Java.<br><br>
 <li>Password reset </li>
 <li>Account deletion</li>
 <li>Profile Settings</li>
+<li>Find friends</li>
+ 
   </i>
 </ul>
 
