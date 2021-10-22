@@ -26,6 +26,7 @@ import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
