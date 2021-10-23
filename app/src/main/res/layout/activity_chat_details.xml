@@ -12,16 +12,46 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/linear"
         android:layout_below="@+id/toolbar"
-        android:transcriptMode="alwaysScroll"
-        android:background="@color/chatbackground" />
+        android:background="@color/chatbackground"
+        android:transcriptMode="alwaysScroll" />
 
     <LinearLayout
         android:id="@+id/linear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/chatbackground"
+        android:background="@color/lightGrey"
         android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imgCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_camera"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            app:tint="@color/colorPrimary"
+            android:contentDescription="Capture Picture and Send" />
+
+        <ImageView
+            android:id="@+id/imgGallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_gallery"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            app:tint="@color/colorPrimary"
+            android:contentDescription="Send Pic from Gallery" />
+
+        <ImageView
+            android:id="@+id/imgMic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_mic"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            app:tint="@color/colorPrimary"
+            android:contentDescription="Record voice" />
 
         <EditText
             android:id="@+id/editMessage"
@@ -36,18 +66,29 @@
             android:inputType="textPersonName"
             android:padding="10dp" />
 
+<!--        <ImageView-->
+<!--            android:id="@+id/icFavorite"-->
+<!--            android:layout_width="40dp"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:layout_marginRight="5dp"-->
+<!--            android:scaleType="centerInside"-->
+<!--            app:srcCompat="@drawable/ic_favorite"-->
+<!--            app:tint="@color/red"-->
+<!--            tools:ignore="VectorDrawableCompat"-->
+<!--            android:layout_marginEnd="5dp" />-->
+
         <ImageView
             android:id="@+id/icSend"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_marginRight="5dp"
-            android:background="@drawable/round_shape"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/ic_send"
-            app:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_favorite"
             tools:ignore="VectorDrawableCompat"
             android:layout_marginEnd="5dp" />
+
 
 
     </LinearLayout>

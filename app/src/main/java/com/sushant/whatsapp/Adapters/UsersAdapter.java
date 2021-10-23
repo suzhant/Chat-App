@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,13 +59,14 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
         FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId())
                 .orderByChild("timestamp").limitToLast(1)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+                .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.hasChildren()) {
                             for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                                 String lastMsg=snapshot1.child("message").getValue(String.class);
                                 holder.lastMessage.setText(lastMsg);
+//                                holder.lastMessage.setTypeface(null, Typeface.BOLD);
                             }
                         }
                     }
@@ -78,13 +80,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         Query checkStatus = reference.orderByChild("userId").equalTo(users.getUserId());
-        checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+        checkStatus.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
-                    if (StatusFromDB.equals("online")){
+                    if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")){
                         holder.blackCircle.setVisibility(View.VISIBLE);
                         holder.blackCircle.setColorFilter(Color.GREEN);
                         holder.image.setBorderColor(Color.GREEN);
@@ -133,6 +135,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 //                intent.putExtra("UserName", users.getUserName());
 //                intent.putExtra("Status",users.getUserStatus());
 //                context.startActivity(intent);
+                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
             }
         });
 

@@ -130,7 +130,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
             super(itemView);
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
-
         }
     }
 }

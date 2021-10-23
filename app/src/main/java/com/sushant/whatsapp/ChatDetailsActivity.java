@@ -1,19 +1,26 @@
 package com.sushant.whatsapp;
 
+import static com.sushant.whatsapp.R.color.red;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,7 +51,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
     String userToken;
     Handler handler;
     Runnable runnable;
-    boolean notify=false;
+    boolean notify = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +71,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         String receiverId = getIntent().getStringExtra("UserId");
         String userName = getIntent().getStringExtra("UserName");
         String profilePic = getIntent().getStringExtra("ProfilePic");
-        String email=getIntent().getStringExtra("userEmail");
+        String email = getIntent().getStringExtra("userEmail");
         String Status = getIntent().getStringExtra("Status");
 
         binding.userName.setText(userName);
@@ -81,12 +88,12 @@ public class ChatDetailsActivity extends AppCompatActivity {
         binding.icSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            Intent intent= new Intent(getApplicationContext(),ProfileActivity.class);
-            intent.putExtra("UserIdPA",receiverId);
-            intent.putExtra("UserNamePA",userName);
-            intent.putExtra("ProfilePicPA",profilePic);
-            intent.putExtra("EmailPA",email);
-            startActivity(intent);
+                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                intent.putExtra("UserIdPA", receiverId);
+                intent.putExtra("UserNamePA", userName);
+                intent.putExtra("ProfilePicPA", profilePic);
+                intent.putExtra("EmailPA", email);
+                startActivity(intent);
             }
         });
 
@@ -102,7 +109,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         final ArrayList<Messages> messageModel = new ArrayList<>();
         final ChatAdapter chatAdapter = new ChatAdapter(messageModel, this, receiverId);
         binding.chatRecyclerView.setAdapter(chatAdapter);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         layoutManager.setStackFromEnd(true);
         binding.chatRecyclerView.setLayoutManager(layoutManager);
 
@@ -121,7 +128,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             Messages model = dataSnapshot.getValue(Messages.class);
                             model.setMessageId(dataSnapshot.getKey());
                             model.setProfilePic(profilePic);
-                                messageModel.add(model);
+                            messageModel.add(model);
 
                         }
 //                        Collections.sort(messageModel, (obj1, obj2) -> obj1.getTimestamp().compareTo(obj2.getTimestamp()));
@@ -142,14 +149,14 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         Query checkStatus = reference.orderByChild("userId").equalTo(receiverId);
-        checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+        checkStatus.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
                     binding.txtStatus.setText(StatusFromDB);
-                    if (StatusFromDB.equals("online")) {
+                    if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")) {
                         binding.imgStatus.setColorFilter(Color.GREEN);
                     } else {
                         binding.imgStatus.setColorFilter(Color.GRAY);
@@ -163,12 +170,64 @@ public class ChatDetailsActivity extends AppCompatActivity {
             }
         });
 
+//        binding.editMessage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                binding.imgCamera.setVisibility(View.GONE);
+//                binding.imgGallery.setVisibility(View.GONE);
+//                binding.imgMic.setVisibility(View.GONE);
+//            }
+//        });
+//
+//        binding.editMessage.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View view, boolean b) {
+//                if (binding.editMessage.getText().length()>0){
+//                    binding.icFavorite.setVisibility(View.GONE);
+//                    binding.icSend.setVisibility(View.VISIBLE);
+//                }else{
+//                    binding.icFavorite.setVisibility(View.VISIBLE);
+//                    binding.icSend.setVisibility(View.GONE);
+//                }
+//            }
+//        });
+
+        binding.editMessage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.length()>0) {
+                    binding.imgCamera.setVisibility(View.GONE);
+                    binding.imgGallery.setVisibility(View.GONE);
+                    binding.imgMic.setVisibility(View.GONE);
+                    binding.icSend.setImageResource(R.drawable.ic_send);
+                    binding.icSend.setColorFilter(getResources().getColor(R.color.colorPrimary));
+                    database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Connection").child("Status").setValue("Typing...");
+                } else {
+                    binding.imgCamera.setVisibility(View.VISIBLE);
+                    binding.imgGallery.setVisibility(View.VISIBLE);
+                    binding.imgMic.setVisibility(View.VISIBLE);
+                    binding.icSend.setImageResource(R.drawable.ic_favorite);
+                    binding.icSend.setColorFilter(getResources().getColor(red));
+                    database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Connection").child("Status").setValue("online");
+                }
+            }
+        });
+
 
         binding.icSend.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
-                notify=true;
+                notify = true;
                 binding.icSend.startAnimation(scale_down);
                 binding.icSend.startAnimation(scale_up);
                 final String message = binding.editMessage.getText().toString();
@@ -178,24 +237,23 @@ public class ChatDetailsActivity extends AppCompatActivity {
                     model.setTimestamp(date.getTime());
                     binding.editMessage.getText().clear();
 
-                        database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
-                            @RequiresApi(api = Build.VERSION_CODES.P)
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                Users users = snapshot.getValue(Users.class);
-                                String username = users.getUserName();
-                                if(notify){
-                                    sendNotification(receiverId, username, message);
-                                }
-                                notify=false;
+                    database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            Users users = snapshot.getValue(Users.class);
+                            String username = users.getUserName();
+                            if (notify) {
+                                sendNotification(receiverId, username, message);
                             }
+                            notify = false;
+                        }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                            }
-                        });
-
+                        }
+                    });
 
 
                     database.getReference().child("Chats").child(senderRoom).push().setValue(model)
@@ -210,8 +268,48 @@ public class ChatDetailsActivity extends AppCompatActivity {
                                     });
                                 }
                             });
+
                 } else {
-                    binding.editMessage.setError("Message cannot be empty!");
+                    notify = true;
+                    binding.icSend.startAnimation(scale_down);
+                    binding.icSend.startAnimation(scale_up);
+                    int unicode = 0x2764;
+                    final Messages model1 = new Messages(senderId,new String(Character.toChars(unicode)) , profilePic);
+                    Date date = new Date();
+                    model1.setTimestamp(date.getTime());
+                    binding.editMessage.getText().clear();
+
+                    database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            Users users = snapshot.getValue(Users.class);
+                            String username = users.getUserName();
+                            if (notify) {
+                                sendNotification(receiverId, username, message);
+                            }
+                            notify = false;
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+
+                    database.getReference().child("Chats").child(senderRoom).push().setValue(model1)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    database.getReference().child("Chats").child(receiverRoom).push().setValue(model1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+
+                                        }
+                                    });
+                                }
+                            });
                 }
 
             }
@@ -233,18 +331,18 @@ public class ChatDetailsActivity extends AppCompatActivity {
             }
         });
 
-        handler= new Handler();
-        runnable= new Runnable() {
+        handler = new Handler();
+        runnable = new Runnable() {
             @Override
             public void run() {
                 FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg, getApplicationContext(), ChatDetailsActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
-        if(notify){
-            handler.postDelayed(runnable,2000);
+        if (notify) {
+            handler.postDelayed(runnable, 2000);
         }
-        }
+    }
 
 //        void refresh(String text){
 //        Handler refresh= new Handler();

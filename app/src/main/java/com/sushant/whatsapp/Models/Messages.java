@@ -1,5 +1,7 @@
 package com.sushant.whatsapp.Models;
 
+import android.graphics.drawable.Drawable;
+
 import java.util.ArrayList;
 
 public class Messages {
@@ -11,8 +13,6 @@ public class Messages {
         this.message = message;
         this.timestamp = timestamp;
     }
-
-
     public Messages(String uId, String message) {
         this.uId = uId;
         this.message = message;
@@ -27,7 +27,6 @@ public class Messages {
         this.message = message;
         this.profilePic = profilePic;
     }
-
 
     public String getProfilePic() {
         return profilePic;
