@@ -64,5 +64,6 @@ dependencies {
     implementation 'com.github.imtuann:FloatingActionButtonExpandable:1.1.2'
 
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation "com.github.pgreze:android-reactions:1.6"
 
 }

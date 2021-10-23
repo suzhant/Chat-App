@@ -37,6 +37,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
     ArrayList<Users> list;
     Context context;
+    String lastMsg;
 
     public UsersAdapter(ArrayList<Users> list, Context context) {
         this.list = list;
@@ -64,9 +65,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.hasChildren()) {
                             for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                                String lastMsg=snapshot1.child("message").getValue(String.class);
+                                lastMsg=snapshot1.child("message").getValue(String.class);
                                 holder.lastMessage.setText(lastMsg);
 //                                holder.lastMessage.setTypeface(null, Typeface.BOLD);
+
                             }
                         }
                     }
@@ -93,6 +95,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                     }else {
                         holder.blackCircle.setVisibility(View.GONE);
                         holder.image.setBorderColor(Color.BLACK);
+                    }
+
+                    if (StatusFromDB.equals("Typing...")){
+                        holder.lastMessage.setText("Typing...");
+                    }else {
+                        holder.lastMessage.setText(lastMsg);
                     }
                 }
             }
