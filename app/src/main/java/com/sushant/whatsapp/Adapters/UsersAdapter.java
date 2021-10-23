@@ -67,8 +67,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                             for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                                 lastMsg=snapshot1.child("message").getValue(String.class);
                                 holder.lastMessage.setText(lastMsg);
-//                                holder.lastMessage.setTypeface(null, Typeface.BOLD);
-
+                                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
                             }
                         }
                     }
@@ -99,8 +98,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
                     if (StatusFromDB.equals("Typing...")){
                         holder.lastMessage.setText("Typing...");
+                        holder.lastMessage.setTypeface(null, Typeface.ITALIC);
                     }else {
                         holder.lastMessage.setText(lastMsg);
+                        holder.lastMessage.setTypeface(null, Typeface.NORMAL);
                     }
                 }
             }
@@ -143,7 +144,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 //                intent.putExtra("UserName", users.getUserName());
 //                intent.putExtra("Status",users.getUserStatus());
 //                context.startActivity(intent);
-                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
             }
         });
 
