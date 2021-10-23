@@ -274,7 +274,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
                     binding.icSend.startAnimation(scale_down);
                     binding.icSend.startAnimation(scale_up);
                     int unicode = 0x2764;
-                    final Messages model1 = new Messages(senderId,new String(Character.toChars(unicode)) , profilePic);
+                    String heart=new String(Character.toChars(unicode));
+                    final Messages model1 = new Messages(senderId,heart, profilePic);
                     Date date = new Date();
                     model1.setTimestamp(date.getTime());
                     binding.editMessage.getText().clear();
@@ -286,7 +287,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             Users users = snapshot.getValue(Users.class);
                             String username = users.getUserName();
                             if (notify) {
-                                sendNotification(receiverId, username, message);
+                                sendNotification(receiverId, username, heart);
                             }
                             notify = false;
                         }

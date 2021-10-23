@@ -88,7 +88,8 @@ public class ChatsFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getContext());
         binding.chatRecyclerView.setLayoutManager(layoutManager);
 
-        database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference ref1= database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid());
+         ValueEventListener eventListener=new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists() && snapshot.child("profilePic").exists() && snapshot.child("Friends").exists()){
@@ -134,7 +135,8 @@ public class ChatsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+
 
         database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends").addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
@@ -151,6 +153,7 @@ public class ChatsFragment extends Fragment {
                         }
                     }
                 }
+                ref1.addListenerForSingleValueEvent(eventListener);
                 adapter.notifyDataSetChanged();
 
             }
@@ -179,6 +182,7 @@ public class ChatsFragment extends Fragment {
                                 }
                             }
                         }
+                        ref1.addListenerForSingleValueEvent(eventListener);
                         adapter.notifyDataSetChanged();
 
                     }
