@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,7 +27,6 @@ import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -113,8 +113,12 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                 user2.setUserId(user.getUid());
                 user2.setRequest("Accepted");
 
-                database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).setValue(user1);
-                database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).setValue(user2);
+                database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).setValue(user2);
+                    }
+                });
                 holder.btnAccept.setVisibility(View.GONE);
                 holder.btnReject.setVisibility(View.GONE);
                 holder.txtResponse.setVisibility(View.VISIBLE);
@@ -125,8 +129,12 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
         holder.btnReject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).removeValue();
-                database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).removeValue();
+                database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).removeValue();
+                    }
+                });
                 holder.btnAccept.setVisibility(View.GONE);
                 holder.btnReject.setVisibility(View.GONE);
                 holder.txtResponse.setVisibility(View.VISIBLE);

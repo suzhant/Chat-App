@@ -2,16 +2,9 @@ package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,8 +13,12 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -51,6 +48,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
     String userToken;
     Handler handler;
     Runnable runnable;
+    String sendername;
     boolean notify = false;
 
     @Override
@@ -222,10 +220,24 @@ public class ChatDetailsActivity extends AppCompatActivity {
             }
         });
 
+        database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Users users = snapshot.getValue(Users.class);
+                sendername = users.getUserName();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
         binding.icSend.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
+            @RequiresApi(api = Build.VERSION_CODES.P)
             public void onClick(View view) {
                 notify = true;
                 binding.icSend.startAnimation(scale_down);
@@ -237,24 +249,10 @@ public class ChatDetailsActivity extends AppCompatActivity {
                     model.setTimestamp(date.getTime());
                     binding.editMessage.getText().clear();
 
-                    database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
-                        @RequiresApi(api = Build.VERSION_CODES.P)
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            Users users = snapshot.getValue(Users.class);
-                            String username = users.getUserName();
-                            if (notify) {
-                                sendNotification(receiverId, username, message);
-                            }
-                            notify = false;
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
+                    if (notify) {
+                        sendNotification(receiverId, sendername, message);
+                    }
+                    notify = false;
 
                     database.getReference().child("Chats").child(senderRoom).push().setValue(model)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -278,26 +276,11 @@ public class ChatDetailsActivity extends AppCompatActivity {
                     final Messages model1 = new Messages(senderId,heart, profilePic);
                     Date date = new Date();
                     model1.setTimestamp(date.getTime());
-                    binding.editMessage.getText().clear();
 
-                    database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
-                        @RequiresApi(api = Build.VERSION_CODES.P)
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            Users users = snapshot.getValue(Users.class);
-                            String username = users.getUserName();
-                            if (notify) {
-                                sendNotification(receiverId, username, heart);
-                            }
-                            notify = false;
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
+                    if (notify) {
+                        sendNotification(receiverId, sendername, heart);
+                    }
+                    notify = false;
 
                     database.getReference().child("Chats").child(senderRoom).push().setValue(model1)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {

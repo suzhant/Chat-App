@@ -1,27 +1,24 @@
 package com.sushant.whatsapp;
 
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
-import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.view.View;
-import android.widget.Toast;
-
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityProfileBinding;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -117,8 +114,13 @@ public class ProfileActivity extends AppCompatActivity {
                             user2.setUserId(user.getUid());
                             user2.setRequest("Req_Pending");
 
-                            database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1);
-                            database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                            database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                                }
+                            });
+
                             binding.btnAddFriend.setText("Unfriend");
                             binding.btnAddFriend.setBackgroundColor(Color.RED);
                         }
@@ -141,8 +143,12 @@ public class ProfileActivity extends AppCompatActivity {
                         user2.setUserId(user.getUid());
                         user2.setRequest("Accepted");
 
-                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1);
-                        database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                            }
+                        });
                         binding.btnAccept.setVisibility(View.GONE);
                         binding.btnReject.setVisibility(View.GONE);
                         binding.btnAddFriend.setVisibility(View.VISIBLE);
@@ -152,8 +158,12 @@ public class ProfileActivity extends AppCompatActivity {
                 binding.btnReject.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue();
-                        database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
+                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
+                            }
+                        });
                         binding.btnAccept.setVisibility(View.GONE);
                         binding.btnReject.setVisibility(View.GONE);
                         binding.btnAddFriend.setVisibility(View.VISIBLE);
