@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsApp">
         <activity
+            android:name=".DeleteAccount"
+            android:exported="false" />
+        <activity
             android:name=".NotificationReceiver"
             android:exported="false" />
         <activity

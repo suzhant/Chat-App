@@ -315,9 +315,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent1);
                 break;
 
-            case R.id.nav_delete:
-                showDeleteDialog();
-                break;
+//            case R.id.nav_delete:
+//                showDeleteDialog();
+//                break;
 
             case R.id.nav_logout:
                 Log.d("TAG", "onSuccess: logout started");
@@ -478,75 +478,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }).show();
     }
-
-    private void showDeleteDialog() {
-        final EditText edittext = new EditText(MainActivity.this);
-        edittext.setHint("Password");
-
-        AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Enter Password")
-                .setTitle("Delete Account")
-                .setCancelable(false)
-                .setView(edittext)
-                .setIcon(R.drawable.ic_delete)
-                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String pass= edittext.getText().toString();
-                        if (pass.isEmpty()){
-                            Toast.makeText(getApplicationContext(), "Empty Field not allowed.", Toast.LENGTH_SHORT).show();
-                            navigationView.getMenu().findItem(R.id.nav_delete).setChecked(false);
-                            return;
-                        }
-                       final FirebaseUser user=auth.getCurrentUser();
-                        assert user != null;
-                        AuthCredential credential;
-                        if (token == null) {
-                            credential = EmailAuthProvider.getCredential(user.getEmail(), edittext.getText().toString());
-                        } else {
-                            //Doesn't matter if it was Facebook Sign-in or others. It will always work using GoogleAuthProvider for whatever the provider.
-                            credential = GoogleAuthProvider.getCredential(token, null);
-                        }
-
-                        user.reauthenticate(credential)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            deleteUser(user.getUid());
-//                                            database.getReference().child("Users").child(auth.getUid()).removeValue();
-                                            Toast.makeText(getApplicationContext(), "Re-authenticated", Toast.LENGTH_SHORT).show();
-                                            user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()){
-                                                        Intent intent= new Intent(MainActivity.this,SignInActivity.class);
-                                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                        startActivity(intent);
-                                                        finish();
-                                                        Log.d("TAG", "onComplete: User deleted"+user.getEmail());
-                                                        Toast.makeText(getApplicationContext(), "User Account has been Deleted", Toast.LENGTH_SHORT).show();
-                                                    }else {
-                                                        Toast.makeText(getApplicationContext(), "Account couldn't be deleted", Toast.LENGTH_SHORT).show();
-                                                    }
-
-                                                }
-                                            });
-                                        } else {
-                                    Toast.makeText(getApplicationContext(),  task.getException().toString(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                    }
-                }).setNegativeButton("Exit", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                navigationView.getMenu().findItem(R.id.nav_delete).setChecked(false);
-                dialogInterface.dismiss();
-            }
-        }).show();
-    }
-
 
     void updateStatus(String status){
         HashMap<String,Object> obj= new HashMap<>();

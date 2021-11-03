@@ -33,5 +33,13 @@ public class Privacy extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        binding.btnDeleteAcc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                    Intent intent= new Intent(Privacy.this, DeleteAccount.class);
+                    startActivity(intent);
+            }
+        });
     }
 }
