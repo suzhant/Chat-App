@@ -1,0 +1,137 @@
+package com.sushant.whatsapp;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.databinding.ActivityDeleteAcccountBinding;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class DeleteAccount extends AppCompatActivity {
+    ActivityDeleteAcccountBinding binding;
+    FirebaseAuth auth;
+    DatabaseReference reference;
+    FirebaseDatabase database;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding=ActivityDeleteAcccountBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
+        auth = FirebaseAuth.getInstance();
+        database= FirebaseDatabase.getInstance();
+        reference=database.getReference().child("Users");
+
+        binding.getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideSoftKeyboard();
+            }
+        });
+
+        binding.btnDeleteAcc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String Pass = binding.editNewPass.getEditText().getText().toString().trim();
+                if (Pass.isEmpty()){
+                    emptyError(binding.editNewPass);
+                }
+
+                FirebaseUser user = auth.getCurrentUser();
+                assert user != null;
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(user.getEmail(), Pass);
+
+                user.reauthenticate(credential)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    deleteUser(user.getUid());
+                                    Toast.makeText(getApplicationContext(), "Re-authenticated", Toast.LENGTH_SHORT).show();
+                                    user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                Intent intent= new Intent(DeleteAccount.this,SignInActivity.class);
+                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                startActivity(intent);
+                                                finish();
+                                                Log.d("TAG", "onComplete: User deleted"+user.getEmail());
+                                                Toast.makeText(getApplicationContext(), "User Account has been Deleted", Toast.LENGTH_SHORT).show();
+                                            }else {
+                                                Toast.makeText(getApplicationContext(), "Account couldn't be deleted", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                        }
+                                    });
+                                } else {
+                                    binding.editNewPass.setError("Wrong Password");
+//                                    Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+        });
+
+
+        binding.txtMainPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(DeleteAccount.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+    public void hideSoftKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    public void emptyError(TextInputLayout password){
+        password.setErrorEnabled(true);
+        password.setError("Field cannot be empty");
+        password.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error)));
+        password.requestFocus();
+    }
+
+    void deleteUser(String userid){
+        HashMap<String,Object> obj= new HashMap<>();
+        obj.put(userid,null);
+        reference.updateChildren(obj);
+    }
+}
