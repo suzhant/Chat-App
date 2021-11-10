@@ -88,6 +88,7 @@ import com.sushant.whatsapp.databinding.ActivityMainBinding;
 
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NavigationView navigationView;
     TabLayout tabLayout;
     ViewPager viewPager;
-    TextView nav_username, nav_email,nav_verify;
+    TextView nav_username, nav_email,nav_verify,txtUserName;
     CircleImageView nav_profile;
     FirebaseAuth auth;
     FirebaseDatabase database;
@@ -124,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
+
+
         database= FirebaseDatabase.getInstance();
         reference=database.getReference().child("Users");
         auth = FirebaseAuth.getInstance();
@@ -140,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
         navigationView.setNavigationItemSelectedListener(this);
+        txtUserName=findViewById(R.id.txtUserName);
 
 
         viewPager.setAdapter(new FragmentsAdapter(getSupportFragmentManager()));
@@ -167,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Picasso.get().load(user.getProfilePic()).placeholder(R.drawable.avatar).into(nav_profile);
                         nav_email.setText(user.getMail());
                         nav_username.setText(user.getUserName());
+                        txtUserName.setText(user.getUserName().toUpperCase(Locale.ROOT));
                     }
 
                     @Override
@@ -174,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     }
                 });
+
 
         //check email verification
         FirebaseUser user=auth.getCurrentUser();

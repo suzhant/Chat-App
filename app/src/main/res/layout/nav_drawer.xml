@@ -26,12 +26,13 @@
             android:transitionName="login_whatsapp" />
 
         <TextView
-            android:id="@+id/txtNoConnection"
+            android:id="@+id/txtUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No Internet Connection"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone"/>
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="15dp"
+            android:layout_gravity="center_horizontal" />
     </androidx.appcompat.widget.Toolbar>
 
     <com.google.android.material.tabs.TabLayout
