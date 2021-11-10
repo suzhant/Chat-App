@@ -137,7 +137,7 @@ public class FindFriendActivity extends AppCompatActivity{
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
                     if (!users.getUserId().equals(user.getUid())){
-                        if (users.getUserName().equalsIgnoreCase(query.toLowerCase())|| users.getMail().equalsIgnoreCase(query.toLowerCase())){
+                        if (users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
                             list.add(users);
                         }
                     }

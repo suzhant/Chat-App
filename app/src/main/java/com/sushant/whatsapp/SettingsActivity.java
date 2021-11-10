@@ -75,7 +75,45 @@ public class SettingsActivity extends AppCompatActivity {
                 obj.put("status",about);
 
                 database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid())
-                        .updateChildren(obj);
+                        .updateChildren(obj).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()){
+                                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                        Users users=snapshot1.getValue(Users.class);
+                                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+                                        Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+                                        checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                if (snapshot.exists()) {
+                                                    HashMap<String,Object> obj1= new HashMap<>();
+                                                    obj1.put("userName",username);
+                                                    obj1.put("status",about);
+                                                    reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                });
+
                 binding.editAbout.clearFocus();
                 binding.editUserName.clearFocus();
                 Toast.makeText(SettingsActivity.this, "Profile Update", Toast.LENGTH_SHORT).show();
