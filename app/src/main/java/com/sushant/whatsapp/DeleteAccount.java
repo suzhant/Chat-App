@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityDeleteAcccountBinding;
@@ -76,6 +77,7 @@ public class DeleteAccount extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
+                                    deleteUserFromFriends(user.getUid());
                                     deleteUser(user.getUid());
                                     Toast.makeText(getApplicationContext(), "Re-authenticated", Toast.LENGTH_SHORT).show();
                                     user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -127,6 +129,43 @@ public class DeleteAccount extends AppCompatActivity {
         password.setError("Field cannot be empty");
         password.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error)));
         password.requestFocus();
+    }
+
+    void deleteUserFromFriends(String userid){
+        database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+                        Users users=snapshot1.getValue(Users.class);
+                        if (users.getUserId()!=userid){
+                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+                            Query checkStatus = reference1.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        HashMap<String,Object> map= new HashMap<>();
+                                        map.put(userid,null);
+                                        reference1.updateChildren(map);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     void deleteUser(String userid){
