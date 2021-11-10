@@ -134,7 +134,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                     assert users != null;
                     if (!users.getUserId().equals(user.getUid())){
                         if (users.getRequest().equals("Req_Pending")){
-                            if (users.getUserName().contains(query.toLowerCase())|| users.getMail().equalsIgnoreCase(query.toLowerCase())){
+                            if (users.getUserName().equalsIgnoreCase(query.toLowerCase())|| users.getMail().equalsIgnoreCase(query.toLowerCase())){
                                 list.add(users);
                             }
                         }

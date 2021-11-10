@@ -86,11 +86,6 @@ public class ProfileActivity extends AppCompatActivity {
                             binding.btnReject.setVisibility(View.VISIBLE);
                         }
                         }
-//                        else{
-//                            binding.btnAddFriend.setText("Add Friend");
-//                            binding.btnAddFriend.setBackgroundColor(0x09af00);
-//                            friend=false;
-//                        }
                     }
                 }
                 binding.btnAddFriend.setOnClickListener(new View.OnClickListener() {
