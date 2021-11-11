@@ -1,23 +1,20 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,8 +29,6 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivitySettingsBinding;
 
 import java.util.HashMap;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -179,6 +174,7 @@ public class SettingsActivity extends AppCompatActivity {
                                     if (snapshot.exists()){
                                         for (DataSnapshot snapshot1:snapshot.getChildren()){
                                             Users users=snapshot1.getValue(Users.class);
+                                            assert users != null;
                                             DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
                                             Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
                                             checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {

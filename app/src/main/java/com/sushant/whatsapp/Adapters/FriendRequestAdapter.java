@@ -27,6 +27,7 @@ import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -101,22 +102,16 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
         holder.btnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Users user1 = new Users();
-                user1.setMail(users.getMail());
-                user1.setUserName(users.getUserName());
-                user1.setUserId(users.getUserId());
-                user1.setRequest("Accepted");
+                HashMap<String,Object> obj1= new HashMap<>();
+                obj1.put("request","Accepted");
 
-                Users user2 = new Users();
-                user2.setMail(user.getEmail());
-                user2.setUserName(sendername);
-                user2.setUserId(user.getUid());
-                user2.setRequest("Accepted");
+                HashMap<String,Object> obj2= new HashMap<>();
+                obj2.put("request","Accepted");
 
-                database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).updateChildren(obj1).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).setValue(user2);
+                        database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).updateChildren(obj2);
                     }
                 });
                 holder.btnAccept.setVisibility(View.GONE);

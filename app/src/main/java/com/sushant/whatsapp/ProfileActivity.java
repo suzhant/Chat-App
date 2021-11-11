@@ -25,7 +25,7 @@ public class ProfileActivity extends AppCompatActivity {
     ActivityProfileBinding binding;
     FirebaseDatabase database;
     boolean friend=false;
-    String sendername;
+    String sendername,pp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
                         Users user = snapshot.getValue(Users.class);
                         assert user != null;
                        sendername=user.getUserName();
+                       pp=user.getProfilePic();
                     }
 
                     @Override
@@ -101,12 +102,14 @@ public class ProfileActivity extends AppCompatActivity {
                             user1.setMail(email);
                             user1.setUserName(userName);
                             user1.setUserId(Receiverid);
+                            user1.setProfilePic(profilePic);
                             user1.setRequest("Req_Sent");
 
                             Users user2 = new Users();
                             user2.setMail(user.getEmail());
                             user2.setUserName(sendername);
                             user2.setUserId(user.getUid());
+                            user2.setProfilePic(pp);
                             user2.setRequest("Req_Pending");
 
                             database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {

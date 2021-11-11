@@ -87,7 +87,6 @@ public class DeleteAccount extends AppCompatActivity {
                                                 Intent intent= new Intent(DeleteAccount.this,SignInActivity.class);
                                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                                 startActivity(intent);
-                                                finish();
                                                 Log.d("TAG", "onComplete: User deleted"+user.getEmail());
                                                 Toast.makeText(getApplicationContext(), "User Account has been Deleted", Toast.LENGTH_SHORT).show();
                                             }else {
