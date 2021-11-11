@@ -173,7 +173,7 @@ public class SettingsActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Uri uri) {
                             database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("profilePic").setValue(uri.toString());
-                            database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
+                            database.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     if (snapshot.exists()){

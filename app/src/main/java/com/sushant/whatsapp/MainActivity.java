@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ValueEventListener eventListener;
     DatabaseReference infoConnected;
     BroadcastReceiver broadcastReceiver;
-    String token;
     DatabaseReference reference;
 
 
@@ -134,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         broadcastReceiver=new InternetCheckServices();
         registerBroadcastReceiver();
 
-        token=getIntent().getStringExtra("googleToken");
         manageConnection();
 
 
@@ -489,12 +487,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status",status);
         reference.child(auth.getUid()).child("Connection").updateChildren(obj);
-    }
-
-    void deleteUser(String userid){
-        HashMap<String,Object> obj= new HashMap<>();
-        obj.put(userid,null);
-       reference.updateChildren(obj);
     }
 
 
