@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -129,7 +131,8 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull  DataSnapshot snapshot) {
                         Users user= snapshot.getValue(Users.class);
-                        Picasso.get().load(user.getProfilePic()).placeholder(R.drawable.avatar).into(binding.imgProfile);
+                        Glide.with(getApplicationContext()).load(user.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .into(binding.imgProfile);
                         binding.editUserName.setText(user.getUserName());
                         binding.editAbout.setText(user.getStatus());
                     }
