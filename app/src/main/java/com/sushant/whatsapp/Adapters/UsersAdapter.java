@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.common.data.DataHolder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -55,7 +57,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
     @Override
     public void onBindViewHolder(@NonNull UsersAdapter.viewHolder holder, @SuppressLint("RecyclerView") int position) {
         Users users = list.get(position);
-        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.avatar).into(holder.image);
+//        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.avatar).into(holder.image);
+        Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.image);
         holder.userName.setText(users.getUserName());
 
         FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId())

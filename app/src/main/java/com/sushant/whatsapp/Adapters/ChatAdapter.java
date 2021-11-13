@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -69,7 +71,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
             if (message.getType().equals("photo")){
                 ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                Picasso.get().load(message.getMessage()).placeholder(R.drawable.placeholder).into(((SenderViewHolder) holder).imgSender);
+                Glide.with(context).load(message.getMessage()).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(((SenderViewHolder) holder).imgSender);
             }else{
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
             }
@@ -81,13 +84,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
             if (message.getType().equals("photo")){
                 ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                Picasso.get().load(message.getMessage()).placeholder(R.drawable.placeholder).into(((ReceiverViewHolder) holder).imgReceiver);
+                Glide.with(context).load(message.getMessage()).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(((ReceiverViewHolder) holder).imgReceiver);
+
             }else {
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
             }
                 SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
                 ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
-                Picasso.get().load(message.getProfilePic()).placeholder(R.drawable.avatar).into( ((ReceiverViewHolder) holder).profilepic);
+            Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(((ReceiverViewHolder) holder).profilepic);
         }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {

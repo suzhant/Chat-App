@@ -23,6 +23,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -119,7 +121,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
         });
 
 
-        Picasso.get().load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
+        Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.profileImage);
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

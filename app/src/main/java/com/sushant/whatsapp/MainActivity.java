@@ -31,6 +31,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -131,7 +133,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         Users user = snapshot.getValue(Users.class);
                         assert user != null;
-                        Picasso.get().load(user.getProfilePic()).placeholder(R.drawable.avatar).into(nav_profile);
+                        Glide.with(getApplicationContext()).load(user.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .into(nav_profile);
                         nav_email.setText(user.getMail());
                         nav_username.setText(user.getUserName());
                         txtUserName.setText(user.getUserName().toUpperCase(Locale.ROOT));
