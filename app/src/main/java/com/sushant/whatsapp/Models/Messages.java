@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable;
 import java.util.ArrayList;
 
 public class Messages {
-    private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName;
+    private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName,type;
     private Long timestamp;
 
     public Messages(String uId, String message, Long timestamp) {
@@ -66,5 +66,14 @@ public class Messages {
 
     public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
+    }
+
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

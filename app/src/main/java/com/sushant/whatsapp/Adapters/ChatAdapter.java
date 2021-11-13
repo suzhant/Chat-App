@@ -1,13 +1,13 @@
 package com.sushant.whatsapp.Adapters;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.media.Image;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,15 +17,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.pgreze.reactions.ReactionPopup;
-import com.github.pgreze.reactions.ReactionsConfig;
-import com.github.pgreze.reactions.ReactionsConfigBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.R;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,14 +66,28 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Messages message = messageModel.get(position);
         if (holder.getClass() == SenderViewHolder.class) {
-            ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
+            if (message.getType().equals("photo")){
+                ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
+                ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
+                Picasso.get().load(message.getMessage()).placeholder(R.drawable.placeholder).into(((SenderViewHolder) holder).imgSender);
+            }else{
+                ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
+            }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
+
+
         } else {
-            ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
-            SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
-            ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
-            Picasso.get().load(message.getProfilePic()).placeholder(R.drawable.avatar).into( ((ReceiverViewHolder) holder).profilepic);
+            if (message.getType().equals("photo")){
+                ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
+                ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                Picasso.get().load(message.getMessage()).placeholder(R.drawable.placeholder).into(((ReceiverViewHolder) holder).imgReceiver);
+            }else {
+                ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
+            }
+                SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
+                ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
+                Picasso.get().load(message.getProfilePic()).placeholder(R.drawable.avatar).into( ((ReceiverViewHolder) holder).profilepic);
         }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -121,22 +133,26 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public class ReceiverViewHolder extends RecyclerView.ViewHolder {
         private TextView txtReceiver, txtReceiverTime;
         private CircleImageView profilepic;
+        private ImageView imgReceiver;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
             txtReceiver = itemView.findViewById(R.id.txtGroupReceiver);
             txtReceiverTime = itemView.findViewById(R.id.txtGroupReceiverTime);
             profilepic=itemView.findViewById(R.id.group_profile_image);
+            imgReceiver=itemView.findViewById(R.id.imgReceiver);
         }
     }
 
     public class SenderViewHolder extends RecyclerView.ViewHolder {
         private TextView txtSender, txtSenderTime;
+        private ImageView imgSender;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
+            imgSender=itemView.findViewById(R.id.imgSender);
         }
     }
 }

@@ -66,4 +66,6 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation "com.github.pgreze:android-reactions:1.6"
 
+    implementation 'com.iceteck.silicompressorr:silicompressor:2.2.4'
+
 }
