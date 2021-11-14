@@ -90,7 +90,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
             NotificationChannel channel = new NotificationChannel(
                     channelId,
                     "Channel human readable title",
-                    NotificationManager.IMPORTANCE_HIGH);
+                    NotificationManager.IMPORTANCE_LOW);
 //            channel.setSound(Uri.parse(path),audioAttributes);
             mNotificationManager.createNotificationChannel(channel);
             builder.setChannelId(channelId);
