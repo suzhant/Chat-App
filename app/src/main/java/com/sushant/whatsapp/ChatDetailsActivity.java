@@ -5,11 +5,13 @@ import static com.sushant.whatsapp.R.color.red;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -54,6 +56,7 @@ import java.util.Date;
 public class ChatDetailsActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "notification";
+    public static final int PICK_IMAGE = 1;
     ActivityChatDetailsBinding binding;
     FirebaseDatabase database;
     FirebaseAuth auth;
@@ -138,6 +141,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         binding.chatRecyclerView.setLayoutManager(layoutManager);
 
 
+
         senderRoom = senderId + receiverId;
         receiverRoom = receiverId + senderId;
 
@@ -155,6 +159,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             messageModel.add(model);
 
                         }
+                        binding.chatRecyclerView.getRecycledViewPool().clear();
+                        chatAdapter.notifyDataSetChanged();
 //                        Collections.sort(messageModel, (obj1, obj2) -> obj1.getTimestamp().compareTo(obj2.getTimestamp()));
                         if (count == 0) {
                             chatAdapter.notifyDataSetChanged();
@@ -333,7 +339,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 Intent intent=new Intent();
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
-                startActivityForResult(intent,13);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
             }
         });
     }
@@ -371,25 +377,36 @@ public class ChatDetailsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode==13){
-            if (data.getData()!=null){
-                Uri selectedImage= data.getData();
-                String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage),this.getCacheDir());;
-                Calendar calendar= Calendar.getInstance();
-                Uri uri=Uri.parse(file);
-                final StorageReference reference=storage.getReference().child("Chats Images").child(FirebaseAuth.getInstance().getUid()).child(calendar.getTimeInMillis() + "");
-                dialog.show();
-                reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @RequiresApi(api = Build.VERSION_CODES.P)
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()){
-                            dialog.dismiss();
-                            reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @RequiresApi(api = Build.VERSION_CODES.P)
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    String filePath= uri.toString();
+        if (requestCode==PICK_IMAGE){
+            if (data!=null) {
+                if (data.getData() != null) {
+                    Uri selectedImage = data.getData();
+                    File dir = getCacheDir();
+                    String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
+                    Calendar calendar = Calendar.getInstance();
+                    Uri uri = Uri.parse(file);
+                    final StorageReference reference = storage.getReference().child("Chats Images").child(FirebaseAuth.getInstance().getUid()).child(calendar.getTimeInMillis() + "");
+                    dialog.show();
+                    reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            File fdelete = new File(getFilePath(uri));
+
+                            if (fdelete.exists()) {
+                                if (fdelete.delete()) {
+                                    System.out.println("file Deleted :");
+                                } else {
+                                    System.out.println("file not Deleted :");
+                                }
+                            }
+                            if (task.isSuccessful()) {
+                                dialog.dismiss();
+                                reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @RequiresApi(api = Build.VERSION_CODES.P)
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        String filePath = uri.toString();
 
                                         notify = true;
                                         final Messages model = new Messages(senderId, filePath, profilePic);
@@ -417,14 +434,30 @@ public class ChatDetailsActivity extends AppCompatActivity {
                                                 });
 
                                     }
-                            });
+                                });
+                            }
                         }
-                    }
-                });
+                    });
 
+                }
             }
         }
     }
+    private String getFilePath(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(projection[0]);
+            String picturePath = cursor.getString(columnIndex); // returns null
+            cursor.close();
+            return picturePath;
+        }
+        return null;
+    }
+
 
 
 }

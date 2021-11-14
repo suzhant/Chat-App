@@ -71,7 +71,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
             if (message.getType().equals("photo")){
                 ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                Glide.with(context).load(message.getMessage()).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
+                Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getMessage()).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(((SenderViewHolder) holder).imgSender);
             }else{
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
@@ -84,7 +85,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
             if (message.getType().equals("photo")){
                 ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                Glide.with(context).load(message.getMessage()).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
+                Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getMessage()).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(((ReceiverViewHolder) holder).imgReceiver);
 
             }else {
