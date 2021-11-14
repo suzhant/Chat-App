@@ -40,9 +40,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.iceteck.silicompressorr.FileUtils;
 import com.iceteck.silicompressorr.SiliCompressor;
-import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Adapters.ChatAdapter;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
@@ -55,7 +53,6 @@ import java.util.Date;
 
 public class ChatDetailsActivity extends AppCompatActivity {
 
-    private static final String CHANNEL_ID = "notification";
     public static final int PICK_IMAGE = 1;
     ActivityChatDetailsBinding binding;
     FirebaseDatabase database;

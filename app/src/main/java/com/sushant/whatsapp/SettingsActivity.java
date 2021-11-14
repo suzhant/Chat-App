@@ -158,60 +158,61 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data.getData()!=null){
-            Uri sFile= data.getData();
-            binding.imgProfile.setImageURI(sFile);
+        if (data!=null){
+            if (data.getData()!=null) {
+                Uri sFile = data.getData();
+                binding.imgProfile.setImageURI(sFile);
 
-            final StorageReference reference= storage.getReference().child("Profile Pictures").child(FirebaseAuth.getInstance().getUid());
+                final StorageReference reference = storage.getReference().child("Profile Pictures").child(FirebaseAuth.getInstance().getUid());
 
-            reference.putFile(sFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("profilePic").setValue(uri.toString());
-                            database.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    if (snapshot.exists()){
-                                        for (DataSnapshot snapshot1:snapshot.getChildren()){
-                                            Users users=snapshot1.getValue(Users.class);
-                                            assert users != null;
-                                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
-                                            Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-                                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                    if (snapshot.exists()) {
-                                                        HashMap<String,Object> map= new HashMap<>();
-                                                        map.put("profilePic",uri.toString());
-                                                        reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(map);
+                reference.putFile(sFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("profilePic").setValue(uri.toString());
+                                database.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        if (snapshot.exists()) {
+                                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                                                Users users = snapshot1.getValue(Users.class);
+                                                assert users != null;
+                                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+                                                Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+                                                checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                        if (snapshot.exists()) {
+                                                            HashMap<String, Object> map = new HashMap<>();
+                                                            map.put("profilePic", uri.toString());
+                                                            reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(map);
+                                                        }
                                                     }
-                                                }
 
-                                                @Override
-                                                public void onCancelled(@NonNull DatabaseError error) {
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
 
-                                                }
-                                            });
+                                                    }
+                                                });
+                                            }
                                         }
                                     }
-                                }
 
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
 
-                                }
-                            });
+                                    }
+                                });
 
 
-                            Toast.makeText(SettingsActivity.this, "Profile Pic Updated", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
-
+                                Toast.makeText(SettingsActivity.this, "Profile Pic Updated", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+            }
         }
     }
 
