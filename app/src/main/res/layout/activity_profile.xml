@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorPurple"
     tools:context=".ProfileActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -72,7 +72,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
                 android:text="Email :"
@@ -100,32 +100,32 @@
                 android:id="@+id/btnAddFriend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:backgroundTint="#09af00"
-                android:layout_centerHorizontal="true"
                 android:text="Add Friend" />
 
             <Button
                 android:id="@+id/btnAccept"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/btnAddFriend"
                 android:layout_marginTop="10dp"
                 android:backgroundTint="#09af00"
-                android:layout_below="@+id/btnAddFriend"
-                android:visibility="gone"
-                android:text="Accept" />
+                android:text="Accept"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/btnReject"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/red"
                 android:layout_below="@+id/btnAddFriend"
-                android:layout_toEndOf="@+id/btnAccept"
                 android:layout_marginLeft="4dp"
-                android:visibility="gone"
-                android:text="Reject" />
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@+id/btnAccept"
+                android:backgroundTint="@color/red"
+                android:text="Reject"
+                android:visibility="gone" />
         </RelativeLayout>
 
     </androidx.appcompat.widget.LinearLayoutCompat>

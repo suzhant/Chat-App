@@ -50,7 +50,7 @@
         android:layout_gravity="bottom|right"
         android:layout_margin="15dp"
         app:fab_text_color="@android:color/white"
-        app:fab_bg_color="#00796B"
+        app:fab_bg_color="@color/colorPurple"
         app:fab_icon="@drawable/ic_message_white_24dp"
         app:fab_duration="100"
         app:fab_text_size="15dp"

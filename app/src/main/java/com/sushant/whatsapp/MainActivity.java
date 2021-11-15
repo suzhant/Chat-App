@@ -267,10 +267,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
                 break;
 
-            case R.id.nav_groupChat:
-                Intent intent = new Intent(MainActivity.this, GroupChatActivity.class);
-                startActivity(intent);
-                break;
+//            case R.id.nav_groupChat:
+//                Intent intent = new Intent(MainActivity.this, GroupChatActivity.class);
+//                startActivity(intent);
+//                break;
 
             case R.id.nav_findFriend:
                 Intent intent2= new Intent(MainActivity.this,FindFriendActivity.class);

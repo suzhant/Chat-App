@@ -104,7 +104,7 @@ public class SignInActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
-        broadcastReceiver=new InternetCheckServices();
+        broadcastReceiver = new InternetCheckServices();
         registerBroadcastReceiver();
 
         auth = FirebaseAuth.getInstance();
@@ -117,7 +117,7 @@ public class SignInActivity extends AppCompatActivity {
         binding.txtForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent= new Intent(SignInActivity.this,ForgotPassword.class);
+                Intent intent = new Intent(SignInActivity.this, ForgotPassword.class);
                 startActivity(intent);
             }
         });
@@ -208,8 +208,8 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hideSoftKeyboard(SignInActivity.this);
-                CheckConnection checkConnection= new CheckConnection();
-                if (!checkConnection.isConnected(getApplicationContext())){
+                CheckConnection checkConnection = new CheckConnection();
+                if (!checkConnection.isConnected(getApplicationContext())) {
                     showCustomDialog();
                     return;
                 }
@@ -223,14 +223,13 @@ public class SignInActivity extends AppCompatActivity {
                     binding.editEmail.setError("Field cannot be empty");
                     binding.editPass.setError("Field cannot be empty");
                     return;
-                }else if (!emailValidation() | !passValidation()){
-                        return;
+                } else if (!emailValidation() | !passValidation()) {
+                    return;
                 }
                 performAuth(email, pass);
 
             }
         });
-
 
 
         binding.txtSignUp.setOnClickListener(new View.OnClickListener() {
@@ -258,22 +257,22 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     //check connection
-    private void registerBroadcastReceiver(){
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    private void registerBroadcastReceiver() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
 
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
 
     }
 
-    private void unregisterNetwork(){
+    private void unregisterNetwork() {
         try {
             unregisterReceiver(broadcastReceiver);
 
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -340,7 +339,7 @@ public class SignInActivity extends AppCompatActivity {
                             editor.apply();
 
                             Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                            intent.putExtra("googleToken",idToken);
+                            intent.putExtra("googleToken", idToken);
                             startActivity(intent);
                             Toast.makeText(SignInActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
 
@@ -399,10 +398,9 @@ public class SignInActivity extends AppCompatActivity {
             binding.editEmail.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error)));
             binding.editEmail.requestFocus();
             return false;
-        }
-        else {
+        } else {
             binding.editEmail.setErrorEnabled(false);
-            binding.editEmail.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
+            binding.editEmail.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPurple)));
             binding.editEmail.clearFocus();
             return true;
         }
@@ -418,14 +416,14 @@ public class SignInActivity extends AppCompatActivity {
             return false;
         } else {
             binding.editPass.setErrorEnabled(false);
-            binding.editPass.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
+            binding.editPass.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPurple)));
             binding.editPass.clearFocus();
             return true;
         }
     }
 
     private void showCustomDialog() {
-        AlertDialog.Builder builder= new AlertDialog.Builder(SignInActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(SignInActivity.this);
         builder.setMessage("Please connect to the internet to proceed forward")
                 .setTitle("No Connection")
                 .setCancelable(false)
@@ -442,10 +440,10 @@ public class SignInActivity extends AppCompatActivity {
         }).show();
     }
 
-    public void hideSoftKeyboard(Activity activity){
-        View view=this.getCurrentFocus();
-        if (view!=null){
-            InputMethodManager imm =(InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+    public void hideSoftKeyboard(Activity activity) {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
