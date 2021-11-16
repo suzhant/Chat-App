@@ -20,6 +20,8 @@ First Android Project using Java.<br><br>
 
 # ScreenShots
 
-<img src="images/Biometric%20login.png" width="250"> <img src="images/Email%20not%20verified.png" width="250"> <img src="images/Home%20Page.png" width="250">
-<img src="images/Navigation%20drawer.png" width="250"> <img src="images/Sign%20In%20Page.png" width="250"> <img src="images/Sign%20Up%20Page.png" width="250">
-<img src="images/setting%20page.png" width="250"> <img src="images/chat%20room.png" width="250"> <img src="images/emailPassUpdate.png" width="250">
+<img src="images/Screenshot_1637049526.png" width="250"> <img src="images/Screenshot_1637049532.png" width="250"> <img src="images/Screenshot_1637049538.png" width="250">
+<img src="images/Screenshot_1637049544.png" width="250"> <img src="Screenshot_1637049548.png" width="250"> <img src="images/Screenshot_1637049552.png" width="250">
+<img src="images/Screenshot_1637049567.png" width="250"> <img src="images/Screenshot_1637050331.png" width="250"> <img src="images/Screenshot_1637050623.png" width="250">
+<img src="images/Screenshot_1637050828.png" width="250"> <img src="images/Screenshot_1637050936.png" width="250"> <img src="images/Screenshot_1637050954.png" width="250">
+<img src="images/Screenshot_1637050970.png" width="250"> <img src="images/Screenshot_1637051590.png" width="250">
