@@ -7,6 +7,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,13 +21,14 @@ import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityProfileBinding;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 public class ProfileActivity extends AppCompatActivity {
     ActivityProfileBinding binding;
     FirebaseDatabase database;
     boolean friend=false;
-    String sendername,pp;
+    String sendername,pp,userStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +44,12 @@ public class ProfileActivity extends AppCompatActivity {
         String profilePic = getIntent().getStringExtra("ProfilePicPA");
         String email=getIntent().getStringExtra("EmailPA");
         String Receiverid=getIntent().getStringExtra("UserIdPA");
+        String status=getIntent().getStringExtra("StatusPA");
 
-        Picasso.get().load(profilePic).placeholder(R.drawable.avatar).into(binding.imgProfile);
+        Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.imgProfile);
         binding.txtEmail.setText(email);
         binding.txtUserName.setText(userName);
+        binding.txtAbout.setText(status);
 
         FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
         database.getReference().child("Users").child(Objects.requireNonNull(user.getUid()))
@@ -55,6 +60,7 @@ public class ProfileActivity extends AppCompatActivity {
                         assert user != null;
                        sendername=user.getUserName();
                        pp=user.getProfilePic();
+                       userStatus=user.getStatus();
                     }
 
                     @Override
@@ -72,7 +78,7 @@ public class ProfileActivity extends AppCompatActivity {
                         if (users.getUserId().equals(Receiverid)){
                         if (users.getRequest().equals("Accepted")){
                             binding.btnAddFriend.setText("Unfriend");
-                            binding.btnAddFriend.setBackgroundColor(Color.RED);
+                            binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
                             friend=true;
                         }
                         if (users.getRequest().equals("Req_Sent")){
@@ -103,6 +109,7 @@ public class ProfileActivity extends AppCompatActivity {
                             user1.setUserName(userName);
                             user1.setUserId(Receiverid);
                             user1.setProfilePic(profilePic);
+                            user1.setStatus(status);
                             user1.setRequest("Req_Sent");
 
                             Users user2 = new Users();
@@ -110,6 +117,7 @@ public class ProfileActivity extends AppCompatActivity {
                             user2.setUserName(sendername);
                             user2.setUserId(user.getUid());
                             user2.setProfilePic(pp);
+                            user2.setStatus(userStatus);
                             user2.setRequest("Req_Pending");
 
                             database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -129,22 +137,16 @@ public class ProfileActivity extends AppCompatActivity {
                 binding.btnAccept.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Users user1 = new Users();
-                        user1.setMail(email);
-                        user1.setUserName(userName);
-                        user1.setUserId(Receiverid);
-                        user1.setRequest("Accepted");
+                        HashMap<String,Object> obj1= new HashMap<>();
+                        obj1.put("request","Accepted");
 
-                        Users user2 = new Users();
-                        user2.setMail(user.getEmail());
-                        user2.setUserName(sendername);
-                        user2.setUserId(user.getUid());
-                        user2.setRequest("Accepted");
+                        HashMap<String,Object> obj2= new HashMap<>();
+                        obj2.put("request","Accepted");
 
-                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).updateChildren(obj1).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                                database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).updateChildren(obj2);
                             }
                         });
                         binding.btnAccept.setVisibility(View.GONE);

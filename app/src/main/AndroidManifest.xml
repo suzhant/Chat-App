@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -19,10 +21,8 @@
         android:theme="@style/Theme.WhatsApp">
         <activity
             android:name=".DeleteAccount"
-            android:exported="false" />
-        <activity
-            android:name=".NotificationReceiver"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".Privacy"/>
         <activity
             android:name=".FriendRequestActivity"
             android:exported="false"
@@ -66,7 +66,7 @@
         </activity>
         <activity android:name=".SettingsActivity" />
         <activity android:name=".GroupChatActivity" />
-        <activity android:name=".ChatDetailsActivity" />
+        <activity android:name=".ChatDetailsActivity"/>
         <activity android:name=".SignInActivity" />
         <activity android:name=".SignUpActivity" />
         <activity

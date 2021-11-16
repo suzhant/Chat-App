@@ -1,13 +1,10 @@
 package com.sushant.whatsapp.Adapters;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.media.Image;
 import android.os.Build;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,14 +12,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.pgreze.reactions.ReactionPopup;
-import com.github.pgreze.reactions.ReactionsConfig;
-import com.github.pgreze.reactions.ReactionsConfigBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
-import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.R;
 
@@ -68,14 +65,33 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Messages message = messageModel.get(position);
         if (holder.getClass() == SenderViewHolder.class) {
-            ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
+            if ("photo".equals(message.getType())){ //yoda condition solves unsafe null behaviour
+                ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
+                ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
+                ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
+                ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
+                Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getMessage()).placeholder(R.drawable.placeholder).
+                        diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
+            }else{
+                ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
+            }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
         } else {
-            ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
+            if ("photo".equals(message.getType())){
+                ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
+                ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
+                ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
+                Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getMessage()).placeholder(R.drawable.placeholder)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
+            }else{
+                ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
+            }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
             ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
-            Picasso.get().load(message.getProfilePic()).placeholder(R.drawable.avatar).into( ((ReceiverViewHolder) holder).profilepic);
+            Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(((ReceiverViewHolder) holder).profilepic);
         }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -121,22 +137,26 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public class ReceiverViewHolder extends RecyclerView.ViewHolder {
         private TextView txtReceiver, txtReceiverTime;
         private CircleImageView profilepic;
+        private ImageView imgReceiver;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
             txtReceiver = itemView.findViewById(R.id.txtGroupReceiver);
             txtReceiverTime = itemView.findViewById(R.id.txtGroupReceiverTime);
             profilepic=itemView.findViewById(R.id.group_profile_image);
+            imgReceiver=itemView.findViewById(R.id.imgReceiver);
         }
     }
 
     public class SenderViewHolder extends RecyclerView.ViewHolder {
         private TextView txtSender, txtSenderTime;
+        private ImageView imgSender;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
+            imgSender=itemView.findViewById(R.id.imgSender);
         }
     }
 }

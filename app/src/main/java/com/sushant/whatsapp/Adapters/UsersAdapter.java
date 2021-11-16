@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.common.data.DataHolder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -55,7 +57,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
     @Override
     public void onBindViewHolder(@NonNull UsersAdapter.viewHolder holder, @SuppressLint("RecyclerView") int position) {
         Users users = list.get(position);
-        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.avatar).into(holder.image);
+//        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.avatar).into(holder.image);
+        Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.image);
         holder.userName.setText(users.getUserName());
 
         FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId())
@@ -89,11 +93,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                     assert StatusFromDB != null;
                     if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")){
                         holder.blackCircle.setVisibility(View.VISIBLE);
-                        holder.blackCircle.setColorFilter(Color.GREEN);
-                        holder.image.setBorderColor(Color.GREEN);
+                        holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
+                        holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
                     }else {
                         holder.blackCircle.setVisibility(View.GONE);
-                        holder.image.setBorderColor(Color.BLACK);
+                        holder.image.setBorderColor(Color.GRAY);
                     }
 
                     if (StatusFromDB.equals("Typing...")){
@@ -123,12 +127,14 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
                             String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
+                            String status = snapshot.child(users.getUserId()).child("status").getValue(String.class);
                             Intent intent = new Intent(context, ChatDetailsActivity.class);
                             intent.putExtra("UserId", users.getUserId());
                             intent.putExtra("ProfilePic", users.getProfilePic());
                             intent.putExtra("UserName", users.getUserName());
                             intent.putExtra("userEmail",users.getMail());
                             intent.putExtra("Status", StatusFromDB);
+                            intent.putExtra("UserStatus",status);
                             context.startActivity(intent);
                         }
                     }

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorPurple"
     tools:context=".DeleteAccount">
 
     <RelativeLayout
@@ -32,7 +32,7 @@
             app:helperTextTextColor="@color/red"
             app:hintTextColor="@color/purple_700"
             app:startIconDrawable="@drawable/ic_lock"
-            app:startIconTint="@color/colorPrimaryDark">
+            app:startIconTint="@color/colorPurple">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNewPass"
@@ -52,7 +52,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="50dp"
             android:background="@drawable/bg_et_message"
-            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTint="@color/colorPurple"
             android:padding="15dp"
             android:text="Delete Account"
             android:textColor="@color/white"
@@ -73,7 +73,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:text="Go to Main Page"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/colorPurple" />
 
     </RelativeLayout>
 

@@ -39,6 +39,7 @@ public class ChangeEmail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityChangeEmailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        getSupportActionBar().setTitle("Change Email");
 
         auth = FirebaseAuth.getInstance();
 

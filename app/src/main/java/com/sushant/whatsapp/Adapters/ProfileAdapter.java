@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -47,7 +49,8 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
     @Override
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
         Users users = list.get(position);
-        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.avatar).into(holder.image);
+        Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.image);
         holder.userName.setText(users.getUserName());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +61,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
+                            String StatusFromDB = snapshot.child(users.getUserId()).child("status").getValue(String.class);
                             Intent intent = new Intent(context, ProfileActivity.class);
                             intent.putExtra("UserIdPA", users.getUserId());
                             intent.putExtra("ProfilePicPA", users.getProfilePic());

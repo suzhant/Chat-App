@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -120,7 +121,7 @@ public class FriendRequestActivity extends AppCompatActivity {
             }
         };
         ref =FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("Friends");
-        ref.addListenerForSingleValueEvent(valueEventListener1);
+        ref.addValueEventListener(valueEventListener1);
     }
 
     private void searchUser(String query) {
@@ -149,5 +150,23 @@ public class FriendRequestActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        ref.removeEventListener(valueEventListener1);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        ref.removeEventListener(valueEventListener1);
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        ref.addValueEventListener(valueEventListener1);
+        super.onRestart();
     }
 }

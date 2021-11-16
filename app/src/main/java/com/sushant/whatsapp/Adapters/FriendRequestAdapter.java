@@ -12,6 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -55,8 +57,10 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
         Users users = list.get(position);
         database=FirebaseDatabase.getInstance();
-        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.avatar).into(holder.image);
+        Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.image);
         holder.userName.setText(users.getUserName());
+        holder.txtAbout.setText(users.getStatus());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,7 +70,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
+                            String StatusFromDB = snapshot.child(users.getUserId()).child("status").getValue(String.class);
                             Intent intent = new Intent(context, ProfileActivity.class);
                             intent.putExtra("UserIdPA", users.getUserId());
                             intent.putExtra("ProfilePicPA", users.getProfilePic());
@@ -148,7 +152,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
         public CircleImageView image;
         public ImageView blackCircle;
-        public TextView userName,txtResponse;
+        public TextView userName,txtResponse,txtAbout;
         public Button btnAccept,btnReject;
 
 
@@ -160,6 +164,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             btnAccept=itemView.findViewById(R.id.btnAcceptReq);
             btnReject=itemView.findViewById(R.id.btnRejectReq);
             txtResponse=itemView.findViewById(R.id.txtResponse);
+            txtAbout=itemView.findViewById(R.id.txtAbout);
         }
     }
 }

@@ -3,8 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/bg_sender.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_audio_call.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_favorite.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_find_friend.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_menu.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_notification.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_send.xml" value="0.3703125" />
@@ -16,6 +19,7 @@
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/activity_find_friend.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/activity_forgot_password.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/activity_friend_request.xml" value="0.3541666666666667" />
+        <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/activity_full_screen_image.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/activity_link_account.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/activity_loading_screen.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/activity_main.xml" value="0.33" />
@@ -31,6 +35,7 @@
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/fragment_chats.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/nav_drawer.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/nav_header.xml" value="0.3541666666666667" />
+        <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/sample.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/sample_friend_request_users.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/sample_group_receiver.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/layout/sample_group_sender.xml" value="0.3541666666666667" />
@@ -41,6 +46,8 @@
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/menu/drawer_menu.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/menu/menu.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/menu/top_app_bar.xml" value="0.3541666666666667" />
+        <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3703125" />
       </map>
     </option>
   </component>

@@ -37,7 +37,7 @@
         app:hintTextColor="@color/purple_700"
         android:layout_marginTop="10dp"
         app:startIconDrawable="@drawable/ic_user"
-        app:startIconTint="@color/colorPrimaryDark">
+        app:startIconTint="@color/colorPurple">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etName"
@@ -64,7 +64,7 @@
             app:hintTextColor="@color/purple_700"
             android:layout_marginTop="10dp"
             app:startIconDrawable="@drawable/ic_email"
-            app:startIconTint="@color/colorPrimaryDark">
+            app:startIconTint="@color/colorPurple">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
@@ -88,7 +88,7 @@
         app:hintTextColor="@color/purple_700"
         android:layout_marginTop="10dp"
         app:startIconDrawable="@drawable/ic_lock"
-        app:startIconTint="@color/colorPrimaryDark">
+        app:startIconTint="@color/colorPurple">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPass"
@@ -165,7 +165,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:text="Sign Up With Phone"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorPurple"
         android:textSize="15sp" />
 
 </RelativeLayout>
