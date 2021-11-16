@@ -65,7 +65,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Messages message = messageModel.get(position);
         if (holder.getClass() == SenderViewHolder.class) {
-            if (message.getType().equals("photo")){
+            if ("photo".equals(message.getType())){ //yoda condition solves unsafe null behaviour
                 ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
                 ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
@@ -78,14 +78,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
         } else {
-            if (message.getType().equals("photo")){
+            if ("photo".equals(message.getType())){
                 ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
                 ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                 ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
                 Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getMessage()).placeholder(R.drawable.placeholder)
                         .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
-            }else {
+            }else{
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
             }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
@@ -151,14 +151,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public class SenderViewHolder extends RecyclerView.ViewHolder {
         private TextView txtSender, txtSenderTime;
         private ImageView imgSender;
-        private ConstraintLayout constraintSender;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
             imgSender=itemView.findViewById(R.id.imgSender);
-//            constraintSender=itemView.findViewById(R.id.constraintSender);
         }
     }
 }

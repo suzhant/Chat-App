@@ -17,6 +17,7 @@ public class Privacy extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding=ActivityPrivacyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        getSupportActionBar().setTitle("Privacy");
 
         binding.btnUpdatePass.setOnClickListener(new View.OnClickListener() {
             @Override
