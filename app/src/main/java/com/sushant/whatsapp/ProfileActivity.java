@@ -28,7 +28,7 @@ public class ProfileActivity extends AppCompatActivity {
     ActivityProfileBinding binding;
     FirebaseDatabase database;
     boolean friend=false;
-    String sendername,pp;
+    String sendername,pp,userStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +44,12 @@ public class ProfileActivity extends AppCompatActivity {
         String profilePic = getIntent().getStringExtra("ProfilePicPA");
         String email=getIntent().getStringExtra("EmailPA");
         String Receiverid=getIntent().getStringExtra("UserIdPA");
+        String status=getIntent().getStringExtra("StatusPA");
 
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.imgProfile);
         binding.txtEmail.setText(email);
         binding.txtUserName.setText(userName);
+        binding.txtAbout.setText(status);
 
         FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
         database.getReference().child("Users").child(Objects.requireNonNull(user.getUid()))
@@ -58,6 +60,7 @@ public class ProfileActivity extends AppCompatActivity {
                         assert user != null;
                        sendername=user.getUserName();
                        pp=user.getProfilePic();
+                       userStatus=user.getStatus();
                     }
 
                     @Override
@@ -106,6 +109,7 @@ public class ProfileActivity extends AppCompatActivity {
                             user1.setUserName(userName);
                             user1.setUserId(Receiverid);
                             user1.setProfilePic(profilePic);
+                            user1.setStatus(status);
                             user1.setRequest("Req_Sent");
 
                             Users user2 = new Users();
@@ -113,6 +117,7 @@ public class ProfileActivity extends AppCompatActivity {
                             user2.setUserName(sendername);
                             user2.setUserId(user.getUid());
                             user2.setProfilePic(pp);
+                            user2.setStatus(userStatus);
                             user2.setRequest("Req_Pending");
 
                             database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {

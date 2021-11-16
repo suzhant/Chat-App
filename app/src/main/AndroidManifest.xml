@@ -21,7 +21,8 @@
         android:theme="@style/Theme.WhatsApp">
         <activity
             android:name=".DeleteAccount"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".Privacy"/>
         <activity
             android:name=".FriendRequestActivity"
             android:exported="false"

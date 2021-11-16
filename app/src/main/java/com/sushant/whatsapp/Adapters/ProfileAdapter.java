@@ -61,7 +61,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
+                            String StatusFromDB = snapshot.child(users.getUserId()).child("status").getValue(String.class);
                             Intent intent = new Intent(context, ProfileActivity.class);
                             intent.putExtra("UserIdPA", users.getUserId());
                             intent.putExtra("ProfilePicPA", users.getProfilePic());
