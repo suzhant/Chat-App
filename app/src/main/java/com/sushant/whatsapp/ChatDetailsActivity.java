@@ -95,7 +95,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         String userName = getIntent().getStringExtra("UserName");
         profilePic = getIntent().getStringExtra("ProfilePic");
         String email = getIntent().getStringExtra("userEmail");
-        String Status = getIntent().getStringExtra("Status");
+        String Status = getIntent().getStringExtra("UserStatus");
 
         binding.userName.setText(userName);
 //        binding.txtStatus.setText(Status);
@@ -116,6 +116,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 intent.putExtra("UserNamePA", userName);
                 intent.putExtra("ProfilePicPA", profilePic);
                 intent.putExtra("EmailPA", email);
+                intent.putExtra("StatusPA",Status);
                 startActivity(intent);
             }
         });

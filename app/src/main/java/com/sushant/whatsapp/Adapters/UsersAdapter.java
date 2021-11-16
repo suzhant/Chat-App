@@ -127,12 +127,14 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
                             String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
+                            String status = snapshot.child(users.getUserId()).child("status").getValue(String.class);
                             Intent intent = new Intent(context, ChatDetailsActivity.class);
                             intent.putExtra("UserId", users.getUserId());
                             intent.putExtra("ProfilePic", users.getProfilePic());
                             intent.putExtra("UserName", users.getUserName());
                             intent.putExtra("userEmail",users.getMail());
                             intent.putExtra("Status", StatusFromDB);
+                            intent.putExtra("UserStatus",status);
                             context.startActivity(intent);
                         }
                     }
