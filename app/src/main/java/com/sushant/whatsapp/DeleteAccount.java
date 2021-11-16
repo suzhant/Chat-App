@@ -47,6 +47,7 @@ public class DeleteAccount extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding=ActivityDeleteAcccountBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        getSupportActionBar().setTitle("Delete Account");
         
         auth = FirebaseAuth.getInstance();
         database= FirebaseDatabase.getInstance();

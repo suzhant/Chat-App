@@ -101,7 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:backgroundTint="#004D40"
+                android:backgroundTint="#00C853"
                 android:text="Add Friend" />
 
             <Button
@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/btnAddFriend"
                 android:layout_marginTop="10dp"
-                android:backgroundTint="#09af00"
+                android:backgroundTint="#00C853"
                 android:text="Accept"
                 android:visibility="gone" />
 

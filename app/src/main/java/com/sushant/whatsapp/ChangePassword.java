@@ -50,6 +50,7 @@ public class ChangePassword extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityChangePasswordBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        getSupportActionBar().setTitle("Change Password");
 
         auth = FirebaseAuth.getInstance();
 
