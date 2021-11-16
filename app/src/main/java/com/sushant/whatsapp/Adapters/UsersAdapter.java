@@ -97,7 +97,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                         holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
                     }else {
                         holder.blackCircle.setVisibility(View.GONE);
-                        holder.image.setBorderColor(Color.BLACK);
+                        holder.image.setBorderColor(Color.GRAY);
                     }
 
                     if (StatusFromDB.equals("Typing...")){
