@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/chatbackground"
+        android:background="@color/colorPurple"
         android:orientation="horizontal">
 
         <ImageView
@@ -30,7 +30,7 @@
             android:src="@drawable/ic_camera"
             android:padding="10dp"
             android:layout_gravity="center"
-            app:tint="@color/colorPurple"
+            app:tint="@color/white"
             android:contentDescription="Capture Picture and Send" />
 
         <ImageView
@@ -40,7 +40,7 @@
             android:src="@drawable/ic_gallery"
             android:padding="10dp"
             android:layout_gravity="center"
-            app:tint="@color/colorPurple"
+            app:tint="@color/white"
             android:contentDescription="Send Pic from Gallery" />
 
         <ImageView
@@ -50,7 +50,7 @@
             android:src="@drawable/ic_mic"
             android:padding="10dp"
             android:layout_gravity="center"
-            app:tint="@color/colorPurple"
+            app:tint="@color/white"
             android:contentDescription="Record voice" />
 
         <EditText

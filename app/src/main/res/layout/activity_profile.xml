@@ -100,9 +100,8 @@
                 android:id="@+id/btnAddFriend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
-                android:backgroundTint="#09af00"
+                android:backgroundTint="#004D40"
                 android:text="Add Friend" />
 
             <Button

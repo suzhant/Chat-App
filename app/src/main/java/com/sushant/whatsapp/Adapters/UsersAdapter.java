@@ -93,8 +93,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                     assert StatusFromDB != null;
                     if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")){
                         holder.blackCircle.setVisibility(View.VISIBLE);
-                        holder.blackCircle.setColorFilter(Color.GREEN);
-                        holder.image.setBorderColor(Color.GREEN);
+                        holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
+                        holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
                     }else {
                         holder.blackCircle.setVisibility(View.GONE);
                         holder.image.setBorderColor(Color.BLACK);

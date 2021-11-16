@@ -22,7 +22,6 @@ android:layout_height="wrap_content">
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_margin="5dp"
-            android:backgroundTint="@color/lightgreen"
             android:background="@drawable/bg_et_message"
             android:padding="10dp"
             android:src="@drawable/avatar"
@@ -33,6 +32,7 @@ android:layout_height="wrap_content">
 
     <FrameLayout
         android:background="@drawable/bg_sender"
+        android:backgroundTint="@color/purple_700"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -46,7 +46,7 @@ android:layout_height="wrap_content">
             android:minWidth="50dp"
             android:padding="10dp"
             android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
-            android:textColor="@color/black" />
+            android:textColor="@color/white" />
 
     </FrameLayout>
         <TextView

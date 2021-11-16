@@ -72,7 +72,7 @@ public class ProfileActivity extends AppCompatActivity {
                         if (users.getUserId().equals(Receiverid)){
                         if (users.getRequest().equals("Accepted")){
                             binding.btnAddFriend.setText("Unfriend");
-                            binding.btnAddFriend.setBackgroundColor(Color.RED);
+                            binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
                             friend=true;
                         }
                         if (users.getRequest().equals("Req_Sent")){
