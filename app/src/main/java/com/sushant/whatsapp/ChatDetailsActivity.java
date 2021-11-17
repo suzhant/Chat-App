@@ -50,6 +50,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 public class ChatDetailsActivity extends AppCompatActivity {
 
@@ -64,6 +65,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
     Runnable runnable;
     String sendername;
     boolean notify = false;
+    boolean isTyping=true;
     FirebaseStorage storage;
     ProgressDialog dialog;
     String senderId,receiverId,senderRoom,receiverRoom,profilePic;
@@ -183,12 +185,35 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
-                    binding.txtStatus.setText(StatusFromDB);
-                    if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")) {
-                        binding.imgStatus.setColorFilter(Color.GREEN);
-                    } else {
-                        binding.imgStatus.setColorFilter(Color.GRAY);
-                    }
+
+                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users");
+                    Query checkStatus1 = reference1.orderByChild("userId").equalTo(senderId);
+                    checkStatus1.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                String presence = snapshot.child(senderId).child("Friends").child(receiverId).child("Typing").getValue(String.class);
+                                if (StatusFromDB.equals("online")) {
+                                    if ("Typing...".equals(presence)) {
+                                        binding.imgStatus.setColorFilter(Color.GREEN);
+                                        binding.txtStatus.setText(presence);
+                                    }else{
+                                        binding.imgStatus.setColorFilter(Color.GREEN);
+                                        binding.txtStatus.setText(StatusFromDB);
+                                    }
+                                }else {
+                                    binding.imgStatus.setColorFilter(Color.GRAY);
+                                    binding.txtStatus.setText(StatusFromDB);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
                 }
             }
 
@@ -197,6 +222,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
             }
         });
+
+
 
 //        binding.editMessage.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -227,7 +254,6 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -238,17 +264,22 @@ public class ChatDetailsActivity extends AppCompatActivity {
                     binding.imgMic.setVisibility(View.GONE);
                     binding.icSend.setImageResource(R.drawable.ic_send);
                     binding.icSend.setColorFilter(getResources().getColor(R.color.colorPrimary));
-                    database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Connection").child("Status").setValue("Typing...");
+                    HashMap<String,Object> map= new HashMap<>();
+                    map.put("Typing","Typing...");
+                    database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 } else {
                     binding.imgCamera.setVisibility(View.VISIBLE);
                     binding.imgGallery.setVisibility(View.VISIBLE);
                     binding.imgMic.setVisibility(View.VISIBLE);
                     binding.icSend.setImageResource(R.drawable.ic_favorite);
                     binding.icSend.setColorFilter(getResources().getColor(red));
-                    database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Connection").child("Status").setValue("online");
+                    HashMap<String,Object> map= new HashMap<>();
+                    map.put("Typing","Not Typing...");
+                    database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 }
             }
         });
+
 
         database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.P)

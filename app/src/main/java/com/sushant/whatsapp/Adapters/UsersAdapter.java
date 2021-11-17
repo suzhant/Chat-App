@@ -32,6 +32,7 @@ import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -91,21 +92,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
-                    if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")){
+                    if (StatusFromDB.equals("online")){
                         holder.blackCircle.setVisibility(View.VISIBLE);
                         holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
                         holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
                     }else {
                         holder.blackCircle.setVisibility(View.GONE);
                         holder.image.setBorderColor(Color.GRAY);
-                    }
-
-                    if (StatusFromDB.equals("Typing...")){
-                        holder.lastMessage.setText("Typing...");
-                        holder.lastMessage.setTypeface(null, Typeface.ITALIC);
-                    }else {
-                        holder.lastMessage.setText(lastMsg);
-                        holder.lastMessage.setTypeface(null, Typeface.NORMAL);
                     }
                 }
             }
@@ -115,6 +108,32 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
             }
         });
+
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                .child("Friends");
+        reference1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+                        String presence=snapshot1.child("Typing").getValue(String.class);
+                        if ("Typing...".equals(presence)){
+                            holder.lastMessage.setText("Typing...");
+                            holder.lastMessage.setTypeface(null, Typeface.ITALIC);
+                        }else {
+                            holder.lastMessage.setText(lastMsg);
+                            holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

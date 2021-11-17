@@ -110,6 +110,7 @@ public class ProfileActivity extends AppCompatActivity {
                             user1.setUserId(Receiverid);
                             user1.setProfilePic(profilePic);
                             user1.setStatus(status);
+                            user1.setTyping("Not Typing");
                             user1.setRequest("Req_Sent");
 
                             Users user2 = new Users();
@@ -118,6 +119,7 @@ public class ProfileActivity extends AppCompatActivity {
                             user2.setUserId(user.getUid());
                             user2.setProfilePic(pp);
                             user2.setStatus(userStatus);
+                            user2.setTyping("Not Typing");
                             user2.setRequest("Req_Pending");
 
                             database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {

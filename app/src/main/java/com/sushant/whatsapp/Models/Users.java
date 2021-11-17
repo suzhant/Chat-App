@@ -1,7 +1,7 @@
 package com.sushant.whatsapp.Models;
 
 public class Users {
-    private String profilePic,userName,mail,password,userId,lastMessage,status,userStatus,request;
+    private String profilePic,userName,mail,password,userId,lastMessage,status,userStatus,request,Typing;
 
     public Users(String profilePic, String userName, String mail, String password, String userId, String lastMessage, String status) {
         this.profilePic = profilePic;
@@ -98,4 +98,11 @@ public class Users {
         this.lastMessage = lastMessage;
     }
 
+    public String getTyping() {
+        return Typing;
+    }
+
+    public void setTyping(String typing) {
+        Typing = typing;
+    }
 }
