@@ -111,12 +111,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
         DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
                 .child("Friends");
-        reference1.addValueEventListener(new ValueEventListener() {
+        Query checkStatus1 = reference1.orderByChild("userId").equalTo(users.getUserId());
+        checkStatus1.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
-                    for (DataSnapshot snapshot1:snapshot.getChildren()){
-                        String presence=snapshot1.child("Typing").getValue(String.class);
+                        String presence=snapshot.child(users.getUserId()).child("Typing").getValue(String.class);
                         if ("Typing...".equals(presence)){
                             holder.lastMessage.setText("Typing...");
                             holder.lastMessage.setTypeface(null, Typeface.ITALIC);
@@ -124,7 +124,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                             holder.lastMessage.setText(lastMsg);
                             holder.lastMessage.setTypeface(null, Typeface.NORMAL);
                         }
-                    }
                 }
             }
 
