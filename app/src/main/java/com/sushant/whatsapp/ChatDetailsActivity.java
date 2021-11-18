@@ -5,12 +5,14 @@ import static com.sushant.whatsapp.R.color.red;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -65,10 +67,11 @@ public class ChatDetailsActivity extends AppCompatActivity {
     Runnable runnable;
     String sendername;
     boolean notify = false;
-    boolean isTyping=true;
     FirebaseStorage storage;
     ProgressDialog dialog;
     String senderId,receiverId,senderRoom,receiverRoom,profilePic;
+    ValueEventListener eventListener1,eventListener2;
+    Query checkStatus,checkStatus1;
 
 
 
@@ -129,6 +132,9 @@ public class ChatDetailsActivity extends AppCompatActivity {
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                HashMap<String,Object> map= new HashMap<>();
+                map.put("Typing","Not Typing...");
+                database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 finish();//Method finish() will destroy your activity and show the one that started it.
             }
         });
@@ -178,8 +184,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-        Query checkStatus = reference.orderByChild("userId").equalTo(receiverId);
-        checkStatus.addValueEventListener(new ValueEventListener() {
+        checkStatus = reference.orderByChild("userId").equalTo(receiverId);
+        eventListener1= new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -187,8 +193,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
                     assert StatusFromDB != null;
 
                     DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users");
-                    Query checkStatus1 = reference1.orderByChild("userId").equalTo(senderId);
-                    checkStatus1.addValueEventListener(new ValueEventListener() {
+                    checkStatus1 = reference1.orderByChild("userId").equalTo(senderId);
+                    eventListener2= new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (snapshot.exists()) {
@@ -212,8 +218,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
                         public void onCancelled(@NonNull DatabaseError error) {
 
                         }
-                    });
-
+                    };
+                    checkStatus1.addValueEventListener(eventListener2);
                 }
             }
 
@@ -221,7 +227,10 @@ public class ChatDetailsActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+
+        checkStatus.addValueEventListener(eventListener1);
+
 
 
 
@@ -487,6 +496,32 @@ public class ChatDetailsActivity extends AppCompatActivity {
         return null;
     }
 
+    @Override
+    protected void onDestroy() {
+        checkStatus.removeEventListener(eventListener1);
+        checkStatus1.removeEventListener(eventListener2);
+        super.onDestroy();
+    }
 
+    @Override
+    protected void onStop() {
+        checkStatus.removeEventListener(eventListener1);
+        checkStatus1.removeEventListener(eventListener2);
+        super.onStop();
+    }
 
+    @Override
+    protected void onRestart() {
+        checkStatus.addValueEventListener(eventListener1);
+        checkStatus1.addValueEventListener(eventListener2);
+        super.onRestart();
+    }
+
+    @Override
+    public void onBackPressed() {
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("Typing","Not Typing...");
+        database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
+        super.onBackPressed();
+    }
 }
