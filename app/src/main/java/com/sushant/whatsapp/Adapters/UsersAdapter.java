@@ -63,9 +63,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                 .into(holder.image);
         holder.userName.setText(users.getUserName());
 
-        FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId())
-                .orderByChild("timestamp").limitToLast(1)
-                .addValueEventListener(new ValueEventListener() {
+        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId());
+        Query message=reference2.orderByChild("timestamp").limitToLast(1);
+        message.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.hasChildren()) {
