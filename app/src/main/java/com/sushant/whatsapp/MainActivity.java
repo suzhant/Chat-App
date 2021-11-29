@@ -47,6 +47,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -101,6 +102,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         registerBroadcastReceiver();
 
         manageConnection();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String email = user.getEmail();
+            String uid = user.getUid();
+
+            reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                   Users users= snapshot.getValue(Users.class);
+                    assert users != null;
+                    if (!users.getMail().equals(email)){
+                       updatEmail(email,uid);
+                       updateEmailInFriend(uid,email);
+                   }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
 
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -148,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         //check email verification
-        FirebaseUser user=auth.getCurrentUser();
         assert user != null;
         if (!user.isEmailVerified()){
             //checking users presence
@@ -456,6 +478,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status",status);
         reference.child(auth.getUid()).child("Connection").updateChildren(obj);
+    }
+    void updatEmail(String email,String uid){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("mail",email);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
+    }
+
+    void updateEmailInFriend(String userid,String email){
+        FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+                        Users users=snapshot1.getValue(Users.class);
+                        if (users.getUserId()!=userid){
+                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+                            Query checkStatus = reference1.orderByChild("userId").equalTo(userid);
+                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        HashMap<String,Object> map= new HashMap<>();
+                                        map.put("mail",email);
+                                        reference1.child(userid).updateChildren(map);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 

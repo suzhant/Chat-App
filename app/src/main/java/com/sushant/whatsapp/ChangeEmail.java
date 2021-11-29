@@ -23,7 +23,13 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityChangeEmailBinding;
 
 import java.util.HashMap;
@@ -133,6 +139,7 @@ public class ChangeEmail extends AppCompatActivity {
                                                             if (task.isSuccessful()) {
                                                                 Toast.makeText(getApplicationContext(), "Email updated", Toast.LENGTH_SHORT).show();
                                                                 updatemail(user.getEmail());
+                                                                updateEmailInFriend(user.getUid(),user.getEmail());
                                                                 hideSoftKeyboard();
                                                                 binding.editEmail.getEditText().getText().clear();
                                                                 binding.editPass.getEditText().getText().clear();
@@ -251,5 +258,43 @@ public class ChangeEmail extends AppCompatActivity {
         map.put("mail",email);
         FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
     }
+
+    void updateEmailInFriend(String userid,String email){
+        FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+                        Users users=snapshot1.getValue(Users.class);
+                        if (users.getUserId()!=userid){
+                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+                            Query checkStatus = reference1.orderByChild("userId").equalTo(userid);
+                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        HashMap<String,Object> map= new HashMap<>();
+                                        map.put("mail",email);
+                                        reference1.child(userid).updateChildren(map);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
 }
