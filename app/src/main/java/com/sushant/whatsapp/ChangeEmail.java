@@ -33,6 +33,7 @@ public class ChangeEmail extends AppCompatActivity {
 
     ActivityChangeEmailBinding binding;
     FirebaseAuth auth;
+    String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +105,12 @@ public class ChangeEmail extends AppCompatActivity {
 //                    }
 //                });
                 FirebaseUser user = auth.getCurrentUser();
+                if (user == null)
+                {
+                    sendUserToLoginActivity();
+                }else{
+                    uid=user.getUid();
+                }
 
                 assert user != null;
                 AuthCredential credential = EmailAuthProvider
@@ -116,8 +123,6 @@ public class ChangeEmail extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(getApplicationContext(), "User re-authenticated.", Toast.LENGTH_SHORT).show();
                                     //Now change your email address \\
-                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                    assert user != null;
                                     user.verifyBeforeUpdateEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
@@ -127,16 +132,14 @@ public class ChangeEmail extends AppCompatActivity {
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful()) {
                                                                 Toast.makeText(getApplicationContext(), "Email updated", Toast.LENGTH_SHORT).show();
-                                                                HashMap<String,Object> map= new HashMap<>();
-                                                                map.put("mail",user.getEmail());
-                                                                FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).updateChildren(map);
+                                                                updatemail(user.getEmail());
                                                                 hideSoftKeyboard();
                                                                 binding.editEmail.getEditText().getText().clear();
                                                                 binding.editPass.getEditText().getText().clear();
                                                                 binding.editEmail.clearFocus();
                                                                 binding.editPass.clearFocus();
-                                                                auth.signOut();
                                                                 updateStatus();
+                                                                auth.signOut();
                                                                 GoogleSignIn.getClient(getApplicationContext(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                                                                         .build()).signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
@@ -150,10 +153,7 @@ public class ChangeEmail extends AppCompatActivity {
                                                                     }
                                                                 });
 //                                                                FirebaseDatabase.getInstance().goOffline();
-                                                                Intent intent = new Intent(ChangeEmail.this, SignInActivity.class);
-                                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                                startActivity(intent);
-                                                                finish();
+                                                                    sendUserToLoginActivity();
                                                             } else {
                                                                 Toast.makeText(getApplicationContext(), "Email couldn't be changed", Toast.LENGTH_SHORT).show();
                                                             }
@@ -184,6 +184,13 @@ public class ChangeEmail extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void sendUserToLoginActivity() {
+        Intent intent = new Intent(ChangeEmail.this, SignInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     public boolean emailValidation() {
@@ -236,7 +243,13 @@ public class ChangeEmail extends AppCompatActivity {
     void updateStatus(){
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status", "offline");
-        FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).child("Connection").updateChildren(obj);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("Connection").updateChildren(obj);
+    }
+
+    void updatemail(String email){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("mail",email);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
     }
 
 }

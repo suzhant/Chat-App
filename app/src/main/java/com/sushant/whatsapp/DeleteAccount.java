@@ -40,6 +40,7 @@ public class DeleteAccount extends AppCompatActivity {
     FirebaseAuth auth;
     DatabaseReference reference;
     FirebaseDatabase database;
+    String uid;
 
 
     @Override
@@ -60,6 +61,14 @@ public class DeleteAccount extends AppCompatActivity {
             }
         });
 
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null)
+        {
+            sendUserToLoginActivity();
+        }else{
+            uid=user.getUid();
+        }
+
         binding.btnDeleteAcc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,7 +77,6 @@ public class DeleteAccount extends AppCompatActivity {
                     emptyError(binding.editNewPass);
                 }
 
-                FirebaseUser user = auth.getCurrentUser();
                 assert user != null;
                 AuthCredential credential = EmailAuthProvider
                         .getCredential(user.getEmail(), Pass);
@@ -79,15 +87,13 @@ public class DeleteAccount extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     deleteUserFromFriends(user.getUid());
-                                    deleteUser(user.getUid());
+                                    deleteUser(uid);
                                     Toast.makeText(getApplicationContext(), "Re-authenticated", Toast.LENGTH_SHORT).show();
                                     user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
-                                                Intent intent= new Intent(DeleteAccount.this,SignInActivity.class);
-                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                startActivity(intent);
+                                                sendUserToLoginActivity();
                                                 Log.d("TAG", "onComplete: User deleted"+user.getEmail());
                                                 Toast.makeText(getApplicationContext(), "User Account has been Deleted", Toast.LENGTH_SHORT).show();
                                             }else {
@@ -114,6 +120,13 @@ public class DeleteAccount extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void sendUserToLoginActivity() {
+        Intent intent= new Intent(DeleteAccount.this,SignInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     public void hideSoftKeyboard() {
