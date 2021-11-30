@@ -1,20 +1,18 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -30,10 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityDeleteAcccountBinding;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DeleteAccount extends AppCompatActivity {
     ActivityDeleteAcccountBinding binding;
@@ -144,33 +139,65 @@ public class DeleteAccount extends AppCompatActivity {
         password.requestFocus();
     }
 
+//    void deleteUserFromFriends(String userid){
+//        database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()){
+//                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+//                        Users users=snapshot1.getValue(Users.class);
+//                        if (users.getUserId()!=userid){
+//                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+//                            Query checkStatus = reference1.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+//                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                                    if (snapshot.exists()) {
+//                                        HashMap<String,Object> map= new HashMap<>();
+//                                        map.put(userid,null);
+//                                        reference1.updateChildren(map);
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(@NonNull DatabaseError error) {
+//
+//                                }
+//                            });
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
+
     void deleteUserFromFriends(String userid){
-        database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
+        DatabaseReference reference1=FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
+        reference1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    for (DataSnapshot snapshot1:snapshot.getChildren()){
-                        Users users=snapshot1.getValue(Users.class);
-                        if (users.getUserId()!=userid){
-                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
-                            Query checkStatus = reference1.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    if (snapshot.exists()) {
-                                        HashMap<String,Object> map= new HashMap<>();
-                                        map.put(userid,null);
-                                        reference1.updateChildren(map);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
+                for (DataSnapshot snapshot1:snapshot.getChildren()){
+                    Users users= snapshot1.getValue(Users.class);
+                    DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
+                    Query checkStatus = reference2.orderByChild("userId").equalTo(userid);
+                    checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            HashMap<String,Object> map= new HashMap<>();
+                            map.put(userid,null);
+                            reference2.updateChildren(map);
                         }
-                    }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
                 }
             }
 
