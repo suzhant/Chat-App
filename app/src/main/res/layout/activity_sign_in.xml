@@ -148,6 +148,7 @@
                 android:drawableLeft="@drawable/ic_google"
                 android:padding="10dp"
                 android:text="Google"
+                android:enabled="false"
                 android:textColor="@color/black"
                 app:backgroundTint="@color/white"
                 app:cornerRadius="4dp" />

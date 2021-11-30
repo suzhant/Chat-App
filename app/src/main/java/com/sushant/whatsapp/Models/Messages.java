@@ -1,16 +1,12 @@
 package com.sushant.whatsapp.Models;
 
-import android.graphics.drawable.Drawable;
-
-import java.util.ArrayList;
-
 public class Messages {
-    private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName,type;
+    private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName,type,imageUrl;
     private Long timestamp;
 
-    public Messages(String uId, String message, Long timestamp) {
+    public Messages(String uId, String profilePic, Long timestamp) {
         this.uId = uId;
-        this.message = message;
+        this.profilePic = profilePic;
         this.timestamp = timestamp;
     }
     public Messages(String uId, String message) {
@@ -75,5 +71,13 @@ public class Messages {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

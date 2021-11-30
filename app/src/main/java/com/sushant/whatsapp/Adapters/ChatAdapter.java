@@ -3,6 +3,8 @@ package com.sushant.whatsapp.Adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +14,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -70,7 +70,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                 ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
-                Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getMessage()).placeholder(R.drawable.placeholder).
+                Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
                         diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
             }else{
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
@@ -83,7 +83,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                 ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
-                Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getMessage()).placeholder(R.drawable.placeholder)
+                Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
                         .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
             }else{
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());

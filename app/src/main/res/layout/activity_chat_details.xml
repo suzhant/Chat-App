@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ChatDetailsActivity">
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatRecyclerView"
         android:layout_width="match_parent"
@@ -121,8 +122,6 @@
                 android:layout_margin="10dp"
                 android:padding="5dp"
                 android:src="@drawable/avatar"
-                app:civ_border_color="#FF000000"
-                app:civ_border_width="2dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/backButton"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -163,11 +162,11 @@
                 android:layout_marginTop="4dp"
                 android:padding="1dp"
                 android:src="@drawable/black_circle"
+                android:backgroundTint="#ff888888"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/profile_image"
                 app:layout_constraintTop_toBottomOf="@+id/userName"
-                app:layout_constraintVertical_bias="0.428"
-                app:tint="@color/white" />
+                app:layout_constraintVertical_bias="0.428" />
 
             <ImageView
                 android:id="@+id/ic_videoCam"

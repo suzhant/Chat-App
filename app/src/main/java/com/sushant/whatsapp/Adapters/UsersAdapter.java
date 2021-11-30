@@ -16,22 +16,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.gms.common.data.DataHolder;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.ChatDetailsActivity;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -62,9 +59,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                 .into(holder.image);
         holder.userName.setText(users.getUserName());
 
-        FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId())
-                .orderByChild("timestamp").limitToLast(1)
-                .addValueEventListener(new ValueEventListener() {
+        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId());
+        Query message=reference2.orderByChild("timestamp").limitToLast(1);
+        message.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.hasChildren()) {
@@ -91,21 +88,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
-                    if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")){
+                    if ("online".equals(StatusFromDB)){
                         holder.blackCircle.setVisibility(View.VISIBLE);
                         holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
                         holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
                     }else {
                         holder.blackCircle.setVisibility(View.GONE);
                         holder.image.setBorderColor(Color.GRAY);
-                    }
-
-                    if (StatusFromDB.equals("Typing...")){
-                        holder.lastMessage.setText("Typing...");
-                        holder.lastMessage.setTypeface(null, Typeface.ITALIC);
-                    }else {
-                        holder.lastMessage.setText(lastMsg);
-                        holder.lastMessage.setTypeface(null, Typeface.NORMAL);
                     }
                 }
             }
@@ -115,6 +104,31 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
             }
         });
+
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                .child("Friends");
+        Query checkStatus1 = reference1.orderByChild("userId").equalTo(users.getUserId());
+        checkStatus1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                        String presence=snapshot.child(users.getUserId()).child("Typing").getValue(String.class);
+                        if ("Typing...".equals(presence)){
+                            holder.lastMessage.setText("Typing...");
+                            holder.lastMessage.setTypeface(null, Typeface.ITALIC);
+                        }else {
+                            holder.lastMessage.setText(lastMsg);
+                            holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+                        }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

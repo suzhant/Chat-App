@@ -44,6 +44,7 @@ public class ChangePassword extends AppCompatActivity {
     ActivityChangePasswordBinding binding;
     FirebaseAuth auth;
     String passFromDb;
+    String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,6 @@ public class ChangePassword extends AppCompatActivity {
         getSupportActionBar().setTitle("Change Password");
 
         auth = FirebaseAuth.getInstance();
-
         binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,6 +124,13 @@ public class ChangePassword extends AppCompatActivity {
 //                    });
 
                 FirebaseUser user = auth.getCurrentUser();
+                if (user == null)
+                {
+                    sendUserToLoginActivity();
+                }else{
+                     uid=user.getUid();
+                }
+
                 assert user != null;
                 AuthCredential credential = EmailAuthProvider
                         .getCredential(user.getEmail(), oPass);
@@ -141,14 +148,14 @@ public class ChangePassword extends AppCompatActivity {
                                             Toast.makeText(getApplicationContext(), "Password Changed", Toast.LENGTH_SHORT).show();
                                             HashMap<String,Object> map= new HashMap<>();
                                             map.put("password",nPass);
-                                            FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).updateChildren(map);
+                                            FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
                                             hideSoftKeyboard();
                                             binding.editNewPass.getEditText().getText().clear();
                                             binding.editOldPass.getEditText().getText().clear();
                                             binding.editOldPass.clearFocus();
                                             binding.editNewPass.clearFocus();
-                                            auth.signOut();
                                             updateStatus();
+                                            auth.signOut();
                                             GoogleSignIn.getClient(getApplicationContext(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build())
                                                     .signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
@@ -162,9 +169,7 @@ public class ChangePassword extends AppCompatActivity {
                                                 }
                                             });
 //                                            FirebaseDatabase.getInstance().goOffline();
-                                            Intent intent= new Intent(ChangePassword.this,SignInActivity.class);
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            startActivity(intent);
+                                                sendUserToLoginActivity();
                                             } else { Toast.makeText(getApplicationContext(), "Password Couldn't be changed", Toast.LENGTH_SHORT).show();
                                             }
                                         }
@@ -226,7 +231,14 @@ public class ChangePassword extends AppCompatActivity {
     void updateStatus(){
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status", "offline");
-        FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).child("Connection").updateChildren(obj);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("Connection").updateChildren(obj);
+    }
+
+    void sendUserToLoginActivity(){
+        Intent intent= new Intent(ChangePassword.this,SignInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
 }

@@ -2,14 +2,18 @@ package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -18,16 +22,21 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,13 +56,19 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityChatDetailsBinding;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class ChatDetailsActivity extends AppCompatActivity {
 
     public static final int PICK_IMAGE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 200;
+    private static final int CAMERA_PERMISSION_CODE = 300;
     ActivityChatDetailsBinding binding;
     FirebaseDatabase database;
     FirebaseAuth auth;
@@ -67,6 +82,9 @@ public class ChatDetailsActivity extends AppCompatActivity {
     FirebaseStorage storage;
     ProgressDialog dialog;
     String senderId,receiverId,senderRoom,receiverRoom,profilePic;
+    ValueEventListener eventListener1,eventListener2;
+    Query checkStatus,checkStatus1;
+    String currentPhotoPath;
 
 
 
@@ -127,6 +145,9 @@ public class ChatDetailsActivity extends AppCompatActivity {
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                HashMap<String,Object> map= new HashMap<>();
+                map.put("Typing","Not Typing...");
+                database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 finish();//Method finish() will destroy your activity and show the one that started it.
             }
         });
@@ -157,7 +178,6 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             messageModel.add(model);
 
                         }
-                        binding.chatRecyclerView.getRecycledViewPool().clear();
                         chatAdapter.notifyDataSetChanged();
 //                        Collections.sort(messageModel, (obj1, obj2) -> obj1.getTimestamp().compareTo(obj2.getTimestamp()));
                         if (count == 0) {
@@ -176,19 +196,42 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-        Query checkStatus = reference.orderByChild("userId").equalTo(receiverId);
-        checkStatus.addValueEventListener(new ValueEventListener() {
+        checkStatus = reference.orderByChild("userId").equalTo(receiverId);
+        eventListener1= new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
-                    binding.txtStatus.setText(StatusFromDB);
-                    if (StatusFromDB.equals("online") || StatusFromDB.equals("Typing...")) {
-                        binding.imgStatus.setColorFilter(Color.GREEN);
-                    } else {
-                        binding.imgStatus.setColorFilter(Color.GRAY);
-                    }
+
+                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users");
+                    checkStatus1 = reference1.orderByChild("userId").equalTo(senderId);
+                    eventListener2= new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                String presence = snapshot.child(senderId).child("Friends").child(receiverId).child("Typing").getValue(String.class);
+                                if (StatusFromDB.equals("online")) {
+                                    if ("Typing...".equals(presence)) {
+                                        binding.imgStatus.setColorFilter(Color.GREEN);
+                                        binding.txtStatus.setText(presence);
+                                    }else{
+                                        binding.imgStatus.setColorFilter(Color.GREEN);
+                                        binding.txtStatus.setText(StatusFromDB);
+                                    }
+                                }else {
+                                    binding.imgStatus.setColorFilter(Color.GRAY);
+                                    binding.txtStatus.setText(StatusFromDB);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    };
+                    checkStatus1.addValueEventListener(eventListener2);
                 }
             }
 
@@ -196,7 +239,12 @@ public class ChatDetailsActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+
+        checkStatus.addValueEventListener(eventListener1);
+
+
+
 
 //        binding.editMessage.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -227,7 +275,6 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -237,20 +284,25 @@ public class ChatDetailsActivity extends AppCompatActivity {
                     binding.imgGallery.setVisibility(View.GONE);
                     binding.imgMic.setVisibility(View.GONE);
                     binding.icSend.setImageResource(R.drawable.ic_send);
-                    binding.icSend.setColorFilter(getResources().getColor(R.color.colorPrimary));
-                    database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Connection").child("Status").setValue("Typing...");
+                    binding.icSend.setColorFilter(getResources().getColor(R.color.white));
+                    HashMap<String,Object> map= new HashMap<>();
+                    map.put("Typing","Typing...");
+                    database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 } else {
                     binding.imgCamera.setVisibility(View.VISIBLE);
                     binding.imgGallery.setVisibility(View.VISIBLE);
                     binding.imgMic.setVisibility(View.VISIBLE);
                     binding.icSend.setImageResource(R.drawable.ic_favorite);
                     binding.icSend.setColorFilter(getResources().getColor(red));
-                    database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Connection").child("Status").setValue("online");
+                    HashMap<String,Object> map= new HashMap<>();
+                    map.put("Typing","Not Typing...");
+                    database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 }
             }
         });
 
-        database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
+
+        database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).addValueEventListener(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -340,6 +392,19 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
             }
         });
+
+        binding.imgCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA)==
+                        PackageManager.PERMISSION_GRANTED){
+                    dispatchTakePictureIntent();
+                }else {
+                    ActivityCompat.requestPermissions(ChatDetailsActivity.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE},CAMERA_PERMISSION_CODE);
+                }
+
+            }
+        });
     }
 
 
@@ -370,77 +435,113 @@ public class ChatDetailsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                dispatchTakePictureIntent();
+            } else {
+                Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode==PICK_IMAGE){
+            if (resultCode==Activity.RESULT_OK){
             if (data!=null) {
                 if (data.getData() != null) {
                     Uri selectedImage = data.getData();
                     File dir = getCacheDir();
                     String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
-                    Calendar calendar = Calendar.getInstance();
                     Uri uri = Uri.parse(file);
-                    final StorageReference reference = storage.getReference().child("Chats Images").child(FirebaseAuth.getInstance().getUid()).child(calendar.getTimeInMillis() + "");
-                    dialog.show();
-                    reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @RequiresApi(api = Build.VERSION_CODES.P)
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            File fdelete = new File(getFilePath(uri));
-
-                            if (fdelete.exists()) {
-                                if (fdelete.delete()) {
-                                    System.out.println("file Deleted :");
-                                } else {
-                                    System.out.println("file not Deleted :");
-                                }
-                            }
-                            if (task.isSuccessful()) {
-                                dialog.dismiss();
-                                reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @RequiresApi(api = Build.VERSION_CODES.P)
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        String filePath = uri.toString();
-
-                                        notify = true;
-                                        final Messages model = new Messages(senderId, filePath, profilePic);
-                                        Date date = new Date();
-                                        model.setTimestamp(date.getTime());
-                                        model.setType("photo");
-                                        binding.editMessage.getText().clear();
-
-                                        if (notify) {
-                                            sendNotification(receiverId, sendername, filePath);
-                                        }
-                                        notify = false;
-
-                                        database.getReference().child("Chats").child(senderRoom).push().setValue(model)
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void unused) {
-                                                        database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void unused) {
-
-                                                            }
-                                                        });
-                                                    }
-                                                });
-
-                                    }
-                                });
-                            }
-                        }
-                    });
-
+                    uploadToFirebase(uri);
+                }
+                }
+            }
+        }
+        if (requestCode == REQUEST_IMAGE_CAPTURE){
+        if (resultCode==Activity.RESULT_OK){
+                if(data!=null) {
+                    if (data.getData() != null) {
+                        File f = new File(currentPhotoPath);
+                        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                        Uri contentUri = Uri.fromFile(f);
+                        mediaScanIntent.setData(contentUri);
+                        this.sendBroadcast(mediaScanIntent);
+                        uploadToFirebase(contentUri);
+                    }
                 }
             }
         }
     }
+
+    private void uploadToFirebase(Uri uri){
+        Calendar calendar = Calendar.getInstance();
+        final StorageReference reference = storage.getReference().child("Chats Images").child(FirebaseAuth.getInstance().getUid()).child(calendar.getTimeInMillis() + "");
+        dialog.show();
+        reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
+
+                if (fdelete.exists()) {
+                    if (fdelete.delete()) {
+                        System.out.println("file Deleted :");
+                    } else {
+                        System.out.println("file not Deleted :");
+                    }
+                }
+                if (task.isSuccessful()) {
+                    dialog.dismiss();
+                    reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String filePath = uri.toString();
+                            notify = true;
+                            Date date = new Date();
+                            final Messages model = new Messages(senderId, profilePic, date.getTime());
+                            model.setMessage(fdelete.getName());
+                            model.setImageUrl(filePath);
+                            model.setType("photo");
+                            binding.editMessage.getText().clear();
+
+                            if (notify) {
+                                sendNotification(receiverId, sendername,fdelete.getName());
+                            }
+                            notify = false;
+
+                            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+
+                                                }
+                                            });
+                                        }
+                                    });
+
+                        }
+                    });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private String getFilePath(Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
 
@@ -456,6 +557,71 @@ public class ChatDetailsActivity extends AppCompatActivity {
         return null;
     }
 
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.sushant.whatsapp.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
 
 
+    @Override
+    protected void onDestroy() {
+        checkStatus.removeEventListener(eventListener1);
+        checkStatus1.removeEventListener(eventListener2);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        checkStatus.removeEventListener(eventListener1);
+        checkStatus1.removeEventListener(eventListener2);
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        checkStatus.addValueEventListener(eventListener1);
+        checkStatus1.addValueEventListener(eventListener2);
+        super.onRestart();
+    }
+
+    @Override
+    public void onBackPressed() {
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("Typing","Not Typing...");
+        database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
+        super.onBackPressed();
+    }
 }

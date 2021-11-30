@@ -1,20 +1,18 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -30,16 +28,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityDeleteAcccountBinding;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DeleteAccount extends AppCompatActivity {
     ActivityDeleteAcccountBinding binding;
     FirebaseAuth auth;
     DatabaseReference reference;
     FirebaseDatabase database;
+    String uid;
 
 
     @Override
@@ -60,6 +56,14 @@ public class DeleteAccount extends AppCompatActivity {
             }
         });
 
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null)
+        {
+            sendUserToLoginActivity();
+        }else{
+            uid=user.getUid();
+        }
+
         binding.btnDeleteAcc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,7 +72,6 @@ public class DeleteAccount extends AppCompatActivity {
                     emptyError(binding.editNewPass);
                 }
 
-                FirebaseUser user = auth.getCurrentUser();
                 assert user != null;
                 AuthCredential credential = EmailAuthProvider
                         .getCredential(user.getEmail(), Pass);
@@ -79,15 +82,13 @@ public class DeleteAccount extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     deleteUserFromFriends(user.getUid());
-                                    deleteUser(user.getUid());
+                                    deleteUser(uid);
                                     Toast.makeText(getApplicationContext(), "Re-authenticated", Toast.LENGTH_SHORT).show();
                                     user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
-                                                Intent intent= new Intent(DeleteAccount.this,SignInActivity.class);
-                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                startActivity(intent);
+                                                sendUserToLoginActivity();
                                                 Log.d("TAG", "onComplete: User deleted"+user.getEmail());
                                                 Toast.makeText(getApplicationContext(), "User Account has been Deleted", Toast.LENGTH_SHORT).show();
                                             }else {
@@ -116,6 +117,13 @@ public class DeleteAccount extends AppCompatActivity {
 
     }
 
+    private void sendUserToLoginActivity() {
+        Intent intent= new Intent(DeleteAccount.this,SignInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+    }
+
     public void hideSoftKeyboard() {
         View view = this.getCurrentFocus();
         if (view != null) {
@@ -131,33 +139,65 @@ public class DeleteAccount extends AppCompatActivity {
         password.requestFocus();
     }
 
+//    void deleteUserFromFriends(String userid){
+//        database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()){
+//                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+//                        Users users=snapshot1.getValue(Users.class);
+//                        if (users.getUserId()!=userid){
+//                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+//                            Query checkStatus = reference1.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+//                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+//                                @Override
+//                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                                    if (snapshot.exists()) {
+//                                        HashMap<String,Object> map= new HashMap<>();
+//                                        map.put(userid,null);
+//                                        reference1.updateChildren(map);
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onCancelled(@NonNull DatabaseError error) {
+//
+//                                }
+//                            });
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
+
     void deleteUserFromFriends(String userid){
-        database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
+        DatabaseReference reference1=FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
+        reference1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    for (DataSnapshot snapshot1:snapshot.getChildren()){
-                        Users users=snapshot1.getValue(Users.class);
-                        if (users.getUserId()!=userid){
-                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
-                            Query checkStatus = reference1.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    if (snapshot.exists()) {
-                                        HashMap<String,Object> map= new HashMap<>();
-                                        map.put(userid,null);
-                                        reference1.updateChildren(map);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
+                for (DataSnapshot snapshot1:snapshot.getChildren()){
+                    Users users= snapshot1.getValue(Users.class);
+                    DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
+                    Query checkStatus = reference2.orderByChild("userId").equalTo(userid);
+                    checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            HashMap<String,Object> map= new HashMap<>();
+                            map.put(userid,null);
+                            reference2.updateChildren(map);
                         }
-                    }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
                 }
             }
 

@@ -23,7 +23,13 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityChangeEmailBinding;
 
 import java.util.HashMap;
@@ -33,6 +39,7 @@ public class ChangeEmail extends AppCompatActivity {
 
     ActivityChangeEmailBinding binding;
     FirebaseAuth auth;
+    String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,54 +63,13 @@ public class ChangeEmail extends AppCompatActivity {
                     return;
                 }
 
-//                FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        if (snapshot.exists()) {
-//                            Users user = snapshot.getValue(Users.class);
-//                            assert user != null;
-//                            passFromDb = user.getPassword();
-//                            if (passFromDb.equals(pass)) {
-//                                user.setMail(email);
-//                                HashMap<String,Object> map= new HashMap<>();
-//                                map.put("mail",user.getMail());
-//                                FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).updateChildren(map);
-//                                FirebaseUser user1=auth.getCurrentUser();
-//                                assert user1 != null;
-//                                user1.updateEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                    @Override
-//                                    public void onSuccess(Void unused) {
-//                                        Toast.makeText(getApplicationContext(), "Email Changed", Toast.LENGTH_SHORT).show();
-//                                        hideSoftKeyboard();
-//                                        binding.editEmail.getEditText().getText().clear();
-//                                        binding.editPass.getEditText().getText().clear();
-//                                        binding.editEmail.clearFocus();
-//                                        binding.editPass.clearFocus();
-//                                        auth.signOut();
-//                                        FirebaseDatabase.getInstance().goOffline();
-//                                        Intent intent= new Intent(ChangeEmail.this,SignInActivity.class);
-//                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                                        startActivity(intent);
-//                                        finish();
-//                                    }
-//                                }).addOnFailureListener(new OnFailureListener() {
-//                                    @Override
-//                                    public void onFailure(@NonNull Exception e) {
-//                                        Toast.makeText(getApplicationContext(), "Email Couldn't be changed"+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                                    }
-//                                });
-//
-//                            }else {
-//                                binding.editPass.setError("Incorrect Password");
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//                    }
-//                });
                 FirebaseUser user = auth.getCurrentUser();
+                if (user == null)
+                {
+                    sendUserToLoginActivity();
+                }else{
+                    uid=user.getUid();
+                }
 
                 assert user != null;
                 AuthCredential credential = EmailAuthProvider
@@ -116,8 +82,6 @@ public class ChangeEmail extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(getApplicationContext(), "User re-authenticated.", Toast.LENGTH_SHORT).show();
                                     //Now change your email address \\
-                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                    assert user != null;
                                     user.verifyBeforeUpdateEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
@@ -127,16 +91,15 @@ public class ChangeEmail extends AppCompatActivity {
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful()) {
                                                                 Toast.makeText(getApplicationContext(), "Email updated", Toast.LENGTH_SHORT).show();
-                                                                HashMap<String,Object> map= new HashMap<>();
-                                                                map.put("mail",user.getEmail());
-                                                                FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).updateChildren(map);
+                                                                updateEmail(user.getEmail());
+                                                                updateEmailInFriend(user.getUid(),user.getEmail());
                                                                 hideSoftKeyboard();
                                                                 binding.editEmail.getEditText().getText().clear();
                                                                 binding.editPass.getEditText().getText().clear();
                                                                 binding.editEmail.clearFocus();
                                                                 binding.editPass.clearFocus();
-                                                                auth.signOut();
                                                                 updateStatus();
+                                                                auth.signOut();
                                                                 GoogleSignIn.getClient(getApplicationContext(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                                                                         .build()).signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
@@ -150,10 +113,7 @@ public class ChangeEmail extends AppCompatActivity {
                                                                     }
                                                                 });
 //                                                                FirebaseDatabase.getInstance().goOffline();
-                                                                Intent intent = new Intent(ChangeEmail.this, SignInActivity.class);
-                                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                                startActivity(intent);
-                                                                finish();
+                                                                    sendUserToLoginActivity();
                                                             } else {
                                                                 Toast.makeText(getApplicationContext(), "Email couldn't be changed", Toast.LENGTH_SHORT).show();
                                                             }
@@ -184,6 +144,13 @@ public class ChangeEmail extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void sendUserToLoginActivity() {
+        Intent intent = new Intent(ChangeEmail.this, SignInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     public boolean emailValidation() {
@@ -236,7 +203,46 @@ public class ChangeEmail extends AppCompatActivity {
     void updateStatus(){
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status", "offline");
-        FirebaseDatabase.getInstance().getReference().child("Users").child(auth.getUid()).child("Connection").updateChildren(obj);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("Connection").updateChildren(obj);
     }
+
+    void updateEmail(String email){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("mail",email);
+        FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
+    }
+
+    void updateEmailInFriend(String userid,String email){
+        DatabaseReference reference1=FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
+        reference1.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snapshot1:snapshot.getChildren()){
+                    Users users= snapshot1.getValue(Users.class);
+                    DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
+                    Query checkStatus = reference2.orderByChild("userId").equalTo(userid);
+                    checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            HashMap<String,Object> map= new HashMap<>();
+                            map.put("mail",email);
+                            reference2.child(userid).updateChildren(map);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
 }
