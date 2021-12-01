@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -172,7 +173,7 @@ public class SettingsActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Uri uri) {
                                 database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("profilePic").setValue(uri.toString());
-                                database.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                                database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends").addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                                         if (snapshot.exists()) {
@@ -180,22 +181,9 @@ public class SettingsActivity extends AppCompatActivity {
                                                 Users users = snapshot1.getValue(Users.class);
                                                 assert users != null;
                                                 DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
-                                                Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-                                                checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                        if (snapshot.exists()) {
-                                                            HashMap<String, Object> map = new HashMap<>();
-                                                            map.put("profilePic", uri.toString());
-                                                            reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(map);
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                                    }
-                                                });
+                                                HashMap<String, Object> map = new HashMap<>();
+                                                map.put("profilePic", uri.toString());
+                                                reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(map);
                                             }
                                         }
                                     }

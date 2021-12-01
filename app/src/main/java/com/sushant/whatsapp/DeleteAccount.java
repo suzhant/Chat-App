@@ -139,43 +139,6 @@ public class DeleteAccount extends AppCompatActivity {
         password.requestFocus();
     }
 
-//    void deleteUserFromFriends(String userid){
-//        database.getReference().child("Users").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if (snapshot.exists()){
-//                    for (DataSnapshot snapshot1:snapshot.getChildren()){
-//                        Users users=snapshot1.getValue(Users.class);
-//                        if (users.getUserId()!=userid){
-//                            DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
-//                            Query checkStatus = reference1.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-//                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-//                                @Override
-//                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                                    if (snapshot.exists()) {
-//                                        HashMap<String,Object> map= new HashMap<>();
-//                                        map.put(userid,null);
-//                                        reference1.updateChildren(map);
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onCancelled(@NonNull DatabaseError error) {
-//
-//                                }
-//                            });
-//                        }
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
-
     void deleteUserFromFriends(String userid){
         DatabaseReference reference1=FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
         reference1.addListenerForSingleValueEvent(new ValueEventListener() {
