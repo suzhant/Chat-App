@@ -184,20 +184,9 @@ public class DeleteAccount extends AppCompatActivity {
                 for (DataSnapshot snapshot1:snapshot.getChildren()){
                     Users users= snapshot1.getValue(Users.class);
                     DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
-                    Query checkStatus = reference2.orderByChild("userId").equalTo(userid);
-                    checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            HashMap<String,Object> map= new HashMap<>();
-                            map.put(userid,null);
-                            reference2.updateChildren(map);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
+                    HashMap<String,Object> map= new HashMap<>();
+                    map.put(userid,null);
+                    reference2.updateChildren(map);
                 }
             }
 

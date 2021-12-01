@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                    Users users= snapshot.getValue(Users.class);
                     assert users != null;
                     if (!users.getMail().equals(email)){
-                       updateEmailInFriend(uid,email);
+                        updateEmailInFriend(uid,email);
                         updateEmail(email,uid);
                    }
                 }
@@ -493,20 +493,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 for (DataSnapshot snapshot1:snapshot.getChildren()){
                     Users users= snapshot1.getValue(Users.class);
                     DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
-                    Query checkStatus = reference2.orderByChild("userId").equalTo(userid);
-                    checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            HashMap<String,Object> map= new HashMap<>();
-                            map.put("mail",email);
-                            reference2.child(userid).updateChildren(map);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
+                    HashMap<String,Object> map= new HashMap<>();
+                    map.put("mail",email);
+                    reference2.child(userid).updateChildren(map);
                 }
             }
 
