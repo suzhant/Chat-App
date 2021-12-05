@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.sushant.whatsapp.Fragments.CallsFragment;
 import com.sushant.whatsapp.Fragments.ChatsFragment;
-import com.sushant.whatsapp.Fragments.StatusFragment;
+import com.sushant.whatsapp.Fragments.GroupChatFragment;
 
 public class FragmentsAdapter extends FragmentPagerAdapter {
     public FragmentsAdapter(@NonNull FragmentManager fm) {
@@ -24,7 +24,7 @@ public class FragmentsAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 1:
-                return new StatusFragment();
+                return new GroupChatFragment();
             case 2:
                 return new CallsFragment();
             case 0:
@@ -46,7 +46,7 @@ public class FragmentsAdapter extends FragmentPagerAdapter {
             title = "CHATS";
         }
         if (position == 1) {
-            title = "STATUS";
+            title = "GROUP CHATS";
         }
         if (position == 2) {
             title = "CALLS";

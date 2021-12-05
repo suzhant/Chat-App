@@ -34,8 +34,6 @@ public class ChatsFragment extends Fragment {
     FirebaseDatabase database;
     LinearLayoutManager layoutManager;
     UsersAdapter adapter;
-    ArrayList<String> friends = new ArrayList<>();
-    String pic;
 
 
     public ChatsFragment() {
@@ -48,6 +46,10 @@ public class ChatsFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentChatsBinding.inflate(inflater, container, false);
         database = FirebaseDatabase.getInstance();
+        adapter = new UsersAdapter(list, getContext());
+        binding.chatRecyclerView.setAdapter(adapter);
+        layoutManager = new LinearLayoutManager(getContext());
+        binding.chatRecyclerView.setLayoutManager(layoutManager);
 
         binding.chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -68,12 +70,6 @@ public class ChatsFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
-
-        adapter = new UsersAdapter(list, getContext());
-        binding.chatRecyclerView.setAdapter(adapter);
-        layoutManager = new LinearLayoutManager(getContext());
-        binding.chatRecyclerView.setLayoutManager(layoutManager);
 
 
         database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends").addValueEventListener(new ValueEventListener() {

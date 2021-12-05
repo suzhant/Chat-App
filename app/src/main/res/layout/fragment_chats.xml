@@ -26,21 +26,6 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </LinearLayout>
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:id="@+id/extended_fab"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_margin="16dp"-->
-<!--        android:layout_gravity="bottom|right"-->
-<!--        android:contentDescription="Nothing to say"-->
-<!--        app:srcCompat="@drawable/ic_chat"-->
-<!--        app:backgroundTint="@color/white"-->
-<!--        app:tint="@color/colorAccent"-->
-<!--        tools:ignore="VectorDrawableCompat"-->
-<!--        app:showMotionSpec="@anim/scale_down"-->
-<!--        app:hideMotionSpec="@anim/scale_up"-->
-<!--        app:rippleColor="@color/lightgreen"-->
-<!--        style="Widget.MaterialComponents.FloatingActionButton"/>-->
 
     <com.tuann.floatingactionbuttonexpandable.FloatingActionButtonExpandable
         android:id="@+id/fab"

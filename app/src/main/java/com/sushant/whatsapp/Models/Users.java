@@ -1,7 +1,9 @@
 package com.sushant.whatsapp.Models;
 
-public class Users {
-    private String profilePic,userName,mail,password,userId,lastMessage,status,userStatus,request,Typing;
+import java.io.Serializable;
+
+public class Users implements Serializable {
+    private String profilePic,userName,mail,password,userId,lastMessage,status,userStatus,request,Typing,role;
 
     public Users(String profilePic, String userName, String mail, String password, String userId, String lastMessage, String status) {
         this.profilePic = profilePic;
@@ -104,5 +106,13 @@ public class Users {
 
     public void setTyping(String typing) {
         Typing = typing;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

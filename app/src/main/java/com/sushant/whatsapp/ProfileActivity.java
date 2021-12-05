@@ -1,10 +1,13 @@
 package com.sushant.whatsapp;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -29,6 +32,10 @@ public class ProfileActivity extends AppCompatActivity {
     FirebaseDatabase database;
     boolean friend=false;
     String sendername,pp,userStatus;
+    boolean notify = false;
+    String userToken;
+    Handler handler;
+    Runnable runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +82,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (snapshot.exists()){
                     for (DataSnapshot snapshot1:snapshot.getChildren()){
                         Users users=snapshot1.getValue(Users.class);
-                        if (users.getUserId().equals(Receiverid)){
+                        if (Receiverid.equals(users.getUserId())){
                         if (users.getRequest().equals("Accepted")){
                             binding.btnAddFriend.setText("Unfriend");
                             binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
@@ -96,6 +103,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
                 binding.btnAddFriend.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.P)
                     @Override
                     public void onClick(View view) {
                         if (friend){
@@ -104,6 +112,7 @@ public class ProfileActivity extends AppCompatActivity {
                             binding.btnAddFriend.setText("Add friend");
                             binding.btnAddFriend.setBackgroundColor(0x09af00);
                         }else{
+                            notify=true;
                             Users user1 = new Users();
                             user1.setMail(email);
                             user1.setUserName(userName);
@@ -121,6 +130,12 @@ public class ProfileActivity extends AppCompatActivity {
                             user2.setStatus(userStatus);
                             user2.setTyping("Not Typing");
                             user2.setRequest("Req_Pending");
+
+                            if (notify) {
+                                sendNotification(Receiverid, sendername, "sent you a Friend Request");
+                            }
+                            notify = false;
+
 
                             database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
@@ -185,6 +200,33 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private void sendNotification(String receiver, String userName, String msg) {
+        database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                userToken = snapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg, getApplicationContext(), ProfileActivity.this);
+                fcmNotificationsSender.SendNotifications();
+            }
+        };
+        if (notify) {
+            handler.postDelayed(runnable, 2000);
+        }
     }
 
 }

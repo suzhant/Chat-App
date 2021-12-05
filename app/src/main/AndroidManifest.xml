@@ -3,18 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.sushant.whatsapp">
 
-
     <uses-sdk tools:overrideLibrary="com.tuann.floatingactionbuttonexpandable" />
-    <uses-feature android:name="android.hardware.camera"
+
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,6 +24,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsApp">
+        <activity
+            android:name=".FinalCreateGroup"
+            android:parentActivityName=".ActivityCreateGroup"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityCreateGroup"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -37,7 +45,7 @@
         <activity
             android:name=".DeleteAccount"
             android:exported="false"
-            android:parentActivityName=".Privacy"/>
+            android:parentActivityName=".Privacy" />
         <activity
             android:name=".FriendRequestActivity"
             android:exported="false"
@@ -81,7 +89,7 @@
         </activity>
         <activity android:name=".SettingsActivity" />
         <activity android:name=".GroupChatActivity" />
-        <activity android:name=".ChatDetailsActivity"/>
+        <activity android:name=".ChatDetailsActivity" />
         <activity android:name=".SignInActivity" />
         <activity android:name=".SignUpActivity" />
         <activity
@@ -107,6 +115,5 @@
             </intent-filter>
         </receiver>
     </application>
-
 
 </manifest>
