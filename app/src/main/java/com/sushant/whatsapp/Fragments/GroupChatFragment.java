@@ -17,9 +17,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.ActivityCreateGroup;
-import com.sushant.whatsapp.Adapters.UsersAdapter;
-import com.sushant.whatsapp.Models.Users;
-import com.sushant.whatsapp.databinding.FragmentStatusBinding;
+import com.sushant.whatsapp.Adapters.GroupAdapter;
+import com.sushant.whatsapp.Models.GroupChat;
+import com.sushant.whatsapp.databinding.FragmentGroupChatBinding;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -27,11 +27,11 @@ import java.util.Objects;
 
 public class GroupChatFragment extends Fragment {
 
-    FragmentStatusBinding binding;
-    ArrayList<Users> list = new ArrayList<>();
+    FragmentGroupChatBinding binding;
+    ArrayList<GroupChat> list = new ArrayList<>();
     FirebaseDatabase database;
     LinearLayoutManager layoutManager;
-    UsersAdapter adapter;
+    GroupAdapter adapter;
 
     public GroupChatFragment() {
         // Required empty public constructor
@@ -42,10 +42,10 @@ public class GroupChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentStatusBinding.inflate(inflater, container, false);
+        binding = FragmentGroupChatBinding.inflate(inflater, container, false);
 
         database = FirebaseDatabase.getInstance();
-        adapter = new UsersAdapter(list, getContext());
+        adapter= new GroupAdapter(list,getContext());
         binding.chatRecyclerView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getContext());
         binding.chatRecyclerView.setLayoutManager(layoutManager);
@@ -64,12 +64,10 @@ public class GroupChatFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Users users = dataSnapshot.getValue(Users.class);
-                    assert users != null;
-                    users.setUserId(dataSnapshot.getKey());
-                    if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                            list.add(users);
-                    }
+                    GroupChat groupChat = dataSnapshot.getValue(GroupChat.class);
+                    assert groupChat != null;
+                    groupChat.setGroupId(dataSnapshot.getKey());
+                    list.add(groupChat);
                 }
                 adapter.notifyDataSetChanged();
 

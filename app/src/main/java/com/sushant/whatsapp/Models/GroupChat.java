@@ -1,10 +1,9 @@
 package com.sushant.whatsapp.Models;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
-public class GroupChat {
-    private String groupId,groupName;
-    private ArrayList<Users> participant;
+public class GroupChat implements Serializable {
+    private String groupId,groupName,groupPP;
 
     public GroupChat() {
     }
@@ -29,11 +28,11 @@ public class GroupChat {
         this.groupName = groupName;
     }
 
-    public ArrayList<Users> getParticipant() {
-        return participant;
+    public String getGroupPP() {
+        return groupPP;
     }
 
-    public void setParticipant(ArrayList<Users> participant) {
-        this.participant = participant;
+    public void setGroupPP(String groupPP) {
+        this.groupPP = groupPP;
     }
 }
