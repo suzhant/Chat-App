@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -19,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.ActivityCreateGroup;
 import com.sushant.whatsapp.Adapters.GroupAdapter;
 import com.sushant.whatsapp.Models.GroupChat;
+import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.FragmentGroupChatBinding;
 
 import java.util.ArrayList;
@@ -76,6 +78,33 @@ public class GroupChatFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+
+        binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends").addValueEventListener(new ValueEventListener() {
+                    @SuppressLint("NotifyDataSetChanged")
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        list.clear();
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            GroupChat groupChat = dataSnapshot.getValue(GroupChat.class);
+                            assert groupChat != null;
+                            groupChat.setGroupId(dataSnapshot.getKey());
+                            list.add(groupChat);
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+                binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
         return binding.getRoot();

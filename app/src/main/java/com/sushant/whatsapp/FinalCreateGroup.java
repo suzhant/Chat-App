@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class FinalCreateGroup extends AppCompatActivity{
 
@@ -40,7 +41,9 @@ public class FinalCreateGroup extends AppCompatActivity{
     String uid,name,profilePic,mail;
     FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
     FirebaseStorage storage;
-    String id;
+    String id,image;
+    ValueEventListener eventListener;
+    DatabaseReference reference1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +53,7 @@ public class FinalCreateGroup extends AppCompatActivity{
         database= FirebaseDatabase.getInstance();
         storage=FirebaseStorage.getInstance();
         dialog= new ProgressDialog(this);
-        dialog.setMessage("Creating Group");
+        dialog.setMessage("Uploading Image");
         dialog.setCancelable(false);
 
         list= (ArrayList<Users>) getIntent().getSerializableExtra("participantList");
@@ -71,12 +74,17 @@ public class FinalCreateGroup extends AppCompatActivity{
             }
         });
 
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        id=user.getUid()+timeStamp;
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        UUID uuid= UUID.randomUUID();
+        id=uuid+"";
 
         binding.btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (binding.editName.getEditText().getText().toString().isEmpty()){
+                    binding.editName.setError("Field cannot be empty");
+                    return;
+                }
                 GroupChat groupChat= new GroupChat();
                 String GroupName= binding.editName.getEditText().getText().toString();
                 groupChat.setGroupName(GroupName);
@@ -143,6 +151,30 @@ public class FinalCreateGroup extends AppCompatActivity{
                     }
                 });
 
+                database.getReference().child("Group Chats").child(FirebaseAuth.getInstance().getUid()).child(id).child("groupPP").setValue(image);
+                reference1=database.getReference().child("Group Chats").child(FirebaseAuth.getInstance().getUid()).child(id).child("participant");
+                eventListener= new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                                Users users = snapshot1.getValue(Users.class);
+                                assert users != null;
+                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Group Chats").child(users.getUserId()).child(id);
+                                HashMap<String, Object> map = new HashMap<>();
+                                map.put("groupPP", image);
+                                reference.updateChildren(map);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                };
+                reference1.addValueEventListener(eventListener);
+
                 Intent intent= new Intent(FinalCreateGroup.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -170,6 +202,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                 binding.imgProfile.setImageURI(sFile);
 
                 final StorageReference reference = storage.getReference().child("Group Pictures").child(id);
+                dialog.show();
 
                 reference.putFile(sFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -177,30 +210,10 @@ public class FinalCreateGroup extends AppCompatActivity{
                         reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                database.getReference().child("Group Chats").child(FirebaseAuth.getInstance().getUid()).child(id).child("groupPP").setValue(uri.toString());
-                                database.getReference().child("Group Chats").child(FirebaseAuth.getInstance().getUid()).child(id).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        if (snapshot.exists()) {
-                                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                                                Users users = snapshot1.getValue(Users.class);
-                                                assert users != null;
-                                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Group Chats").child(users.getUserId()).child(id);
-                                                HashMap<String, Object> map = new HashMap<>();
-                                                map.put("groupPP", uri.toString());
-                                                reference.updateChildren(map);
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                });
-
-
+                                dialog.hide();
+                                image=uri.toString();
                                 Toast.makeText(FinalCreateGroup.this, "Profile Pic Updated", Toast.LENGTH_SHORT).show();
+                                binding.btnCreate.setEnabled(true);
                             }
                         });
                     }
@@ -209,6 +222,9 @@ public class FinalCreateGroup extends AppCompatActivity{
         }
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        reference1.removeEventListener(eventListener);
+    }
 }
