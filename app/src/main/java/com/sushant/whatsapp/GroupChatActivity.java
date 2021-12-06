@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -17,6 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Adapters.ChatAdapter;
+import com.sushant.whatsapp.Fragments.GroupChatFragment;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityGroupChatBinding;
@@ -39,6 +42,14 @@ public class GroupChatActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
+        String Gid=getIntent().getStringExtra("GId");
+        String GPP=getIntent().getStringExtra("GPic");
+        String Gname=getIntent().getStringExtra("GName");
+
+        binding.groupName.setText(Gname);
+        Glide.with(this).load(GPP).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.profileImage);
+
         scale_down = AnimationUtils.loadAnimation(this, R.anim.scale_down);
         scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up);
         auth=FirebaseAuth.getInstance();
@@ -47,8 +58,7 @@ public class GroupChatActivity extends AppCompatActivity {
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(GroupChatActivity.this, MainActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
 
@@ -56,7 +66,6 @@ public class GroupChatActivity extends AppCompatActivity {
         final ArrayList<Messages> messageModel = new ArrayList<>();
 
         final String senderId = FirebaseAuth.getInstance().getUid();
-        binding.userName.setText("Friends Group");
 
         final ChatAdapter chatAdapter = new ChatAdapter(messageModel,  this);
         binding.chatRecyclerView.setAdapter(chatAdapter);

@@ -116,15 +116,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         String Status = getIntent().getStringExtra("UserStatus");
 
         binding.userName.setText(userName);
-//        binding.txtStatus.setText(Status);
-//
-//        if (Status.equals("online")) {
-////            binding.txtStatus.setTextColor(Color.GREEN);
-//            binding.imgStatus.setColorFilter(Color.GREEN);
-//        } else {
-////            binding.txtStatus.setTextColor(Color.WHITE);
-//            binding.imgStatus.setColorFilter(Color.GRAY);
-//        }
+        Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
 
         binding.icSetting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,9 +131,6 @@ public class ChatDetailsActivity extends AppCompatActivity {
             }
         });
 
-
-        Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.profileImage);
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
