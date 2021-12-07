@@ -184,78 +184,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 });
 
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-        checkStatus = reference.orderByChild("userId").equalTo(receiverId);
-        eventListener1= new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
-                    assert StatusFromDB != null;
-
-                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users");
-                    checkStatus1 = reference1.orderByChild("userId").equalTo(senderId);
-                    eventListener2= new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()) {
-                                String presence = snapshot.child(senderId).child("Friends").child(receiverId).child("Typing").getValue(String.class);
-                                if (StatusFromDB.equals("online")) {
-                                    if ("Typing...".equals(presence)) {
-                                        binding.imgStatus.setColorFilter(Color.GREEN);
-                                        binding.txtStatus.setText(presence);
-                                    }else{
-                                        binding.imgStatus.setColorFilter(Color.GREEN);
-                                        binding.txtStatus.setText(StatusFromDB);
-                                    }
-                                }else {
-                                    binding.imgStatus.setColorFilter(Color.GRAY);
-                                    binding.txtStatus.setText(StatusFromDB);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    };
-                    checkStatus1.addValueEventListener(eventListener2);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-
-        checkStatus.addValueEventListener(eventListener1);
-
-
-
-
-//        binding.editMessage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                binding.imgCamera.setVisibility(View.GONE);
-//                binding.imgGallery.setVisibility(View.GONE);
-//                binding.imgMic.setVisibility(View.GONE);
-//            }
-//        });
-//
-//        binding.editMessage.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View view, boolean b) {
-//                if (binding.editMessage.getText().length()>0){
-//                    binding.icFavorite.setVisibility(View.GONE);
-//                    binding.icSend.setVisibility(View.VISIBLE);
-//                }else{
-//                    binding.icFavorite.setVisibility(View.VISIBLE);
-//                    binding.icSend.setVisibility(View.GONE);
-//                }
-//            }
-//        });
+        getTypingStatus();
 
         binding.editMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -307,68 +236,10 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
 
         binding.icSend.setOnClickListener(new View.OnClickListener() {
-            @Override
             @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
             public void onClick(View view) {
-                notify = true;
-                binding.icSend.startAnimation(scale_down);
-                binding.icSend.startAnimation(scale_up);
-                final String message = binding.editMessage.getText().toString();
-                if (!message.isEmpty()) {
-                    final Messages model = new Messages(senderId, message, profilePic);
-                    Date date = new Date();
-                    model.setTimestamp(date.getTime());
-                    model.setType("text");
-                    binding.editMessage.getText().clear();
-
-                    if (notify) {
-                        sendNotification(receiverId, sendername, message);
-                    }
-                    notify = false;
-
-                    database.getReference().child("Chats").child(senderRoom).push().setValue(model)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-
-                                        }
-                                    });
-                                }
-                            });
-
-                } else {
-                    notify = true;
-                    binding.icSend.startAnimation(scale_down);
-                    binding.icSend.startAnimation(scale_up);
-                    int unicode = 0x2764;
-                    String heart=new String(Character.toChars(unicode));
-                    final Messages model1 = new Messages(senderId,heart, profilePic);
-                    model1.setType("text");
-                    Date date = new Date();
-                    model1.setTimestamp(date.getTime());
-
-                    if (notify) {
-                        sendNotification(receiverId, sendername, heart);
-                    }
-                    notify = false;
-
-                    database.getReference().child("Chats").child(senderRoom).push().setValue(model1)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    database.getReference().child("Chats").child(receiverRoom).push().setValue(model1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-
-                                        }
-                                    });
-                                }
-                            });
-                }
-
+                sendMessage();
             }
         });
 
@@ -394,6 +265,118 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private void sendMessage() {
+        notify = true;
+        binding.icSend.startAnimation(scale_down);
+        binding.icSend.startAnimation(scale_up);
+        final String message = binding.editMessage.getText().toString();
+        if (!message.isEmpty()) {
+            final Messages model = new Messages(senderId, message, profilePic);
+            Date date = new Date();
+            model.setTimestamp(date.getTime());
+            model.setType("text");
+            binding.editMessage.getText().clear();
+
+            if (notify) {
+                sendNotification(receiverId, sendername, message);
+            }
+            notify = false;
+
+            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+
+                                }
+                            });
+                        }
+                    });
+
+        } else {
+            notify = true;
+            binding.icSend.startAnimation(scale_down);
+            binding.icSend.startAnimation(scale_up);
+            int unicode = 0x2764;
+            String heart=new String(Character.toChars(unicode));
+            final Messages model1 = new Messages(senderId,heart, profilePic);
+            model1.setType("text");
+            Date date = new Date();
+            model1.setTimestamp(date.getTime());
+
+            if (notify) {
+                sendNotification(receiverId, sendername, heart);
+            }
+            notify = false;
+
+            database.getReference().child("Chats").child(senderRoom).push().setValue(model1)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+
+                                }
+                            });
+                        }
+                    });
+        }
+    }
+
+    private void getTypingStatus() {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        checkStatus = reference.orderByChild("userId").equalTo(receiverId);
+        eventListener1= new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
+                    assert StatusFromDB != null;
+
+                    DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users");
+                    checkStatus1 = reference1.orderByChild("userId").equalTo(senderId);
+                    eventListener2= new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                String presence = snapshot.child(senderId).child("Friends").child(receiverId).child("Typing").getValue(String.class);
+                                if (StatusFromDB.equals("online")) {
+                                    if ("Typing...".equals(presence)) {
+                                        binding.imgStatus.setColorFilter(Color.GREEN);
+                                        binding.txtStatus.setText(presence);
+                                    }else{
+                                        binding.imgStatus.setColorFilter(Color.GREEN);
+                                        binding.txtStatus.setText(StatusFromDB);
+                                    }
+                                }else {
+                                    binding.imgStatus.setColorFilter(Color.GRAY);
+                                    binding.txtStatus.setText(StatusFromDB);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    };
+                    checkStatus1.addValueEventListener(eventListener2);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+
+        checkStatus.addValueEventListener(eventListener1);
     }
 
 
