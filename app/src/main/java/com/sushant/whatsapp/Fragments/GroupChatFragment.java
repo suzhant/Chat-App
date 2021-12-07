@@ -84,7 +84,7 @@ public class GroupChatFragment extends Fragment {
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends").addValueEventListener(new ValueEventListener() {
+                database.getReference().child("Group Chats").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).addValueEventListener(new ValueEventListener() {
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -96,6 +96,7 @@ public class GroupChatFragment extends Fragment {
                             list.add(groupChat);
                         }
                         adapter.notifyDataSetChanged();
+
                     }
 
                     @Override
