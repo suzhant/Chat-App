@@ -7,23 +7,13 @@
         <deviceKey>
           <Key>
             <type value="SERIAL_NUMBER" />
-            <value value="5158e3ba" />
+            <value value="f729cb2d" />
           </Key>
         </deviceKey>
       </Target>
     </runningDeviceTargetSelectedWithDropDown>
-    <timeTargetWasSelectedWithDropDown value="2021-12-07T05:15:11.036187300Z" />
-    <multipleDevicesSelectedInDropDown value="true" />
+    <timeTargetWasSelectedWithDropDown value="2021-12-07T09:19:52.948509100Z" />
     <runningDeviceTargetsSelectedWithDialog>
-      <Target>
-        <type value="RUNNING_DEVICE_TARGET" />
-        <deviceKey>
-          <Key>
-            <type value="SERIAL_NUMBER" />
-            <value value="5158e3ba" />
-          </Key>
-        </deviceKey>
-      </Target>
       <Target>
         <type value="RUNNING_DEVICE_TARGET" />
         <deviceKey>

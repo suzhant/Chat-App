@@ -32,6 +32,7 @@ import com.sushant.whatsapp.R;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -95,6 +96,18 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
             ((GroupChatAdapter.ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
             Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(((GroupChatAdapter.ReceiverViewHolder) holder).profilepic);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (((ReceiverViewHolder) holder).txtSenderName.getVisibility()==View.VISIBLE){
+                        ((ReceiverViewHolder) holder).txtSenderName.setVisibility(View.GONE);
+                        ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.GONE);
+                    }else {
+                        ((ReceiverViewHolder) holder).txtSenderName.setVisibility(View.VISIBLE);
+                        ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
         }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
