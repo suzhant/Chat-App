@@ -2,8 +2,11 @@ package com.sushant.whatsapp;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,6 +29,7 @@ import com.sushant.whatsapp.Models.GroupChat;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityFinalCreateGroupBinding;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,7 +96,7 @@ public class FinalCreateGroup extends AppCompatActivity{
 
                 for (int i=0;i<list.size();i++){
                     Users users= list.get(i);
-                    DatabaseReference reference= database.getReference().child("Group Chats").child(users.getUserId()).child(id);
+                    DatabaseReference reference= database.getReference().child("Groups").child(users.getUserId()).child(id);
                     reference.setValue(groupChat).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
@@ -122,7 +126,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                     });
                 }
 
-                DatabaseReference reference= database.getReference().child("Group Chats").child(user.getUid()).child(id);
+                DatabaseReference reference= database.getReference().child("Groups").child(user.getUid()).child(id);
                 reference.setValue(groupChat).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
@@ -151,8 +155,8 @@ public class FinalCreateGroup extends AppCompatActivity{
                     }
                 });
 
-                database.getReference().child("Group Chats").child(FirebaseAuth.getInstance().getUid()).child(id).child("groupPP").setValue(image);
-                reference1=database.getReference().child("Group Chats").child(FirebaseAuth.getInstance().getUid()).child(id).child("participant");
+                database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(id).child("groupPP").setValue(image);
+                reference1=database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(id).child("participant");
                 eventListener= new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -160,7 +164,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                             for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                                 Users users = snapshot1.getValue(Users.class);
                                 assert users != null;
-                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Group Chats").child(users.getUserId()).child(id);
+                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Groups").child(users.getUserId()).child(id);
                                 HashMap<String, Object> map = new HashMap<>();
                                 map.put("groupPP", image);
                                 reference.updateChildren(map);
@@ -199,18 +203,30 @@ public class FinalCreateGroup extends AppCompatActivity{
         if (data!=null){
             if (data.getData()!=null) {
                 Uri sFile = data.getData();
+                Bitmap bitmap=null;
+                try{
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                assert bitmap != null;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+                byte[] img = baos.toByteArray();
                 binding.imgProfile.setImageURI(sFile);
 
                 final StorageReference reference = storage.getReference().child("Group Pictures").child(id);
                 dialog.show();
 
-                reference.putFile(sFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                reference.putBytes(img).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                dialog.hide();
+                                dialog.dismiss();
                                 image=uri.toString();
                                 Toast.makeText(FinalCreateGroup.this, "Profile Pic Updated", Toast.LENGTH_SHORT).show();
                                 binding.btnCreate.setEnabled(true);
@@ -225,6 +241,9 @@ public class FinalCreateGroup extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        reference1.removeEventListener(eventListener);
+        if (reference1!=null){
+            Log.d("REF", "onDestroy: Removed Event");
+            reference1.removeEventListener(eventListener);
+        }
     }
 }

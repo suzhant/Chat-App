@@ -1,10 +1,13 @@
 package com.sushant.whatsapp;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -31,6 +34,7 @@ import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivitySettingsBinding;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -39,7 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseDatabase database;
     FirebaseStorage storage;
-
+    ProgressDialog dialog;
 
 
     @Override
@@ -52,6 +56,9 @@ public class SettingsActivity extends AppCompatActivity {
         auth=FirebaseAuth.getInstance();
         database=FirebaseDatabase.getInstance();
         storage=FirebaseStorage.getInstance();
+        dialog= new ProgressDialog(this);
+        dialog.setMessage("Uploading Pic");
+        dialog.setCancelable(false);
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,11 +169,24 @@ public class SettingsActivity extends AppCompatActivity {
         if (data!=null){
             if (data.getData()!=null) {
                 Uri sFile = data.getData();
+                dialog.show();
+                Bitmap bitmap=null;
+                try{
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                assert bitmap != null;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+                byte[] img = baos.toByteArray();
                 binding.imgProfile.setImageURI(sFile);
 
                 final StorageReference reference = storage.getReference().child("Profile Pictures").child(FirebaseAuth.getInstance().getUid());
 
-                reference.putFile(sFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                reference.putBytes(img).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -194,7 +214,7 @@ public class SettingsActivity extends AppCompatActivity {
                                     }
                                 });
 
-
+                                dialog.dismiss();
                                 Toast.makeText(SettingsActivity.this, "Profile Pic Updated", Toast.LENGTH_SHORT).show();
                             }
                         });
