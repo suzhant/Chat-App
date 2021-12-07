@@ -65,7 +65,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:text="Say Hi!!"
-            android:maxLength="20"
+            android:maxLength="30"
             android:singleLine="true"/>
 
 

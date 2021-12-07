@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/alice"
-                android:maxLength="20"
+                android:maxLength="30"
                 android:paddingTop="2dp"
                 android:paddingBottom="2dp"
                 android:singleLine="true"

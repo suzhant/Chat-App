@@ -67,7 +67,6 @@ public class GroupChatFragment extends Fragment {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Groups groups = dataSnapshot.getValue(Groups.class);
                     assert groups != null;
-                    groups.setGroupId(dataSnapshot.getKey());
                     list.add(groups);
                 }
                 adapter.notifyDataSetChanged();
@@ -91,7 +90,6 @@ public class GroupChatFragment extends Fragment {
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                             Groups groups = dataSnapshot.getValue(Groups.class);
                             assert groups != null;
-                            groups.setGroupId(dataSnapshot.getKey());
                             list.add(groups);
                         }
                         adapter.notifyDataSetChanged();

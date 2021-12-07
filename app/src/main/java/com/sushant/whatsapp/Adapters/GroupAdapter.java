@@ -1,15 +1,18 @@
 package com.sushant.whatsapp.Adapters;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -26,6 +29,7 @@ import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -50,8 +54,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
     @Override
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
         Groups groups = list.get(position);
-        Glide.with(context).load(groups.getGroupPP()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.image);
+        Glide.with(context).load(groups.getGroupPP()).placeholder(R.drawable.avatar).into(holder.image);
         holder.groupName.setText(groups.getGroupName());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -68,13 +71,20 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
         DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Group Chat").child(groups.getGroupId());
         Query message=reference2.orderByChild("timestamp").limitToLast(1);
         message.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.hasChildren()) {
                     for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                         lastMsg=snapshot1.child("message").getValue(String.class);
-                        holder.lastMessage.setText(lastMsg);
-                        holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+                        String senderName=snapshot1.child("senderName").getValue(String.class);
+                        if (Objects.equals(FirebaseAuth.getInstance().getUid(), snapshot1.child("uId").getValue(String.class))){
+                            holder.lastMessage.setText("You: "+ lastMsg);
+                        }else {
+                            holder.lastMessage.setText(senderName +": "+ lastMsg);
+                        }
+
                     }
                 }
             }

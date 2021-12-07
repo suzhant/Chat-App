@@ -16,7 +16,6 @@
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
             android:padding="5dp"
             android:src="@drawable/avatar" />
 
@@ -66,8 +65,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="4dp"
                 android:text="12:00pm"
-                android:visibility="gone"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 app:layout_goneMarginBottom="4dp" />
 
         </LinearLayout>
