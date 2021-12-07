@@ -19,8 +19,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.ActivityCreateGroup;
 import com.sushant.whatsapp.Adapters.GroupAdapter;
-import com.sushant.whatsapp.Models.GroupChat;
-import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.databinding.FragmentGroupChatBinding;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.Objects;
 public class GroupChatFragment extends Fragment {
 
     FragmentGroupChatBinding binding;
-    ArrayList<GroupChat> list = new ArrayList<>();
+    ArrayList<Groups> list = new ArrayList<>();
     FirebaseDatabase database;
     LinearLayoutManager layoutManager;
     GroupAdapter adapter;
@@ -66,10 +65,10 @@ public class GroupChatFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    GroupChat groupChat = dataSnapshot.getValue(GroupChat.class);
-                    assert groupChat != null;
-                    groupChat.setGroupId(dataSnapshot.getKey());
-                    list.add(groupChat);
+                    Groups groups = dataSnapshot.getValue(Groups.class);
+                    assert groups != null;
+                    groups.setGroupId(dataSnapshot.getKey());
+                    list.add(groups);
                 }
                 adapter.notifyDataSetChanged();
 
@@ -90,10 +89,10 @@ public class GroupChatFragment extends Fragment {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         list.clear();
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            GroupChat groupChat = dataSnapshot.getValue(GroupChat.class);
-                            assert groupChat != null;
-                            groupChat.setGroupId(dataSnapshot.getKey());
-                            list.add(groupChat);
+                            Groups groups = dataSnapshot.getValue(Groups.class);
+                            assert groups != null;
+                            groups.setGroupId(dataSnapshot.getKey());
+                            list.add(groups);
                         }
                         adapter.notifyDataSetChanged();
 

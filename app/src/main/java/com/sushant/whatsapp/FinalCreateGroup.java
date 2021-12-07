@@ -25,14 +25,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.sushant.whatsapp.Models.GroupChat;
+import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityFinalCreateGroupBinding;
 
 import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -89,15 +87,15 @@ public class FinalCreateGroup extends AppCompatActivity{
                     binding.editName.setError("Field cannot be empty");
                     return;
                 }
-                GroupChat groupChat= new GroupChat();
+                Groups groups = new Groups();
                 String GroupName= binding.editName.getEditText().getText().toString();
-                groupChat.setGroupName(GroupName);
-                groupChat.setGroupId(id);
+                groups.setGroupName(GroupName);
+                groups.setGroupId(id);
 
                 for (int i=0;i<list.size();i++){
                     Users users= list.get(i);
                     DatabaseReference reference= database.getReference().child("Groups").child(users.getUserId()).child(id);
-                    reference.setValue(groupChat).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    reference.setValue(groups).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
                             for (int i=0;i<list.size();i++){
@@ -127,7 +125,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                 }
 
                 DatabaseReference reference= database.getReference().child("Groups").child(user.getUid()).child(id);
-                reference.setValue(groupChat).addOnSuccessListener(new OnSuccessListener<Void>() {
+                reference.setValue(groups).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
                         for (int i=0;i<list.size();i++){

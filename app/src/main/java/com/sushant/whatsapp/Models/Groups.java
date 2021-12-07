@@ -2,12 +2,12 @@ package com.sushant.whatsapp.Models;
 
 import java.io.Serializable;
 
-public class GroupChat implements Serializable {
+public class Groups implements Serializable {
     private String groupId,groupName,groupPP;
 
-    public GroupChat() {
+    public Groups() {
     }
-    public GroupChat(String groupId, String groupName) {
+    public Groups(String groupId, String groupName) {
         this.groupId = groupId;
         this.groupName = groupName;
     }
