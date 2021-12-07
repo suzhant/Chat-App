@@ -2,11 +2,6 @@ package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,16 +11,19 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Adapters.GroupChatAdapter;
-import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityGroupChatBinding;
@@ -89,7 +87,8 @@ public class GroupChatActivity extends AppCompatActivity {
         final GroupChatAdapter chatAdapter = new GroupChatAdapter(messageModel, this);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        layoutManager.setStackFromEnd(true);
         binding.chatRecyclerView.setLayoutManager(layoutManager);
 
         binding.editMessage.addTextChangedListener(new TextWatcher() {
@@ -138,6 +137,7 @@ public class GroupChatActivity extends AppCompatActivity {
                             chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
                             binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
                         }
+
                     }
 
                     @Override
