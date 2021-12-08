@@ -47,7 +47,7 @@ public class GroupSettings extends AppCompatActivity {
 
         binding.txtGroupName.setText(GName);
 
-        adapter = new MemberAdapter(list,this);
+        adapter = new MemberAdapter(list,Gid,this);
         binding.participantRecycler.setItemAnimator(new DefaultItemAnimator());
         binding.participantRecycler.setAdapter(adapter);
         binding.participantRecycler.addItemDecoration(new DividerItemDecoration(binding.participantRecycler.getContext(), DividerItemDecoration.VERTICAL));
@@ -75,9 +75,8 @@ public class GroupSettings extends AppCompatActivity {
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
                     users.setUserId(dataSnapshot.getKey());
-                    if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                        list.add(users);
-                    }
+                    list.add(users);
+
                 }
                 adapter.notifyDataSetChanged();
             }

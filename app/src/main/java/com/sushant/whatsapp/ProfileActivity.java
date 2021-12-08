@@ -63,11 +63,11 @@ public class ProfileActivity extends AppCompatActivity {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Users user = snapshot.getValue(Users.class);
-                        assert user != null;
-                       sendername=user.getUserName();
-                       pp=user.getProfilePic();
-                       userStatus=user.getStatus();
+                        Users users = snapshot.getValue(Users.class);
+                        assert users != null;
+                       sendername=users.getUserName();
+                       pp=users.getProfilePic();
+                       userStatus=users.getStatus();
                     }
 
                     @Override
@@ -75,6 +75,12 @@ public class ProfileActivity extends AppCompatActivity {
 
                     }
                 });
+
+        if (FirebaseAuth.getInstance().getUid().equals(Receiverid)){
+            binding.btnAddFriend.setVisibility(View.GONE);
+            binding.btnAccept.setVisibility(View.GONE);
+            binding.btnReject.setVisibility(View.GONE);
+        }
         DatabaseReference reference = database.getReference("Users").child(user.getUid()).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
