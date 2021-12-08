@@ -2,6 +2,7 @@ package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,7 +38,7 @@ public class GroupChatActivity extends AppCompatActivity {
     ActivityGroupChatBinding binding;
     Animation scale_up, scale_down;
     FirebaseAuth auth;
-    String senderId,profilePic,sendername,Gid;
+    String senderId,profilePic,sendername,Gid,GPP,Gname;
     boolean notify = false;
     FirebaseDatabase database;
     String userToken;
@@ -58,8 +59,8 @@ public class GroupChatActivity extends AppCompatActivity {
 
 
         Gid = getIntent().getStringExtra("GId");
-        String GPP = getIntent().getStringExtra("GPic");
-        String Gname = getIntent().getStringExtra("GName");
+        GPP = getIntent().getStringExtra("GPic");
+        Gname = getIntent().getStringExtra("GName");
 
         senderId = FirebaseAuth.getInstance().getUid();
 
@@ -71,6 +72,16 @@ public class GroupChatActivity extends AppCompatActivity {
         scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up);
         auth = FirebaseAuth.getInstance();
 
+        binding.icSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent= new Intent(GroupChatActivity.this,GroupSettings.class);
+                intent.putExtra("GId1",Gid);
+                intent.putExtra("GPic1",GPP);
+                intent.putExtra("GName1",Gname);
+                startActivity(intent);
+            }
+        });
 
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override

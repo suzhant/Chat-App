@@ -139,13 +139,13 @@ public class ActivityCreateGroup extends AppCompatActivity{
 
             }
         };
-        ref =FirebaseDatabase.getInstance().getReference("Users");
+        ref =FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends");
         ref.addValueEventListener(valueEventListener1);
     }
 
     private void searchUser(String query) {
         FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

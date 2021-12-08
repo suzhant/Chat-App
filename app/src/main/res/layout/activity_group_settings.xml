@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".GroupSettings">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/colorPurple"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:gravity="end">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/backArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:tint="@color/white"
+            app:srcCompat="?attr/actionModeCloseDrawable" />
+
+
+        <TextView
+            android:id="@+id/txtGroupName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GroupName"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:fontFamily="@font/aldrich"
+            android:layout_gravity="center_horizontal" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/bg_et_message"
+        android:backgroundTint="@color/colorPurple"
+        android:fontFamily="@font/advent_pro_medium"
+        android:gravity="center"
+        android:text="Leave Group"
+        android:textColor="@color/white" />
+
+   <Button
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:gravity="center"
+       android:textColor="@color/white"
+       android:text="Settings"
+       android:layout_marginBottom="5dp"
+       android:layout_marginTop="5dp"
+       android:fontFamily="@font/advent_pro_medium"
+       android:backgroundTint="@color/colorPurple"
+       android:background="@drawable/bg_et_message"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:text="Add Participant"
+        android:backgroundTint="@color/colorPurple"
+        android:fontFamily="@font/advent_pro_medium"
+        android:background="@drawable/bg_et_message"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:text="Remove Participant"
+        android:layout_marginTop="5dp"
+        android:visibility="gone"
+        android:backgroundTint="@color/colorPurple"
+        android:background="@drawable/bg_et_message"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Members"
+        android:layout_gravity="center"
+        android:textColor="@color/colorPurple"
+        android:textStyle="bold"
+        android:layout_margin="10dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/participantRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layout"
+        android:background="@color/white" />
+
+
+
+
+</LinearLayout>

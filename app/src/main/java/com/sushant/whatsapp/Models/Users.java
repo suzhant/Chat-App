@@ -3,7 +3,7 @@ package com.sushant.whatsapp.Models;
 import java.io.Serializable;
 
 public class Users implements Serializable {
-    private String profilePic,userName,mail,password,userId,lastMessage,status,userStatus,request,Typing,role;
+    private String profilePic,userName,mail,password,userId,lastMessage,status,request,Typing,role;
 
     public Users(String profilePic, String userName, String mail, String password, String userId, String lastMessage, String status) {
         this.profilePic = profilePic;
@@ -33,13 +33,6 @@ public class Users implements Serializable {
         this.request = request;
     }
 
-    public String getUserStatus() {
-        return userStatus;
-    }
-
-    public void setUserStatus(String userStatus) {
-        this.userStatus = userStatus;
-    }
 
     public String getStatus() {
         return status;
