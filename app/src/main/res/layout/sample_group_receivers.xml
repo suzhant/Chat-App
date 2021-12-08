@@ -4,42 +4,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/groupChatRelative"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/group_profile_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:layout_marginLeft="5dp"
-            android:padding="5dp"
-            android:src="@drawable/avatar" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtSenderName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginLeft="50dp"
+            android:text="senderName"
+            android:textSize="11sp" />
 
         <LinearLayout
             android:id="@+id/parent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginRight="6dp"
             android:maxWidth="310dp"
             android:maxHeight="400dp"
             android:minHeight="30dp"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
 
-            <TextView
-                android:id="@+id/txtSenderName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:text="senderName"
-                android:visibility="gone"
-                android:textSize="11sp" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/group_profile_image"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:padding="5dp"
+                android:src="@drawable/avatar" />
 
             <TextView
                 android:id="@+id/txtGroupReceiver"
@@ -53,22 +54,23 @@
                 android:inputType="textMultiLine|textLongMessage"
                 android:maxWidth="270dp"
                 android:minWidth="50dp"
-                android:padding="7dp"
+                android:padding="10dp"
                 android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
                 android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/txtGroupReceiverTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginLeft="10dp"
-                android:layout_marginBottom="4dp"
-                android:text="12:00pm"
-                android:textSize="10sp"
-                app:layout_goneMarginBottom="4dp" />
-
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtGroupReceiverTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginLeft="50dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            android:text="12:00pm"
+            android:textSize="10sp"
+            app:layout_goneMarginBottom="4dp" />
 
     </LinearLayout>
 

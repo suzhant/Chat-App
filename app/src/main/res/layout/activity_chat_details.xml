@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/linear"
         android:layout_below="@+id/toolbar"
-        android:background="@color/chatbackground"
+        android:background="#C5C4FF"
         android:transcriptMode="alwaysScroll" />
 
     <LinearLayout

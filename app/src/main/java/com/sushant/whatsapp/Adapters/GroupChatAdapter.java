@@ -99,10 +99,10 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (((ReceiverViewHolder) holder).txtSenderName.getVisibility()==View.VISIBLE){
-                        ((ReceiverViewHolder) holder).txtSenderName.setVisibility(View.GONE);
+                    if (((ReceiverViewHolder) holder).txtReceiverTime.getVisibility()==View.VISIBLE){
+                        ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.GONE);
                     }else {
-                        ((ReceiverViewHolder) holder).txtSenderName.setVisibility(View.VISIBLE);
+                        ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.VISIBLE);
                     }
                 }
             });
