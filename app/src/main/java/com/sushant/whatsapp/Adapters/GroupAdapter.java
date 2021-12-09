@@ -68,24 +68,45 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
             }
         });
 
-        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Group Chat").child(groups.getGroupId());
-        Query message=reference2.orderByChild("timestamp").limitToLast(1);
-        message.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("SetTextI18n")
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+//        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Group Chat").child(groups.getGroupId());
+//        Query message=reference2.orderByChild("timestamp").limitToLast(1);
+//        message.addValueEventListener(new ValueEventListener() {
+//            @SuppressLint("SetTextI18n")
+//            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.hasChildren()) {
+//                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+//                        lastMsg=snapshot1.child("message").getValue(String.class);
+//                        String senderName=snapshot1.child("senderName").getValue(String.class);
+//                        if (Objects.equals(FirebaseAuth.getInstance().getUid(), snapshot1.child("uId").getValue(String.class))){
+//                            holder.lastMessage.setText("You: "+ lastMsg);
+//                        }else {
+//                            holder.lastMessage.setText(senderName +": "+ lastMsg);
+//                        }
+//
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+
+        FirebaseDatabase.getInstance().getReference().child("Group Chat").child("Last Messages").child(groups.getGroupId())
+                .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.hasChildren()) {
-                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                        lastMsg=snapshot1.child("message").getValue(String.class);
-                        String senderName=snapshot1.child("senderName").getValue(String.class);
-                        if (Objects.equals(FirebaseAuth.getInstance().getUid(), snapshot1.child("uId").getValue(String.class))){
-                            holder.lastMessage.setText("You: "+ lastMsg);
-                        }else {
-                            holder.lastMessage.setText(senderName +": "+ lastMsg);
-                        }
-
-                    }
+                lastMsg=snapshot.child("lastMessage").getValue(String.class);
+                String senderName=snapshot.child("senderName").getValue(String.class);
+                String senderId=snapshot.child("senderId").getValue(String.class);
+                holder.lastMessage.setText(lastMsg);
+                if (FirebaseAuth.getInstance().getUid().equals(senderId)){
+                    holder.lastMessage.setText("You: "+ lastMsg);
+                }else {
+                    holder.lastMessage.setText(senderName +": "+ lastMsg);
                 }
             }
 
@@ -94,6 +115,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
 
             }
         });
+
     }
 
     @Override

@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,6 +32,7 @@ import com.sushant.whatsapp.databinding.ActivityGroupChatBinding;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class GroupChatActivity extends AppCompatActivity {
@@ -211,6 +213,7 @@ public class GroupChatActivity extends AppCompatActivity {
             model.setTimestamp(date.getTime());
             model.setType("text");
             model.setSenderName(sendername);
+            updateLastMessage(message);
             binding.editMessage.getText().clear();
 
             if (notify) {
@@ -234,6 +237,7 @@ public class GroupChatActivity extends AppCompatActivity {
             model1.setSenderName(sendername);
             Date date = new Date();
             model1.setTimestamp(date.getTime());
+            updateLastMessage(heart);
 
             if (notify) {
                 for (int i=0;i<list.size();i++){
@@ -244,6 +248,14 @@ public class GroupChatActivity extends AppCompatActivity {
 
             database.getReference().child("Group Chat").child(Gid).push().setValue(model1);
         }
+    }
+
+    private void updateLastMessage(String message){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("lastMessage",message);
+        map.put("senderName",sendername);
+        map.put("senderId",senderId);
+        database.getReference().child("Group Chat").child("Last Messages").child(Gid).setValue(map);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)

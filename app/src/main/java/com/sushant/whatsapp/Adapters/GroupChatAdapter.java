@@ -39,8 +39,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class GroupChatAdapter extends RecyclerView.Adapter {
 
     ArrayList<Messages> messageModel;
-    ArrayList<Users> users;
-
     Context context;
     String recId;
     int SENDER_VIEW_TYPE = 1;

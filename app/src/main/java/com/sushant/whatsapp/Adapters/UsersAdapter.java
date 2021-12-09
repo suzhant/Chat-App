@@ -59,25 +59,39 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                 .into(holder.image);
         holder.userName.setText(users.getUserName());
 
-        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId());
-        Query message=reference2.orderByChild("timestamp").limitToLast(1);
-        message.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.hasChildren()) {
-                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                                lastMsg=snapshot1.child("message").getValue(String.class);
-                                holder.lastMessage.setText(lastMsg);
-                                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
-                            }
-                        }
-                    }
+//        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId());
+//        Query message=reference2.orderByChild("timestamp").limitToLast(1);
+//        message.addValueEventListener(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                        if (snapshot.hasChildren()) {
+//                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+//                                lastMsg=snapshot1.child("message").getValue(String.class);
+//                                holder.lastMessage.setText(lastMsg);
+//                                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError error) {
+//
+//                    }
+//                });
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends")
+                .child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                lastMsg= snapshot.child("lastMessage").getValue(String.class);
+                holder.lastMessage.setText(lastMsg);
+            }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
+            }
+        });
+
 
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");

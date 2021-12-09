@@ -278,6 +278,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             model.setTimestamp(date.getTime());
             model.setType("text");
             binding.editMessage.getText().clear();
+            updateLastMessage(message);
 
             if (notify) {
                 sendNotification(receiverId, sendername, message);
@@ -307,6 +308,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             model1.setType("text");
             Date date = new Date();
             model1.setTimestamp(date.getTime());
+            updateLastMessage(heart);
 
             if (notify) {
                 sendNotification(receiverId, sendername, heart);
@@ -326,6 +328,17 @@ public class ChatDetailsActivity extends AppCompatActivity {
                         }
                     });
         }
+    }
+
+    private void updateLastMessage(String message){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("lastMessage",message);
+        database.getReference().child("Users").child(senderId).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
+            }
+        });
     }
 
     private void getTypingStatus() {
@@ -482,6 +495,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             model.setImageUrl(filePath);
                             model.setType("photo");
                             binding.editMessage.getText().clear();
+                            updateLastMessage(fdelete.getName());
 
                             if (notify) {
                                 sendNotification(receiverId, sendername,fdelete.getName());
