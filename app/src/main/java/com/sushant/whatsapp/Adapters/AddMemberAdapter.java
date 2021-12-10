@@ -2,13 +2,12 @@ package com.sushant.whatsapp.Adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,23 +21,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Interface.isClicked;
 import com.sushant.whatsapp.Models.Users;
-import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder> {
+public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.viewHolder> {
 
     ArrayList<Users> list;
     Context context;
+    isClicked clicked;
     String Gid;
 
-    public MemberAdapter(ArrayList<Users> list,String Gid, Context context) {
+    public AddMemberAdapter(ArrayList<Users> list, Context context,isClicked clicked,String Gid) {
         this.list = list;
-        this.Gid=Gid;
         this.context = context;
+        this.clicked=clicked;
+        this.Gid=Gid;
     }
 
 
@@ -50,7 +50,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MemberAdapter.viewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull AddMemberAdapter.viewHolder holder, @SuppressLint("RecyclerView") int position) {
         Users users = list.get(position);
         Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.image);
@@ -61,30 +61,31 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())){
-                    Intent intent= new Intent(context, ProfileActivity.class);
-                    intent.putExtra("UserIdPA",users.getUserId());
-                    intent.putExtra("EmailPA",users.getMail());
-                    intent.putExtra("UserNamePA",users.getUserName());
-                    intent.putExtra("ProfilePicPA",users.getProfilePic());
-                    intent.putExtra("StatusPA",users.getStatus());
-                    context.startActivity(intent);
-                }
-            }
-        });
+                FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid())
+                        .child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot snapshot1:snapshot.getChildren()){
+                            Users participant=snapshot1.getValue(Users.class);
+                            if (participant.getUserId().equals(users.getUserId())){
+                                Toast.makeText(context.getApplicationContext(), "Already Member of the group", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }
+                        if (holder.checkbox.getVisibility()==View.VISIBLE){
+                            holder.checkbox.setVisibility(View.INVISIBLE);
+                            clicked.isClicked(false,position);
+                        }else {
+                            holder.checkbox.setVisibility(View.VISIBLE);
+                            clicked.isClicked(true,position);
+                        }
+                    }
 
-        FirebaseDatabase.getInstance().getReference().child("Groups").child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String role=snapshot.child(Gid).child("participant").child(users.getUserId()).child("role").getValue(String.class);
-                if ("Admin".equals(role)){
-                    holder.userName.setText(users.getUserName()+"  ("+role+")");
-                }
-            }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
 
             }
         });

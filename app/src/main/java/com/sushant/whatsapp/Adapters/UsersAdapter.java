@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -132,7 +133,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                             holder.lastMessage.setTypeface(null, Typeface.ITALIC);
                         }else {
                             holder.lastMessage.setText(lastMsg);
-                            holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+                            Typeface typeface = ResourcesCompat.getFont(context, R.font.alice);
+                            holder.lastMessage.setTypeface(typeface);
                         }
                 }
             }

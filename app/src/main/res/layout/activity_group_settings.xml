@@ -33,12 +33,13 @@
             android:layout_height="wrap_content"
             android:text="GroupName"
             android:textStyle="bold"
-            android:textSize="15sp"
-            android:fontFamily="@font/aldrich"
+            android:textSize="20sp"
+            android:fontFamily="@font/advent_pro_medium"
             android:layout_gravity="center_horizontal" />
     </androidx.appcompat.widget.Toolbar>
 
     <Button
+        android:id="@+id/btnLeaveGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -50,6 +51,7 @@
         android:textColor="@color/white" />
 
    <Button
+       android:id="@+id/btnGroupSetting"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:gravity="center"
@@ -62,6 +64,7 @@
        android:background="@drawable/bg_et_message"/>
 
     <Button
+        android:id="@+id/btnAddParticipant"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"

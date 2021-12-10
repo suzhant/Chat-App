@@ -25,6 +25,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsApp">
         <activity
+            android:name=".AddParticipant"
+            android:exported="false" />
+        <activity
             android:name=".GroupSettings"
             android:exported="false" />
         <activity

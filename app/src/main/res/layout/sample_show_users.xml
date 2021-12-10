@@ -65,6 +65,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:text="Say Hi!!"
+            android:fontFamily="@font/alice"
             android:maxLength="30"
             android:singleLine="true"/>
 

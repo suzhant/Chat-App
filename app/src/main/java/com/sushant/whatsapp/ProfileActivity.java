@@ -76,11 +76,6 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
-        if (FirebaseAuth.getInstance().getUid().equals(Receiverid)){
-            binding.btnAddFriend.setVisibility(View.GONE);
-            binding.btnAccept.setVisibility(View.GONE);
-            binding.btnReject.setVisibility(View.GONE);
-        }
         DatabaseReference reference = database.getReference("Users").child(user.getUid()).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -106,14 +101,13 @@ public class ProfileActivity extends AppCompatActivity {
                             binding.btnReject.setVisibility(View.VISIBLE);
                         }
                         }
-                        if (!snapshot.child(Receiverid).exists()){
-                            binding.btnAddFriend.setVisibility(View.VISIBLE);
-                            binding.btnAddFriend.setText("Add friend");
-                            binding.btnAddFriend.setBackgroundColor(0x09af00);
-                            binding.btnAccept.setVisibility(View.GONE);
-                            binding.btnReject.setVisibility(View.GONE);
-                        }
-
+                    }
+                    if (!snapshot.child(Receiverid).exists()){
+                        binding.btnAddFriend.setVisibility(View.VISIBLE);
+                        binding.btnAddFriend.setText("Add friend");
+                        binding.btnAddFriend.setBackgroundColor(0x09af00);
+                        binding.btnAccept.setVisibility(View.GONE);
+                        binding.btnReject.setVisibility(View.GONE);
                     }
                 }
             }
