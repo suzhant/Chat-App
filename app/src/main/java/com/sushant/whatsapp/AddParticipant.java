@@ -205,19 +205,22 @@ public class AddParticipant extends AppCompatActivity {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                list.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Users users = dataSnapshot.getValue(Users.class);
-                    assert users != null;
-                    if (!users.getUserId().equals(user.getUid())){
-                        if (users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
-                            list.add(users);
+                if (snapshot.exists()){
+                    list.clear();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        Users users = dataSnapshot.getValue(Users.class);
+                        assert users != null;
+                        if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                            if ("Accepted".equals(users.getRequest())){
+                                if (users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
+                                    list.add(users);
+                                }
+                            }
                         }
                     }
+                    adapter.notifyDataSetChanged();
                 }
-                adapter.notifyDataSetChanged();
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
