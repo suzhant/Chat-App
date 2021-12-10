@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".ActivityCreateGroup">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/layoutHeader"
@@ -47,7 +45,6 @@
             android:id="@+id/layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/layoutHeader"
             android:background="@color/colorPurple">
             <EditText
                 android:id="@+id/editMessage"
@@ -74,9 +71,17 @@
             android:id="@+id/participantRecycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/layout"
             android:background="@color/white" />
+    <TextView
+        android:id="@+id/txtNoFriend"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="No Friends !!!"
+        android:background="@color/colorPurple"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="@color/white"/>
 
-    </RelativeLayout>
-
-</RelativeLayout>
+</LinearLayout>

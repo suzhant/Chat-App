@@ -122,16 +122,25 @@ public class ActivityCreateGroup extends AppCompatActivity{
         valueEventListener1= new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                list.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Users users = dataSnapshot.getValue(Users.class);
-                    assert users != null;
-                    users.setUserId(dataSnapshot.getKey());
-                    if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                            list.add(users);
+                if (snapshot.exists()){
+                    list.clear();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        Users users = dataSnapshot.getValue(Users.class);
+                        assert users != null;
+                        users.setUserId(dataSnapshot.getKey());
+                        if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                            if (users.getRequest().equals("Accepted")){
+                                list.add(users);
+                            }
+                        }
                     }
+                    adapter.notifyDataSetChanged();
                 }
-                adapter.notifyDataSetChanged();
+                if (list.isEmpty()){
+                    binding.txtNoFriend.setVisibility(View.VISIBLE);
+                }else {
+                    binding.txtNoFriend.setVisibility(View.GONE);
+                }
             }
 
             @Override
