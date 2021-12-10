@@ -38,7 +38,6 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
     ArrayList<Users> list;
     Context context;
-    String sendername;
     FirebaseDatabase database;
 
     public FriendRequestAdapter(ArrayList<Users> list, Context context) {
@@ -89,20 +88,6 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             }
         });
         FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
-        database.getReference().child("Users").child(Objects.requireNonNull(user.getUid()))
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Users user = snapshot.getValue(Users.class);
-                        assert user != null;
-                        sendername=user.getUserName();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
         holder.btnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,7 +105,6 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                 });
                 holder.btnAccept.setVisibility(View.GONE);
                 holder.btnReject.setVisibility(View.GONE);
-                holder.txtResponse.setVisibility(View.VISIBLE);
 
             }
         });
@@ -136,8 +120,6 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                 });
                 holder.btnAccept.setVisibility(View.GONE);
                 holder.btnReject.setVisibility(View.GONE);
-                holder.txtResponse.setVisibility(View.VISIBLE);
-                holder.txtResponse.setText("Rejected");
             }
         });
     }
@@ -148,7 +130,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     }
 
 
-    public class viewHolder extends RecyclerView.ViewHolder {
+    public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
         public ImageView blackCircle;

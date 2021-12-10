@@ -1,10 +1,8 @@
 package com.sushant.whatsapp.Adapters;
 
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +14,10 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.GroupChatActivity;
 import com.sushant.whatsapp.Models.Groups;
@@ -97,14 +92,17 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
 
         FirebaseDatabase.getInstance().getReference().child("Group Chat").child("Last Messages").child(groups.getGroupId())
                 .addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 lastMsg=snapshot.child("lastMessage").getValue(String.class);
                 String senderName=snapshot.child("senderName").getValue(String.class);
                 String senderId=snapshot.child("senderId").getValue(String.class);
                 holder.lastMessage.setText(lastMsg);
-                if (FirebaseAuth.getInstance().getUid().equals(senderId)){
+                if (Objects.equals(FirebaseAuth.getInstance().getUid(), senderId)){
                     holder.lastMessage.setText("You: "+ lastMsg);
+                }else if ("Say Hi!!".equals(lastMsg)){
+                    holder.lastMessage.setText(lastMsg);
                 }else {
                     holder.lastMessage.setText(senderName +": "+ lastMsg);
                 }
@@ -124,7 +122,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
     }
 
 
-    public class viewHolder extends RecyclerView.ViewHolder {
+    public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
         public TextView groupName,lastMessage;

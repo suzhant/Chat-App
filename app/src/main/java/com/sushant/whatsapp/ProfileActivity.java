@@ -94,7 +94,7 @@ public class ProfileActivity extends AppCompatActivity {
                             binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
                             friend=true;
                         }
-                        if (users.getRequest().equals("Req_Sent")){
+                            if (users.getRequest().equals("Req_Sent")){
                             binding.btnAddFriend.setText("Cancel Friend Request");
                             binding.btnAddFriend.setBackgroundColor(Color.RED);
                             friend=true;
@@ -106,92 +106,16 @@ public class ProfileActivity extends AppCompatActivity {
                             binding.btnReject.setVisibility(View.VISIBLE);
                         }
                         }
-                    }
-                }
-                binding.btnAddFriend.setOnClickListener(new View.OnClickListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.P)
-                    @Override
-                    public void onClick(View view) {
-                        if (friend){
-                            database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue();
-                            database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
+                        if (!snapshot.child(Receiverid).exists()){
+                            binding.btnAddFriend.setVisibility(View.VISIBLE);
                             binding.btnAddFriend.setText("Add friend");
                             binding.btnAddFriend.setBackgroundColor(0x09af00);
-                        }else{
-                            notify=true;
-                            Users user1 = new Users();
-                            user1.setMail(email);
-                            user1.setUserName(userName);
-                            user1.setUserId(Receiverid);
-                            user1.setProfilePic(profilePic);
-                            user1.setStatus(status);
-                            user1.setTyping("Not Typing");
-                            user1.setRequest("Req_Sent");
-
-                            Users user2 = new Users();
-                            user2.setMail(user.getEmail());
-                            user2.setUserName(sendername);
-                            user2.setUserId(user.getUid());
-                            user2.setProfilePic(pp);
-                            user2.setStatus(userStatus);
-                            user2.setTyping("Not Typing");
-                            user2.setRequest("Req_Pending");
-
-                            if (notify) {
-                                sendNotification(Receiverid, sendername, "sent you a Friend Request");
-                            }
-                            notify = false;
-
-
-                            database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
-                                }
-                            });
-
-                            binding.btnAddFriend.setText("Unfriend");
-                            binding.btnAddFriend.setBackgroundColor(Color.RED);
+                            binding.btnAccept.setVisibility(View.GONE);
+                            binding.btnReject.setVisibility(View.GONE);
                         }
 
                     }
-                });
-
-                binding.btnAccept.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        HashMap<String,Object> obj1= new HashMap<>();
-                        obj1.put("request","Accepted");
-
-                        HashMap<String,Object> obj2= new HashMap<>();
-                        obj2.put("request","Accepted");
-
-                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).updateChildren(obj1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).updateChildren(obj2);
-                            }
-                        });
-                        binding.btnAccept.setVisibility(View.GONE);
-                        binding.btnReject.setVisibility(View.GONE);
-                        binding.btnAddFriend.setVisibility(View.VISIBLE);
-                    }
-                });
-
-                binding.btnReject.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
-                            }
-                        });
-                        binding.btnAccept.setVisibility(View.GONE);
-                        binding.btnReject.setVisibility(View.GONE);
-                        binding.btnAddFriend.setVisibility(View.VISIBLE);
-                    }
-                });
+                }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -205,6 +129,98 @@ public class ProfileActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        binding.btnReject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
+                    }
+                });
+                binding.btnAccept.setVisibility(View.GONE);
+                binding.btnReject.setVisibility(View.GONE);
+                binding.btnAddFriend.setVisibility(View.VISIBLE);
+                friend=false;
+            }
+        });
+
+        binding.btnAccept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                HashMap<String,Object> obj1= new HashMap<>();
+                obj1.put("request","Accepted");
+
+                HashMap<String,Object> obj2= new HashMap<>();
+                obj2.put("request","Accepted");
+
+                database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).updateChildren(obj1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).updateChildren(obj2);
+                    }
+                });
+                binding.btnAccept.setVisibility(View.GONE);
+                binding.btnReject.setVisibility(View.GONE);
+                binding.btnAddFriend.setVisibility(View.VISIBLE);
+                friend=true;
+            }
+        });
+
+        binding.btnAddFriend.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onClick(View view) {
+                if (friend){
+                    database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue();
+                    database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
+                    binding.btnAddFriend.setText("Add friend");
+                    binding.btnAddFriend.setBackgroundColor(0x09af00);
+                    friend=false;
+                }else{
+                    notify=true;
+                    Users user1 = new Users();
+                    user1.setMail(email);
+                    user1.setUserName(userName);
+                    user1.setUserId(Receiverid);
+                    user1.setProfilePic(profilePic);
+                    user1.setStatus(status);
+                    user1.setTyping("Not Typing");
+                    user1.setLastMessage("Say Hi!!");
+                    user1.setRequest("Req_Sent");
+
+                    Users user2 = new Users();
+                    user2.setMail(user.getEmail());
+                    user2.setUserName(sendername);
+                    user2.setUserId(user.getUid());
+                    user2.setProfilePic(pp);
+                    user2.setStatus(userStatus);
+                    user2.setTyping("Not Typing");
+                    user2.setLastMessage("Say Hi!!");
+                    user2.setRequest("Req_Pending");
+
+                    if (notify) {
+                        sendNotification(Receiverid, sendername, "sent you a Friend Request");
+                    }
+                    notify = false;
+
+
+                    database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                        }
+                    });
+
+                    binding.btnAddFriend.setText("Unfriend");
+                    binding.btnAddFriend.setBackgroundColor(Color.RED);
+                    friend=true;
+                }
+
+            }
+        });
+
 
     }
 

@@ -255,7 +255,7 @@ public class GroupChatActivity extends AppCompatActivity {
         map.put("lastMessage",message);
         map.put("senderName",sendername);
         map.put("senderId",senderId);
-        database.getReference().child("Group Chat").child("Last Messages").child(Gid).setValue(map);
+        database.getReference().child("Group Chat").child("Last Messages").child(Gid).updateChildren(map);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)

@@ -77,7 +77,7 @@ public class FinalCreateGroup extends AppCompatActivity{
             }
         });
 
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        //Generating group id
         UUID uuid= UUID.randomUUID();
         id=uuid+"";
 
@@ -92,6 +92,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                 String GroupName= binding.editName.getEditText().getText().toString();
                 groups.setGroupName(GroupName);
                 groups.setGroupId(id);
+                createLastMessage();
 
                 for (int i=0;i<list.size();i++){
                     Users users= list.get(i);
@@ -195,6 +196,14 @@ public class FinalCreateGroup extends AppCompatActivity{
                 startActivityForResult(intent,20);
             }
         });
+    }
+
+    private void createLastMessage(){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("lastMessage","Say Hi!!");
+        map.put("senderName","name");
+        map.put("senderId","uid");
+        database.getReference().child("Group Chat").child("Last Messages").child(id).setValue(map);
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
