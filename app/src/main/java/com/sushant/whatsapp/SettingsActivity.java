@@ -31,6 +31,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivitySettingsBinding;
 
@@ -83,7 +84,7 @@ public class SettingsActivity extends AppCompatActivity {
                         .updateChildren(obj).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        database.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                        database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 if (snapshot.exists()){
@@ -107,7 +108,46 @@ public class SettingsActivity extends AppCompatActivity {
 
                                             }
                                         });
+                                        database.getReference().child("Groups").child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                                    Groups groups=snapshot1.getValue(Groups.class);
+                                                    DatabaseReference reference = database.getReference().child("Groups").child(users.getUserId()).child(groups.getGroupId()).child("participant");
+                                                    Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+                                                   checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                            if (snapshot.exists()) {
+                                                                HashMap<String,Object> obj1= new HashMap<>();
+                                                                obj1.put("userName",username);
+                                                                obj1.put("status",about);
+                                                                reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                                        }
+                                                    });
+                                                    HashMap<String,Object> obj1= new HashMap<>();
+                                                    obj1.put("userName",username);
+                                                    obj1.put("status",about);
+                                                    database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(groups.getGroupId()).child("participant")
+                                                            .child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+
+                                            }
+                                        });
+
+
                                     }
+
                                 }
                             }
 
@@ -116,6 +156,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                             }
                         });
+
                     }
                 });
 

@@ -88,12 +88,14 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
                         .diskCacheStrategy(DiskCacheStrategy.ALL).into(((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver);
             }else{
                 ((GroupChatAdapter.ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
-                ((ReceiverViewHolder) holder).txtSenderName.setText(message.getSenderName());
+                String firstWord= getFirstWord(message.getSenderName());
+                ((ReceiverViewHolder) holder).txtSenderName.setText(firstWord);
             }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
             ((GroupChatAdapter.ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
             Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(((GroupChatAdapter.ReceiverViewHolder) holder).profilepic);
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -169,6 +171,19 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
             imgSender=itemView.findViewById(R.id.imgSender);
+        }
+    }
+    private String getFirstWord(String text) {
+
+        int index = text.indexOf(' ');
+
+        if (index > -1) { // Check if there is more than one word.
+
+            return text.substring(0, index).trim(); // Extract first word.
+
+        } else {
+
+            return text; // Text is the first word itself.
         }
     }
 }
