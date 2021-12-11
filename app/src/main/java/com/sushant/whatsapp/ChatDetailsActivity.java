@@ -33,7 +33,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.airbnb.lottie.L;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -351,7 +350,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
                     Long lastOnline = snapshot.child(receiverId).child("Connection").child("lastOnline").getValue(Long.class);
-                    SimpleDateFormat formatter = new SimpleDateFormat("hh:mm a");
+                    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd hh:mm a");
                     String dateString = formatter.format(new Date(lastOnline));
 
 
