@@ -67,29 +67,32 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
         });
 
 
-        FirebaseDatabase.getInstance().getReference().child("Group Chat").child("Last Messages").child(groups.getGroupId())
-                .addValueEventListener(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                lastMsg=snapshot.child("lastMessage").getValue(String.class);
-                String senderName=snapshot.child("senderName").getValue(String.class);
-                String senderId=snapshot.child("senderId").getValue(String.class);
-                holder.lastMessage.setText(lastMsg);
-                if (Objects.equals(FirebaseAuth.getInstance().getUid(), senderId)){
-                    holder.lastMessage.setText("You: "+ lastMsg);
-                }else if ("Say Hi!!".equals(lastMsg)){
-                    holder.lastMessage.setText(lastMsg);
-                }else {
-                    holder.lastMessage.setText(senderName +": "+ lastMsg);
-                }
-            }
+        if (groups.getGroupId()!=null){
+            FirebaseDatabase.getInstance().getReference().child("Group Chat").child("Last Messages").child(groups.getGroupId())
+                    .addValueEventListener(new ValueEventListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            lastMsg=snapshot.child("lastMessage").getValue(String.class);
+                            String senderName=snapshot.child("senderName").getValue(String.class);
+                            String senderId=snapshot.child("senderId").getValue(String.class);
+                            holder.lastMessage.setText(lastMsg);
+                            if (Objects.equals(FirebaseAuth.getInstance().getUid(), senderId)){
+                                holder.lastMessage.setText("You: "+ lastMsg);
+                            }else if ("Say Hi!!".equals(lastMsg)){
+                                holder.lastMessage.setText(lastMsg);
+                            }else {
+                                holder.lastMessage.setText(senderName +": "+ lastMsg);
+                            }
+                        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
+                        }
+                    });
+        }
+
 
     }
 

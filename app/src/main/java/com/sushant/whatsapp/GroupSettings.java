@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,6 +24,7 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityGroupSettingsBinding;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class GroupSettings extends AppCompatActivity {
 
@@ -55,6 +57,26 @@ public class GroupSettings extends AppCompatActivity {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
+                database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot snapshot1: snapshot.getChildren()){
+                            Users users=snapshot1.getValue(Users.class);
+                            database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").child(FirebaseAuth.getInstance().getUid()).removeValue();
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+                database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).removeValue();
+
+                Intent intent= new Intent(GroupSettings.this, MainActivity.class);
+                startActivity(intent);
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
