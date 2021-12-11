@@ -45,7 +45,7 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
     @NonNull
     @Override
     public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.sample_participant, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.sample_show_member, parent, false);
         return new viewHolder(view);
     }
 
@@ -67,8 +67,8 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for (DataSnapshot snapshot1:snapshot.getChildren()){
                             Users participant=snapshot1.getValue(Users.class);
+                            assert participant != null;
                             if (participant.getUserId().equals(users.getUserId())){
-                                Toast.makeText(context.getApplicationContext(), "Already Member of the group", Toast.LENGTH_SHORT).show();
                                 return;
                             }
                         }
@@ -90,6 +90,25 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
             }
         });
 
+        FirebaseDatabase.getInstance().getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snapshot1:snapshot.getChildren()){
+                    Users users1= snapshot1.getValue(Users.class);
+                    assert users1 != null;
+                    if (users1.getUserId().equals(users.getUserId())){
+                        holder.memberIndicator.setText("Member");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
     }
 
@@ -103,11 +122,11 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
         return super.getItemId(position);
     }
 
-    public class viewHolder extends RecyclerView.ViewHolder {
+    public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
         public ImageView blackCircle,checkbox;
-        public TextView userName, lastMessage;
+        public TextView userName, lastMessage, memberIndicator;
 
 
         public viewHolder(@NonNull View itemView) {
@@ -117,6 +136,7 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
             lastMessage = itemView.findViewById(R.id.lastMessage);
             blackCircle=itemView.findViewById(R.id.black_circle);
             checkbox=itemView.findViewById(R.id.checkbox);
+            memberIndicator=itemView.findViewById(R.id.txtMemberIndicator);
 
         }
     }

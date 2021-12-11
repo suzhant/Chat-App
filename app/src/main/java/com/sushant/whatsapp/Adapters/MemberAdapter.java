@@ -45,7 +45,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
     @NonNull
     @Override
     public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.sample_participant, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.sample_show_member, parent, false);
         return new viewHolder(view);
     }
 
@@ -79,7 +79,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String role=snapshot.child(Gid).child("participant").child(users.getUserId()).child("role").getValue(String.class);
                 if ("Admin".equals(role)){
-                    holder.userName.setText(users.getUserName()+"  ("+role+")");
+                    holder.memberIndicator.setText(role);
                 }
             }
 
@@ -102,11 +102,11 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
         return super.getItemId(position);
     }
 
-    public class viewHolder extends RecyclerView.ViewHolder {
+    public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
         public ImageView blackCircle,checkbox;
-        public TextView userName, lastMessage;
+        public TextView userName, lastMessage, memberIndicator;
 
 
         public viewHolder(@NonNull View itemView) {
@@ -116,6 +116,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
             lastMessage = itemView.findViewById(R.id.lastMessage);
             blackCircle=itemView.findViewById(R.id.black_circle);
             checkbox=itemView.findViewById(R.id.checkbox);
+            memberIndicator=itemView.findViewById(R.id.txtMemberIndicator);
 
         }
     }

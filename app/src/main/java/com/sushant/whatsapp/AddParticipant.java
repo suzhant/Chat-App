@@ -105,19 +105,19 @@ public class AddParticipant extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (size>0){
-                    database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addValueEventListener(new ValueEventListener() {
+                    addNewMember();
+                    database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             for (DataSnapshot snapshot1:snapshot.getChildren()){
                                 Users users= snapshot1.getValue(Users.class);
                                 for (int i=0;i<participant.size();i++){
                                     Users newMember=participant.get(i);
+                                    newMember.setRole("normal");
                                     addGroupInfo(Gid,users.getUserId());
                                     database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
                                     database.getReference().child("Groups").child(newMember.getUserId()).child(Gid).child("participant").child(users.getUserId()).setValue(users);
                                 }
-
-
                             }
                         }
 
@@ -166,6 +166,14 @@ public class AddParticipant extends AppCompatActivity {
         database.getReference().child("Groups").child(userId).child(groupId).updateChildren(map);
     }
 
+    void addNewMember(){
+        for (int i=0;i<participant.size();i++){
+            Users newMember=participant.get(i);
+            newMember.setRole("normal");
+            database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
+        }
+    }
+
     private void getAllUsers() {
         valueEventListener1= new ValueEventListener() {
             @Override
@@ -200,7 +208,6 @@ public class AddParticipant extends AppCompatActivity {
     }
 
     private void searchUser(String query) {
-        FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -232,6 +239,8 @@ public class AddParticipant extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ref.removeEventListener(valueEventListener1);
+        if (ref!=null){
+            ref.removeEventListener(valueEventListener1);
+        }
     }
 }

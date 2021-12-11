@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,8 @@ public class ProfileActivity extends AppCompatActivity {
     String userToken;
     Handler handler;
     Runnable runnable;
+    ValueEventListener eventListener;
+    DatabaseReference reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +79,8 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
-        DatabaseReference reference = database.getReference("Users").child(user.getUid()).child("Friends");
-        reference.addValueEventListener(new ValueEventListener() {
+        reference = database.getReference("Users").child(user.getUid()).child("Friends");
+        eventListener=new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
@@ -115,7 +118,8 @@ public class ProfileActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+        reference.addValueEventListener(eventListener);
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -245,4 +249,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (reference!=null){
+            Log.d("REF1", "onDestroy: called");
+            reference.removeEventListener(eventListener);
+        }
+
+    }
 }
