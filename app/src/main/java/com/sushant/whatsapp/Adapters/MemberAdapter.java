@@ -3,6 +3,7 @@ package com.sushant.whatsapp.Adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Interface.isClicked;
 import com.sushant.whatsapp.Models.Users;
@@ -80,6 +83,33 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
                 String role=snapshot.child(Gid).child("participant").child(users.getUserId()).child("role").getValue(String.class);
                 if ("Admin".equals(role)){
                     holder.memberIndicator.setText(role);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        Query checkStatus = reference.orderByChild("userId").equalTo(users.getUserId());
+        checkStatus.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
+                    assert StatusFromDB != null;
+                    if ("online".equals(StatusFromDB)){
+                        holder.image.setBorderWidth(4);
+                        holder.blackCircle.setVisibility(View.VISIBLE);
+                        holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
+                        holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
+                    }else {
+                        holder.blackCircle.setVisibility(View.GONE);
+//                        holder.image.setBorderColor(Color.GRAY);
+                        holder.image.setBorderWidth(0);
+                    }
                 }
             }
 
