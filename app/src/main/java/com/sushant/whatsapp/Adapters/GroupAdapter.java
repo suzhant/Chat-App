@@ -59,6 +59,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
                 intent.putExtra("GId", groups.getGroupId());
                 intent.putExtra("GPic", groups.getGroupPP());
                 intent.putExtra("GName", groups.getGroupName());
+                intent.putExtra("CreatedOn",groups.getCreatedOn());
+                intent.putExtra("CreatedBy",groups.getCreatedBy());
                 context.startActivity(intent);
             }
         });

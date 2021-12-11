@@ -33,7 +33,7 @@ public class GroupSettings extends AppCompatActivity {
     LinearLayoutManager layoutManager;
     MemberAdapter adapter;
     DatabaseReference ref;
-    String Gid,GName,GPP;
+    String Gid,GName,GPP,CreatedOn,CreatedBy;
     AlertDialog dialog;
 
     @Override
@@ -46,6 +46,8 @@ public class GroupSettings extends AppCompatActivity {
         Gid=getIntent().getStringExtra("GId1");
         GName=getIntent().getStringExtra("GName1");
         GPP=getIntent().getStringExtra("GPic1");
+        CreatedOn=getIntent().getStringExtra("CreatedOn1");
+        CreatedBy=getIntent().getStringExtra("CreatedBy1");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(GroupSettings.this);
         builder.setMessage("Do you want to leave Group?")
@@ -88,6 +90,8 @@ public class GroupSettings extends AppCompatActivity {
                 intent.putExtra("GId1",Gid);
                 intent.putExtra("GName1",GName);
                 intent.putExtra("GPic1",GPP);
+                intent.putExtra("CreatedOn1",CreatedOn);
+                intent.putExtra("CreatedBy1",CreatedBy);
                 startActivity(intent);
             }
         });

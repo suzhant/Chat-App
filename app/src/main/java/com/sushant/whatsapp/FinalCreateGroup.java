@@ -95,7 +95,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                 String GroupName= binding.editName.getEditText().getText().toString();
                 groups.setGroupName(GroupName);
                 groups.setGroupId(id);
-                groups.setCreatedBy(name);
+                groups.setCreatedBy(uid);
                 groups.setCreatedOn(timeStamp);
                 createLastMessage();
 

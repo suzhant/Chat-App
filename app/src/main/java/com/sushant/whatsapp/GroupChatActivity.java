@@ -40,7 +40,7 @@ public class GroupChatActivity extends AppCompatActivity {
     ActivityGroupChatBinding binding;
     Animation scale_up, scale_down;
     FirebaseAuth auth;
-    String senderId,profilePic,sendername,Gid,GPP,Gname;
+    String senderId,profilePic,sendername,Gid,GPP,Gname,CreatedOn,CreatedBy;
     boolean notify = false;
     FirebaseDatabase database;
     String userToken;
@@ -63,6 +63,8 @@ public class GroupChatActivity extends AppCompatActivity {
         Gid = getIntent().getStringExtra("GId");
         GPP = getIntent().getStringExtra("GPic");
         Gname = getIntent().getStringExtra("GName");
+        CreatedOn=getIntent().getStringExtra("CreatedOn");
+        CreatedBy=getIntent().getStringExtra("CreatedBy");
 
         senderId = FirebaseAuth.getInstance().getUid();
 
@@ -81,6 +83,8 @@ public class GroupChatActivity extends AppCompatActivity {
                 intent.putExtra("GId1",Gid);
                 intent.putExtra("GPic1",GPP);
                 intent.putExtra("GName1",Gname);
+                intent.putExtra("CreatedOn1",CreatedOn);
+                intent.putExtra("CreatedBy1",CreatedBy);
                 startActivity(intent);
             }
         });

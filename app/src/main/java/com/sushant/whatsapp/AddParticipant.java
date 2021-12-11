@@ -49,7 +49,7 @@ public class AddParticipant extends AppCompatActivity {
     ArrayList<Users> participant= new ArrayList<>();
     int size=0;
     isClicked clicked;
-    String Gid,Gname,GPP;
+    String Gid,Gname,GPP,CreatedOn,CreatedBy;
     DatabaseReference databaseReference;
 
     @Override
@@ -64,6 +64,8 @@ public class AddParticipant extends AppCompatActivity {
         Gid= getIntent().getStringExtra("GId1");
         Gname=getIntent().getStringExtra("GName1");
         GPP=getIntent().getStringExtra("GPic1");
+        CreatedOn=getIntent().getStringExtra("CreatedOn1");
+        CreatedBy=getIntent().getStringExtra("CreatedBy1");
 
         databaseReference= FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid())
                 .child(Gid)
@@ -164,6 +166,8 @@ public class AddParticipant extends AppCompatActivity {
 
     void addGroupInfo(String groupId,String userId){
         HashMap<String,Object> map= new HashMap<>();
+        map.put("createdBy",CreatedBy);
+        map.put("createdOn",CreatedOn);
         map.put("groupId",Gid);
         map.put("groupName",Gname);
         map.put("groupPP",GPP);
