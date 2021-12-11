@@ -107,7 +107,6 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
                         holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
                     }else {
                         holder.blackCircle.setVisibility(View.GONE);
-//                        holder.image.setBorderColor(Color.GRAY);
                         holder.image.setBorderWidth(0);
                     }
                 }

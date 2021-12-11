@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.airbnb.lottie.L;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -349,6 +350,11 @@ public class ChatDetailsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
+                    Long lastOnline = snapshot.child(receiverId).child("Connection").child("lastOnline").getValue(Long.class);
+                    SimpleDateFormat formatter = new SimpleDateFormat("hh:mm a");
+                    String dateString = formatter.format(new Date(lastOnline));
+
+
                     assert StatusFromDB != null;
 
                     DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users");
@@ -368,7 +374,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                                     }
                                 }else {
                                     binding.imgStatus.setColorFilter(Color.GRAY);
-                                    binding.txtStatus.setText(StatusFromDB);
+                                    binding.txtStatus.setText("Last Online: "+ dateString);
                                 }
                             }
                         }

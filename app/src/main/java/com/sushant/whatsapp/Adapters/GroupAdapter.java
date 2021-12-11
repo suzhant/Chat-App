@@ -7,6 +7,7 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -65,32 +66,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
             }
         });
 
-//        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Group Chat").child(groups.getGroupId());
-//        Query message=reference2.orderByChild("timestamp").limitToLast(1);
-//        message.addValueEventListener(new ValueEventListener() {
-//            @SuppressLint("SetTextI18n")
-//            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if (snapshot.hasChildren()) {
-//                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-//                        lastMsg=snapshot1.child("message").getValue(String.class);
-//                        String senderName=snapshot1.child("senderName").getValue(String.class);
-//                        if (Objects.equals(FirebaseAuth.getInstance().getUid(), snapshot1.child("uId").getValue(String.class))){
-//                            holder.lastMessage.setText("You: "+ lastMsg);
-//                        }else {
-//                            holder.lastMessage.setText(senderName +": "+ lastMsg);
-//                        }
-//
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
 
         FirebaseDatabase.getInstance().getReference().child("Group Chat").child("Last Messages").child(groups.getGroupId())
                 .addValueEventListener(new ValueEventListener() {
@@ -128,6 +103,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
 
         public CircleImageView image;
         public TextView groupName,lastMessage;
+        public ImageView blackCircle;
 
 
         public viewHolder(@NonNull View itemView) {
@@ -135,6 +111,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
             image = itemView.findViewById(R.id.profile_image);
             groupName = itemView.findViewById(R.id.groupName);
             lastMessage=itemView.findViewById(R.id.lastMessage);
+            blackCircle=itemView.findViewById(R.id.black_circle);
 
         }
     }
