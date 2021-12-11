@@ -1,10 +1,12 @@
 package com.sushant.whatsapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -32,6 +34,7 @@ public class GroupSettings extends AppCompatActivity {
     MemberAdapter adapter;
     DatabaseReference ref;
     String Gid,GName,GPP;
+    AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,21 @@ public class GroupSettings extends AppCompatActivity {
         Gid=getIntent().getStringExtra("GId1");
         GName=getIntent().getStringExtra("GName1");
         GPP=getIntent().getStringExtra("GPic1");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(GroupSettings.this);
+        builder.setMessage("Do you want to leave Group?")
+                .setTitle("Leave Group");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+        dialog=builder.create();
 
         binding.txtGroupName.setText(GName);
 
@@ -71,6 +89,13 @@ public class GroupSettings extends AppCompatActivity {
                 intent.putExtra("GName1",GName);
                 intent.putExtra("GPic1",GPP);
                 startActivity(intent);
+            }
+        });
+
+        binding.btnLeaveGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.show();
             }
         });
 

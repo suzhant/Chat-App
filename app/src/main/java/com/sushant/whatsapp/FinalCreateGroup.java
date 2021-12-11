@@ -31,7 +31,9 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityFinalCreateGroupBinding;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -88,10 +90,13 @@ public class FinalCreateGroup extends AppCompatActivity{
                     binding.editName.setError("Field cannot be empty");
                     return;
                 }
+                String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date());
                 Groups groups = new Groups();
                 String GroupName= binding.editName.getEditText().getText().toString();
                 groups.setGroupName(GroupName);
                 groups.setGroupId(id);
+                groups.setCreatedBy(name);
+                groups.setCreatedOn(timeStamp);
                 createLastMessage();
 
                 for (int i=0;i<list.size();i++){
@@ -102,6 +107,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                         public void onSuccess(Void unused) {
                             for (int i=0;i<list.size();i++){
                                 Users users= list.get(i);
+                                users.setJoinedGroupOn(timeStamp);
                                 if (FirebaseAuth.getInstance().getUid()!=null){
                                     if (FirebaseAuth.getInstance().getUid().equals(users.getUserId())){
                                         users.setRole("Admin");
@@ -120,6 +126,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                             admin.setUserName(name);
                             admin.setProfilePic(profilePic);
                             admin.setMail(mail);
+                            admin.setJoinedGroupOn(timeStamp);
                             admin.setRole("Admin");
                             reference.child("participant").child(admin.getUserId()).setValue(admin);
                         }
@@ -132,6 +139,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                     public void onSuccess(Void unused) {
                         for (int i=0;i<list.size();i++){
                             Users users= list.get(i);
+                            users.setJoinedGroupOn(timeStamp);
                             if (FirebaseAuth.getInstance().getUid()!=null){
                                 if (FirebaseAuth.getInstance().getUid().equals(users.getUserId())){
                                     users.setRole("Admin");
@@ -151,6 +159,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                         admin.setProfilePic(profilePic);
                         admin.setMail(mail);
                         admin.setRole("Admin");
+                        admin.setJoinedGroupOn(timeStamp);
                         reference.child("participant").child(admin.getUserId()).setValue(admin);
                     }
                 });

@@ -30,7 +30,9 @@ import com.sushant.whatsapp.databinding.ActivityAddParticipantBinding;
 import com.sushant.whatsapp.databinding.ActivityCreateGroupBinding;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -105,7 +107,8 @@ public class AddParticipant extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (size>0){
-                    addNewMember();
+                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date());
+                    addNewMember(timeStamp);
                     database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -114,6 +117,7 @@ public class AddParticipant extends AppCompatActivity {
                                 for (int i=0;i<participant.size();i++){
                                     Users newMember=participant.get(i);
                                     newMember.setRole("normal");
+                                    newMember.setJoinedGroupOn(timeStamp);
                                     addGroupInfo(Gid,users.getUserId());
                                     database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
                                     database.getReference().child("Groups").child(newMember.getUserId()).child(Gid).child("participant").child(users.getUserId()).setValue(users);
@@ -166,10 +170,11 @@ public class AddParticipant extends AppCompatActivity {
         database.getReference().child("Groups").child(userId).child(groupId).updateChildren(map);
     }
 
-    void addNewMember(){
+    void addNewMember(String date){
         for (int i=0;i<participant.size();i++){
             Users newMember=participant.get(i);
             newMember.setRole("normal");
+            newMember.setJoinedGroupOn(date);
             database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
         }
     }

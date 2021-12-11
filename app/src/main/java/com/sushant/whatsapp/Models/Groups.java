@@ -3,7 +3,7 @@ package com.sushant.whatsapp.Models;
 import java.io.Serializable;
 
 public class Groups implements Serializable {
-    private String groupId,groupName,groupPP;
+    private String groupId,groupName,groupPP,createdOn,createdBy;
 
     public Groups() {
     }
@@ -34,5 +34,21 @@ public class Groups implements Serializable {
 
     public void setGroupPP(String groupPP) {
         this.groupPP = groupPP;
+    }
+
+    public String getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(String createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 }
