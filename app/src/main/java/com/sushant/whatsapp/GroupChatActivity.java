@@ -222,7 +222,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
             if (notify) {
                 for (int i=0;i<list.size();i++){
-                    sendNotification(list.get(i), sendername, message);
+                    sendNotification(list.get(i), Gname, sendername+": "+message);
                 }
             }
 
@@ -245,7 +245,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
             if (notify) {
                 for (int i=0;i<list.size();i++){
-                    sendNotification(list.get(i), sendername, heart);
+                    sendNotification(list.get(i), Gname,sendername+": "+heart);
                 }
             }
             notify = false;

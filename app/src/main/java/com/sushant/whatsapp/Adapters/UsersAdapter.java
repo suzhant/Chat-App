@@ -3,8 +3,10 @@ package com.sushant.whatsapp.Adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,6 +41,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
     ArrayList<Users> list;
     Context context;
     String lastMsg;
+
 
     public UsersAdapter(ArrayList<Users> list, Context context) {
         this.list = list;
@@ -85,6 +89,37 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 lastMsg= snapshot.child("lastMessage").getValue(String.class);
                 holder.lastMessage.setText(lastMsg);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends").child(users.getUserId())
+                .addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    Users users1 =snapshot.getValue(Users.class);
+                    assert users1 != null;
+                    if (users1.getSeen()!=null){
+                        if (users1.getSeen().equals("false")){
+                            holder.userName.setTextColor(Color.BLACK);
+                            holder.userName.setTypeface(null,Typeface.BOLD);
+                            holder.lastMessage.setTypeface(null,Typeface.BOLD);
+                            holder.lastMessage.setTextColor(Color.BLACK);
+                        }else {
+                            holder.userName.setTextColor(Color.parseColor("#757575"));
+                            holder.lastMessage.setTextColor(Color.parseColor("#757575"));
+                            holder.userName.setTypeface(null,Typeface.NORMAL);
+                            holder.lastMessage.setTypeface(null,Typeface.NORMAL);
+                        }
+                    }
+
+                }
             }
 
             @Override

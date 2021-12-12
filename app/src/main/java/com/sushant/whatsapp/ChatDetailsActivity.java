@@ -83,7 +83,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
     String senderId,receiverId,senderRoom,receiverRoom,profilePic;
     ValueEventListener eventListener1,eventListener2;
     Query checkStatus,checkStatus1;
-    String currentPhotoPath;
+    String currentPhotoPath,seen="true";
 
 
 
@@ -133,6 +133,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                seen="true";
+                updateSeen(seen,senderId,receiverId);
                 HashMap<String,Object> map= new HashMap<>();
                 map.put("Typing","Not Typing...");
                 database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
@@ -151,6 +153,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
         senderRoom = senderId + receiverId;
         receiverRoom = receiverId + senderId;
+
+        updateSeen(seen,senderId,receiverId);
 
         database.getReference().child("Chats").child(senderRoom)
                 .addValueEventListener(new ValueEventListener() {
@@ -298,6 +302,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                         }
                     });
 
+
         } else {
             notify = true;
             binding.icSend.startAnimation(scale_down);
@@ -328,6 +333,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
                         }
                     });
         }
+        seen="false";
+        updateSeen(seen,receiverId,senderId);
     }
 
     private void updateLastMessage(String message){
@@ -339,6 +346,12 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
             }
         });
+    }
+
+    private  void  updateSeen(String seen,String ID1,String ID2){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("seen", seen);
+        database.getReference().child("Users").child(ID1).child("Friends").child(ID2).updateChildren(map);
     }
 
     private void getTypingStatus() {
