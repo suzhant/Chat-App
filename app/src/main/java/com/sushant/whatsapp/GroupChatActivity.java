@@ -3,6 +3,9 @@ package com.sushant.whatsapp;
 import static com.sushant.whatsapp.R.color.red;
 
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,7 +43,7 @@ public class GroupChatActivity extends AppCompatActivity {
     ActivityGroupChatBinding binding;
     Animation scale_up, scale_down;
     FirebaseAuth auth;
-    String senderId,profilePic,sendername,Gid,GPP,Gname,CreatedOn,CreatedBy;
+    String senderId,profilePic,sendername,Gid,GPP,Gname,CreatedOn,CreatedBy,seen="true";
     boolean notify = false;
     FirebaseDatabase database;
     String userToken;
@@ -67,6 +70,7 @@ public class GroupChatActivity extends AppCompatActivity {
         CreatedBy=getIntent().getStringExtra("CreatedBy");
 
         senderId = FirebaseAuth.getInstance().getUid();
+        updateSeen(seen,senderId);
 
         binding.groupName.setText(Gname);
         Glide.with(this).load(GPP).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -92,6 +96,8 @@ public class GroupChatActivity extends AppCompatActivity {
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                seen="true";
+                updateSeen(seen,senderId);
                 finish();
             }
         });
@@ -205,6 +211,12 @@ public class GroupChatActivity extends AppCompatActivity {
         });
     }
 
+    private  void  updateSeen(String seen,String id){
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("seen", seen);
+        database.getReference().child("Groups").child(id).child(Gid).updateChildren(map);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.P)
     private void sendMessage() {
         notify = true;
@@ -228,7 +240,14 @@ public class GroupChatActivity extends AppCompatActivity {
 
             notify = false;
 
-            database.getReference().child("Group Chat").child(Gid).push().setValue(model);
+            database.getReference().child("Group Chat").child(Gid).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                    r.play();
+                }
+            });
 
         } else {
             notify = true;
@@ -250,8 +269,35 @@ public class GroupChatActivity extends AppCompatActivity {
             }
             notify = false;
 
-            database.getReference().child("Group Chat").child(Gid).push().setValue(model1);
+            database.getReference().child("Group Chat").child(Gid).push().setValue(model1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                    r.play();
+                }
+            });
         }
+        seen="false";
+        database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snapshot1: snapshot.getChildren()){
+                    Users users=snapshot1.getValue(Users.class);
+                    if (users.getUserId()!=null){
+                        if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())){
+                            updateSeen(seen,users.getUserId());
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void updateLastMessage(String message){

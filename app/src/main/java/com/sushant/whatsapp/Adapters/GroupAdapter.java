@@ -3,6 +3,8 @@ package com.sushant.whatsapp.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.GroupChatActivity;
 import com.sushant.whatsapp.Models.Groups;
+import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
@@ -92,6 +95,37 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
                         }
                     });
         }
+
+        FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(groups.getGroupId())
+                .addValueEventListener(new ValueEventListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            Groups groups1 =snapshot.getValue(Groups.class);
+                            assert groups1 != null;
+                            if (groups1.getSeen()!=null){
+                                if (groups1.getSeen().equals("false")){
+                                    holder.groupName.setTextColor(Color.BLACK);
+                                    holder.groupName.setTypeface(null, Typeface.BOLD);
+                                    holder.lastMessage.setTypeface(null,Typeface.BOLD);
+                                    holder.lastMessage.setTextColor(Color.BLACK);
+                                }else {
+                                    holder.groupName.setTextColor(Color.parseColor("#757575"));
+                                    holder.lastMessage.setTextColor(Color.parseColor("#757575"));
+                                    holder.groupName.setTypeface(null,Typeface.NORMAL);
+                                    holder.lastMessage.setTypeface(null,Typeface.NORMAL);
+                                }
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
 
 
     }

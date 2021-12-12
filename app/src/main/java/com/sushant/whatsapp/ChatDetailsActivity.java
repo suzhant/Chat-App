@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -298,6 +300,13 @@ public class ChatDetailsActivity extends AppCompatActivity {
                                 public void onSuccess(Void unused) {
 
                                 }
+                            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                                    r.play();
+                                }
                             });
                         }
                     });
@@ -328,6 +337,13 @@ public class ChatDetailsActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Void unused) {
 
+                                }
+                            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                                    r.play();
                                 }
                             });
                         }
