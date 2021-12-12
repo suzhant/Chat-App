@@ -113,29 +113,33 @@ public class SettingsActivity extends AppCompatActivity {
                                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                                 for (DataSnapshot snapshot1:snapshot.getChildren()){
                                                     Groups groups=snapshot1.getValue(Groups.class);
-                                                    DatabaseReference reference = database.getReference().child("Groups").child(users.getUserId()).child(groups.getGroupId()).child("participant");
-                                                    Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-                                                   checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                            if (snapshot.exists()) {
-                                                                HashMap<String,Object> obj1= new HashMap<>();
-                                                                obj1.put("userName",username);
-                                                                obj1.put("status",about);
-                                                                reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                    assert groups != null;
+                                                    if (groups.getGroupId()!=null){
+                                                        DatabaseReference reference = database.getReference().child("Groups").child(users.getUserId()).child(groups.getGroupId()).child("participant");
+                                                        Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+                                                        checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                                if (snapshot.exists()) {
+                                                                    HashMap<String,Object> obj1= new HashMap<>();
+                                                                    obj1.put("userName",username);
+                                                                    obj1.put("status",about);
+                                                                    reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                                }
                                                             }
-                                                        }
 
-                                                        @Override
-                                                        public void onCancelled(@NonNull DatabaseError error) {
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError error) {
 
-                                                        }
-                                                    });
-                                                    HashMap<String,Object> obj1= new HashMap<>();
-                                                    obj1.put("userName",username);
-                                                    obj1.put("status",about);
-                                                    database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(groups.getGroupId()).child("participant")
-                                                            .child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                            }
+                                                        });
+
+                                                        HashMap<String,Object> obj1= new HashMap<>();
+                                                        obj1.put("userName",username);
+                                                        obj1.put("status",about);
+                                                        database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(groups.getGroupId()).child("participant")
+                                                                .child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                    }
                                                 }
                                             }
 
