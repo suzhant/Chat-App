@@ -14,6 +14,7 @@ First Android Project using Java.<br><br>
 <li>Account deletion</li>
 <li>Profile Settings</li>
 <li>Find friends</li>
+<li>Group Chat</li>
  
   </i>
 </ul>
