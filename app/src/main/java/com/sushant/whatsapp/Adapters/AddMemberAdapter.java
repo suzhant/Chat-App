@@ -90,15 +90,15 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
             }
         });
 
-        FirebaseDatabase.getInstance().getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snapshot1:snapshot.getChildren()){
                     Users users1= snapshot1.getValue(Users.class);
                     assert users1 != null;
-                    if (users1.getUserId().equals(users.getUserId())){
-                        holder.memberIndicator.setText("Member");
+                        if (users1.getUserId().equals(users.getUserId())){
+                            holder.memberIndicator.setText("Member");
                     }
                 }
             }

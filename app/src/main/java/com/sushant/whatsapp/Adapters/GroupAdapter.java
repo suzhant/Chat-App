@@ -24,7 +24,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.GroupChatActivity;
 import com.sushant.whatsapp.Models.Groups;
-import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;

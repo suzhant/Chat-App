@@ -2,44 +2,61 @@ package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.iceteck.silicompressorr.SiliCompressor;
 import com.sushant.whatsapp.Adapters.GroupChatAdapter;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityGroupChatBinding;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 
 public class GroupChatActivity extends AppCompatActivity {
 
+    private static final int PICK_IMAGE = 26;
     ActivityGroupChatBinding binding;
     Animation scale_up, scale_down;
     FirebaseAuth auth;
@@ -50,6 +67,8 @@ public class GroupChatActivity extends AppCompatActivity {
     Handler handler;
     Runnable runnable;
     ArrayList<String> list= new ArrayList<>();
+    FirebaseStorage storage;
+    ProgressDialog dialog;
 
 
     @Override
@@ -61,6 +80,12 @@ public class GroupChatActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         database = FirebaseDatabase.getInstance();
         auth=FirebaseAuth.getInstance();
+        storage=FirebaseStorage.getInstance();
+
+
+        dialog= new ProgressDialog(this);
+        dialog.setMessage("Uploading Image...");
+        dialog.setCancelable(false);
 
 
         Gid = getIntent().getStringExtra("GId");
@@ -107,12 +132,14 @@ public class GroupChatActivity extends AppCompatActivity {
 
         senderId = FirebaseAuth.getInstance().getUid();
 
-        final GroupChatAdapter chatAdapter = new GroupChatAdapter(messageModel, this);
+        final GroupChatAdapter chatAdapter = new GroupChatAdapter(messageModel, this,Gid);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         layoutManager.setStackFromEnd(true);
+        binding.chatRecyclerView.setHasFixedSize(true);
         binding.chatRecyclerView.setLayoutManager(layoutManager);
+
 
         binding.editMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -150,6 +177,8 @@ public class GroupChatActivity extends AppCompatActivity {
                         messageModel.clear();
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                             Messages model = dataSnapshot.getValue(Messages.class);
+                            assert model != null;
+                            model.setMessageId(dataSnapshot.getKey());
                             messageModel.add(model);
                         }
                         chatAdapter.notifyDataSetChanged();
@@ -209,6 +238,16 @@ public class GroupChatActivity extends AppCompatActivity {
                 sendMessage();
             }
         });
+        binding.imgGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent();
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+            }
+        });
+
     }
 
     private  void  updateSeen(String seen,String id){
@@ -334,4 +373,99 @@ public class GroupChatActivity extends AppCompatActivity {
             handler.postDelayed(runnable, 2000);
         }
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode==PICK_IMAGE){
+            if (resultCode== Activity.RESULT_OK){
+                if (data!=null) {
+                    if (data.getData() != null) {
+                        Uri selectedImage = data.getData();
+                        File dir = getCacheDir();
+                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
+                        Uri uri = Uri.parse(file);
+                        uploadToFirebase(uri);
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void uploadToFirebase(Uri uri){
+        Calendar calendar = Calendar.getInstance();
+        final StorageReference reference = storage.getReference().child("Group Chat Pics").child(FirebaseAuth.getInstance().getUid()).child(calendar.getTimeInMillis() + "");
+        dialog.show();
+        reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
+
+                if (fdelete.exists()) {
+                    if (fdelete.delete()) {
+                        System.out.println("file Deleted :");
+                    } else {
+                        System.out.println("file not Deleted :");
+                    }
+                }
+                if (task.isSuccessful()) {
+                    dialog.dismiss();
+                    reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String filePath = uri.toString();
+                            notify = true;
+                            Date date = new Date();
+                            final Messages model = new Messages(senderId, profilePic, date.getTime());
+                            model.setMessage(fdelete.getName());
+                            model.setImageUrl(filePath);
+                            model.setType("photo");
+                            binding.editMessage.getText().clear();
+                            updateLastMessage(fdelete.getName());
+
+                            if (notify) {
+                                for (int i=0;i<list.size();i++){
+                                    sendNotification(list.get(i), Gname, sendername+": "+fdelete.getName());
+                                }
+                            }
+                            notify = false;
+
+                            database.getReference().child("Group Chat").child(Gid).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                                    r.play();
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String getFilePath(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(projection[0]);
+            String picturePath = cursor.getString(columnIndex); // returns null
+            cursor.close();
+            return picturePath;
+        }
+        return null;
+    }
+
 }

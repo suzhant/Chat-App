@@ -23,6 +23,18 @@
         android:minHeight="30dp"
         android:orientation="vertical">
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewSender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/imgSender"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:src="@drawable/avatar"
+                android:visibility="gone"
+                android:scaleType="centerCrop"/>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/txtGroupSender"
@@ -34,11 +46,11 @@
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="3dp"
-            android:textColor="@color/black"
             android:inputType="textMultiLine|textLongMessage"
             android:maxWidth="270dp"
             android:minWidth="50dp"
-            android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd" />
+            android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
+            android:textColor="@color/black" />
 
         <TextView
             android:id="@+id/txtGroupSenderTime"

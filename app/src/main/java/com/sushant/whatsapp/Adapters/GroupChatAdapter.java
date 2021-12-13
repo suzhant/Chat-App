@@ -13,10 +13,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,13 +42,14 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
 
     ArrayList<Messages> messageModel;
     Context context;
-    String recId;
+    String Gid;
     int SENDER_VIEW_TYPE = 1;
     int RECEIVER_VIEW_TYPE = 2;
 
-    public GroupChatAdapter(ArrayList<Messages> messageModel, Context context) {
+    public GroupChatAdapter(ArrayList<Messages> messageModel, Context context,String Gid) {
         this.messageModel = messageModel;
         this.context = context;
+        this.Gid=Gid;
     }
 
     @NonNull
@@ -68,11 +71,13 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
         if (holder.getClass() == GroupChatAdapter.SenderViewHolder.class) {
             if ("photo".equals(message.getType())){ //yoda condition solves unsafe null behaviour
                 ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
-                ((GroupChatAdapter.SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
+                ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                 ((GroupChatAdapter.SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                 ((GroupChatAdapter.SenderViewHolder) holder).imgSender.layout(0,0,0,0);
-                Glide.with(((GroupChatAdapter.SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
-                        diskCacheStrategy(DiskCacheStrategy.ALL).into(((GroupChatAdapter.SenderViewHolder) holder).imgSender);
+                if (message.getImageUrl()!=null){
+                    Glide.with(((GroupChatAdapter.SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
+                            diskCacheStrategy(DiskCacheStrategy.ALL).into(((GroupChatAdapter.SenderViewHolder) holder).imgSender);
+                }
             }else{
                 ((GroupChatAdapter.SenderViewHolder) holder).txtSender.setText(message.getMessage());
             }
@@ -81,11 +86,13 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
         } else {
             if ("photo".equals(message.getType())){
                 ((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
-                ((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
+                ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                 ((GroupChatAdapter.ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                 ((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
-                Glide.with(((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver);
+                if (message.getImageUrl()!=null){
+                    Glide.with(((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL).into(((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver);
+                }
             }else{
                 ((GroupChatAdapter.ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
                 String firstWord= getFirstWord(message.getSenderName());
@@ -117,8 +124,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 FirebaseDatabase database= FirebaseDatabase.getInstance();
-                                String senderRoom= FirebaseAuth.getInstance().getUid() + recId;
-                                database.getReference().child("Group Chat").child(senderRoom).child(message.getMessageId()).setValue(null);
+                                    database.getReference().child("Group Chat").child(Gid).child(message.getMessageId()).setValue(null);
                             }
                         }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
@@ -151,6 +157,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
         final private TextView txtReceiver, txtReceiverTime, txtSenderName;
         final private CircleImageView profilepic;
         final private ImageView imgReceiver;
+        final private MaterialCardView cardViewReceiver;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -159,18 +166,21 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
             profilepic=itemView.findViewById(R.id.group_profile_image);
             imgReceiver=itemView.findViewById(R.id.imgReceiver);
             txtSenderName= itemView.findViewById(R.id.txtSenderName);
+            cardViewReceiver=itemView.findViewById(R.id.cardViewReceiver);
         }
     }
 
     public static class SenderViewHolder extends RecyclerView.ViewHolder {
         final private TextView txtSender, txtSenderTime;
         final private ImageView imgSender;
+        final  private MaterialCardView cardViewSender;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
             imgSender=itemView.findViewById(R.id.imgSender);
+            cardViewSender=itemView.findViewById(R.id.cardViewSender);
         }
     }
     private String getFirstWord(String text) {
