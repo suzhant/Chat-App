@@ -24,6 +24,7 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -90,7 +91,7 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
             }
         });
 
-        FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

@@ -76,14 +76,14 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
             }
         });
 
-        FirebaseDatabase.getInstance().getReference().child("Groups").child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String role=snapshot.child(Gid).child("participant").child(users.getUserId()).child("role").getValue(String.class);
-                if ("Admin".equals(role)){
-                    holder.memberIndicator.setText(role);
-                }
+                    String role=snapshot.child("role").getValue(String.class);
+                    if ("Admin".equals(role)){
+                        holder.memberIndicator.setText(role);
+                    }
             }
 
             @Override

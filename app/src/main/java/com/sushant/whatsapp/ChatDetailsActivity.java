@@ -258,6 +258,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             }
         });
 
+        binding.imgCamera.setEnabled(false);
         binding.imgCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

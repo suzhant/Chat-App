@@ -238,6 +238,8 @@ public class GroupChatActivity extends AppCompatActivity {
                 sendMessage();
             }
         });
+
+        binding.imgGallery.setEnabled(false);
         binding.imgGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
