@@ -63,40 +63,37 @@ public class GroupSettings extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for (DataSnapshot snapshot1: snapshot.getChildren()){
                             Users users=snapshot1.getValue(Users.class);
-//                            database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").child(FirebaseAuth.getInstance().getUid()).removeValue();
                             DatabaseReference reference=database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant");
-                            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            Query participant=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+                            participant.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     for (DataSnapshot snapshot2:snapshot.getChildren()){
                                         Users users1=snapshot2.getValue(Users.class);
-                                        if (users1.getUserId().equals(FirebaseAuth.getInstance().getUid())){
-                                            if (users1.getRole().equals("Admin")){
-                                              reference.child(FirebaseAuth.getInstance().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                  @Override
-                                                  public void onSuccess(Void unused) {
-                                                      Query query=reference.orderByValue().limitToLast(1);
-                                                      query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                          @Override
-                                                          public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                              for (DataSnapshot snapshot3: snapshot.getChildren()){
-                                                                  String userId=snapshot3.child("userId").getValue(String.class);
-                                                                  reference.child(userId).child("role").setValue("Admin");
-                                                              }
-                                                          }
+                                        if (users1.getRole().equals("Admin")){
+                                            reference.child(FirebaseAuth.getInstance().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Query query=reference.orderByValue().limitToLast(1);
+                                                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                            for (DataSnapshot snapshot3: snapshot.getChildren()){
+                                                                String userId=snapshot3.child("userId").getValue(String.class);
+                                                                reference.child(userId).child("role").setValue("Admin");
+                                                            }
+                                                        }
 
-                                                          @Override
-                                                          public void onCancelled(@NonNull DatabaseError error) {
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError error) {
 
-                                                          }
-                                                      });
-                                                  }
-                                              });
+                                                        }
+                                                    });
+                                                }
+                                            });
 
-                                            }else {
-                                                reference.child(FirebaseAuth.getInstance().getUid()).removeValue();
-                                            }
-
+                                        }else {
+                                            reference.child(FirebaseAuth.getInstance().getUid()).removeValue();
                                         }
                                     }
                                 }

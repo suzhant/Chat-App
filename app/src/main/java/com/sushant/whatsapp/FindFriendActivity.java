@@ -1,5 +1,6 @@
 package com.sushant.whatsapp;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -43,6 +44,7 @@ public class FindFriendActivity extends AppCompatActivity{
         toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
         ActionBar ab= getSupportActionBar();
+        assert ab != null;
         ab.setDisplayHomeAsUpEnabled(true);
 
         database = FirebaseDatabase.getInstance();
@@ -95,6 +97,7 @@ public class FindFriendActivity extends AppCompatActivity{
 
     private void getAllUsers() {
         valueEventListener1= new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
@@ -102,7 +105,7 @@ public class FindFriendActivity extends AppCompatActivity{
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
                     users.setUserId(dataSnapshot.getKey());
-                    if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                    if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
                         list.add(users);
                     }
                 }
@@ -122,15 +125,19 @@ public class FindFriendActivity extends AppCompatActivity{
         FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
-                    if (!users.getUserId().equals(user.getUid())){
-                        if (users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
-                            list.add(users);
+                    if (users.getUserId() != null) {
+                        assert user != null;
+                        if (!users.getUserId().equals(user.getUid())) {
+                            if (users.getUserName().contains(query.toLowerCase()) || users.getMail().contains(query.toLowerCase())) {
+                                list.add(users);
+                            }
                         }
                     }
                 }

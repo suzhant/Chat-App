@@ -3,8 +3,6 @@ package com.sushant.whatsapp.Adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,10 +132,11 @@ public class ChatAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public class ReceiverViewHolder extends RecyclerView.ViewHolder {
-        private TextView txtReceiver, txtReceiverTime;
-        private CircleImageView profilepic;
-        private ImageView imgReceiver;
+    public static class ReceiverViewHolder extends RecyclerView.ViewHolder {
+        private final TextView txtReceiver;
+        private final TextView txtReceiverTime;
+        private final CircleImageView profilepic;
+        private final ImageView imgReceiver;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -148,9 +147,10 @@ public class ChatAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public class SenderViewHolder extends RecyclerView.ViewHolder {
-        private TextView txtSender, txtSenderTime;
-        private ImageView imgSender;
+    public static class SenderViewHolder extends RecyclerView.ViewHolder {
+        private final TextView txtSender;
+        private final TextView txtSenderTime;
+        private final ImageView imgSender;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);

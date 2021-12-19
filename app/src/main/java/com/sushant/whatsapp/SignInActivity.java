@@ -164,7 +164,11 @@ public class SignInActivity extends AppCompatActivity {
                 if (!isLogin) {
                     String email = sharedPreferences.getString("email", "");
                     String pass = sharedPreferences.getString("password", "");
-                    performAuth(email, pass);
+                    if(!email.isEmpty() || !pass.isEmpty()){
+                        performAuth(email, pass);
+                    }else {
+                        Toast.makeText(getApplicationContext(), "This is the first time you're using Biometric!! Please sign in manually", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     signIn();
                 }

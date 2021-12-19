@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -88,6 +89,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             }
         });
         FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+        assert user!=null;
         holder.btnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,16 +98,18 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
                 HashMap<String,Object> obj2= new HashMap<>();
                 obj2.put("request","Accepted");
-
+                    
                 database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).updateChildren(obj1).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).updateChildren(obj2);
+                        database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).updateChildren(obj2).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(@NonNull Void unused) {
+                                Toast.makeText(context.getApplicationContext(), "Friend request accepted", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 });
-                holder.btnAccept.setVisibility(View.GONE);
-                holder.btnReject.setVisibility(View.GONE);
-
             }
         });
 
@@ -118,8 +122,6 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                         database.getReference().child("Users").child(users.getUserId()).child("Friends").child(user.getUid()).removeValue();
                     }
                 });
-                holder.btnAccept.setVisibility(View.GONE);
-                holder.btnReject.setVisibility(View.GONE);
             }
         });
     }

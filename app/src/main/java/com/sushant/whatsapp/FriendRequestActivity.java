@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -99,6 +100,7 @@ public class FriendRequestActivity extends AppCompatActivity {
     FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
     private void getAllUsers() {
         valueEventListener1= new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
@@ -107,7 +109,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                     assert users != null;
                     users.setUserId(dataSnapshot.getKey());
                     if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                        if(users.getRequest().equals("Req_Pending")){
+                        if(users.getRequest()!=null && users.getRequest().equals("Req_Pending")){
                             list.add(users);
                         }
                     }
@@ -127,13 +129,14 @@ public class FriendRequestActivity extends AppCompatActivity {
     private void searchUser(String query) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
-                    if (!users.getUserId().equals(user.getUid())){
+                    if (!users.getUserId().equals(user.getUid()) && users.getRequest()!=null){
                         if (users.getRequest().equals("Req_Pending")){
                             if (users.getUserName().equalsIgnoreCase(query.toLowerCase())|| users.getMail().equalsIgnoreCase(query.toLowerCase())){
                                 list.add(users);

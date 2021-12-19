@@ -87,7 +87,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
     }
 
 
-    public class viewHolder extends RecyclerView.ViewHolder {
+    public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
         public ImageView blackCircle;

@@ -90,7 +90,9 @@ public class GroupChatFragment extends Fragment {
                         for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                             Groups groups = dataSnapshot.getValue(Groups.class);
                             assert groups != null;
-                            list.add(groups);
+                            if (groups.getGroupId()!=null){
+                                list.add(groups);
+                            }
                         }
                         adapter.notifyDataSetChanged();
 

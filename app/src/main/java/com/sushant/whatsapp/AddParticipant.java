@@ -1,5 +1,6 @@
 package com.sushant.whatsapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class AddParticipant extends AppCompatActivity {
 
@@ -171,12 +173,13 @@ public class AddParticipant extends AppCompatActivity {
             Users newMember=participant.get(i);
             newMember.setRole("normal");
             newMember.setJoinedGroupOn(date);
-            database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
+            database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
         }
     }
 
     private void getAllUsers() {
         valueEventListener1= new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
@@ -184,7 +187,7 @@ public class AddParticipant extends AppCompatActivity {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Users users = dataSnapshot.getValue(Users.class);
                         assert users != null;
-                        if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                        if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
                             if ("Accepted".equals(users.getRequest())){
                                 list.add(users);
                             }
@@ -204,13 +207,14 @@ public class AddParticipant extends AppCompatActivity {
 
             }
         };
-        ref =FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends");
+        ref =FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         ref.addValueEventListener(valueEventListener1);
     }
 
     private void searchUser(String query) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
@@ -218,7 +222,7 @@ public class AddParticipant extends AppCompatActivity {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Users users = dataSnapshot.getValue(Users.class);
                         assert users != null;
-                        if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                        if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
                             if ("Accepted".equals(users.getRequest())){
                                 if (users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
                                     list.add(users);

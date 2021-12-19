@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -62,6 +63,7 @@ public class ProfileActivity extends AppCompatActivity {
         binding.txtAbout.setText(status);
 
         FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
         database.getReference().child("Users").child(Objects.requireNonNull(user.getUid()))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -86,6 +88,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (snapshot.exists()){
                     for (DataSnapshot snapshot1:snapshot.getChildren()){
                         Users users=snapshot1.getValue(Users.class);
+                        assert users != null;
                         if (Receiverid.equals(users.getUserId())){
                         if (users.getRequest().equals("Accepted")){
                             binding.btnAddFriend.setText("Unfriend");
@@ -207,7 +210,12 @@ public class ProfileActivity extends AppCompatActivity {
                     database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).setValue(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2);
+                            database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(@NonNull Void unused) {
+                                    Toast.makeText(getApplicationContext(), "Friend request sent to "+userName, Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     });
 

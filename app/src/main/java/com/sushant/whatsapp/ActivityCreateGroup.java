@@ -1,5 +1,6 @@
 package com.sushant.whatsapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -27,6 +28,7 @@ import com.sushant.whatsapp.databinding.ActivityCreateGroupBinding;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ActivityCreateGroup extends AppCompatActivity{
 
@@ -120,6 +122,7 @@ public class ActivityCreateGroup extends AppCompatActivity{
 
     private void getAllUsers() {
         valueEventListener1= new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
@@ -129,7 +132,7 @@ public class ActivityCreateGroup extends AppCompatActivity{
                         assert users != null;
                         users.setUserId(dataSnapshot.getKey());
                         if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                            if (users.getRequest().equals("Accepted")){
+                            if (users.getRequest()!=null && users.getRequest().equals("Accepted")){
                                 list.add(users);
                             }
                         }
@@ -148,13 +151,13 @@ public class ActivityCreateGroup extends AppCompatActivity{
 
             }
         };
-        ref =FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends");
+        ref =FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         ref.addValueEventListener(valueEventListener1);
     }
 
     private void searchUser(String query) {
         FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -162,8 +165,9 @@ public class ActivityCreateGroup extends AppCompatActivity{
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
-                    if (!users.getUserId().equals(user.getUid())){
-                        if (users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
+                    assert user != null;
+                    if (!users.getUserId().equals(user.getUid()) && users.getUserId() != null){
+                        if (users.getRequest()!=null && users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
                             list.add(users);
                         }
                     }
