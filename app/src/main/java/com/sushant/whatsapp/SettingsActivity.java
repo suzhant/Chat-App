@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -14,11 +16,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -27,16 +32,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivitySettingsBinding;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -45,6 +51,8 @@ public class SettingsActivity extends AppCompatActivity {
     FirebaseDatabase database;
     FirebaseStorage storage;
     ProgressDialog dialog;
+    String token,Token;
+    boolean tokenExist,flag;
 
 
     @Override
@@ -66,6 +74,61 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent= new Intent(SettingsActivity.this,MainActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        database.getReference().child("Users").child(auth.getUid()).addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child("Token").exists()){
+                    tokenExist=true;
+                    token=snapshot.child("Token").getValue(String.class);
+                    assert token != null;
+                    binding.textNotification.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_notification,0,0,0);
+                }else {
+                    binding.textNotification.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_notifications_off,0,0,0);
+                    tokenExist=false;
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (!task.isSuccessful()){
+                    return;
+                }
+                Token=task.getResult();
+                FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+                assert user != null;
+            }
+        });
+
+        binding.textNotification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tokenExist){
+                    flag=false;
+                    setToken(null);
+                    SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                    editor.putBoolean("Notification", flag);
+                    editor.apply();
+                    Toast.makeText(getApplicationContext(), "Notification turned Off!!", Toast.LENGTH_SHORT).show();
+                }else {
+                    flag=true;
+                    SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                    editor.putBoolean("Notification", flag);
+                    editor.apply();
+                    setToken(Token);
+                    Toast.makeText(getApplicationContext(), "Notification turned On!!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -208,6 +271,13 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void setToken(String input) {
+        HashMap<String,Object> map= new HashMap<>();
+        map.put("Token",input);
+        database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).updateChildren(map);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

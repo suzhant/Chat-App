@@ -174,14 +174,14 @@
             android:drawableLeft="@drawable/ic_people"
             android:drawablePadding="10dp"
             android:padding="10dp"
-            android:text="Inivte a friend"
+            android:text="Invite a friend"
             android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold"
             app:drawableTint="@color/colorPurple" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/textNotification"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"

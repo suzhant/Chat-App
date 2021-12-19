@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DatabaseReference infoConnected;
     BroadcastReceiver broadcastReceiver;
     DatabaseReference reference;
-
+    SharedPreferences sharedPreferences;
 
 
     @Override
@@ -101,6 +102,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         registerBroadcastReceiver();
 
         manageConnection();
+
+        sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
+        boolean Notification = sharedPreferences.getBoolean("Notification", true);
+        if (Notification) {
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()){
+                        return;
+                    }
+                    String token=task.getResult();
+                    FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+                    assert user != null;
+                    String uid=user.getUid();
+                    HashMap<String,Object> obj= new HashMap<>();
+                    obj.put("Token",token);
+                    reference.child(uid).updateChildren(obj);
+                }
+            });
+        }
+
         //updating Email
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -199,21 +221,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
         }else {
             nav_verify.setVisibility(View.GONE);
-            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
-                @Override
-                public void onComplete(@NonNull Task<String> task) {
-                    if (!task.isSuccessful()){
-                        return;
-                    }
-                    String token=task.getResult();
-                    FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
-                    assert user != null;
-                    String uid=user.getUid();
-                    HashMap<String,Object> obj= new HashMap<>();
-                    obj.put("Token",token);
-                    reference.child(uid).updateChildren(obj);
-                }
-            });
+//            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+//                @Override
+//                public void onComplete(@NonNull Task<String> task) {
+//                    if (!task.isSuccessful()){
+//                        return;
+//                    }
+//                    String token=task.getResult();
+//                    FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+//                    assert user != null;
+//                    String uid=user.getUid();
+//                    HashMap<String,Object> obj= new HashMap<>();
+//                    obj.put("Token",token);
+//                    reference.child(uid).updateChildren(obj);
+//                }
+//            });
         }
 
 
