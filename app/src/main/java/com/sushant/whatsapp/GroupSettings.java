@@ -26,6 +26,7 @@ import com.sushant.whatsapp.databinding.ActivityGroupSettingsBinding;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class GroupSettings extends AppCompatActivity {
 
@@ -51,6 +52,38 @@ public class GroupSettings extends AppCompatActivity {
         GPP=getIntent().getStringExtra("GPic1");
         CreatedOn=getIntent().getStringExtra("CreatedOn1");
         CreatedBy=getIntent().getStringExtra("CreatedBy1");
+
+        database = FirebaseDatabase.getInstance();
+
+        DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
+        Query query=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+
+       query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snapshot1:snapshot.getChildren()){
+                    String role= snapshot1.child("role").getValue(String.class);
+                    if ("Admin".equals(role)){
+                        binding.btnGroupSetting.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+       binding.btnGroupSetting.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+                Intent intent= new Intent(getApplicationContext(),ChangeGroupProfile.class);
+                intent.putExtra("Gid",Gid);
+                intent.putExtra("GName",GName);
+                startActivity(intent);
+           }
+       });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(GroupSettings.this);
         builder.setMessage("Do you want to leave Group?")
@@ -133,7 +166,7 @@ public class GroupSettings extends AppCompatActivity {
         binding.participantRecycler.addItemDecoration(new DividerItemDecoration(binding.participantRecycler.getContext(), DividerItemDecoration.VERTICAL));
         layoutManager = new LinearLayoutManager(this);
         binding.participantRecycler.setLayoutManager(layoutManager);
-        database = FirebaseDatabase.getInstance();
+
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -42,7 +42,6 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
         this.Gid=Gid;
     }
 
-
     @NonNull
     @Override
     public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

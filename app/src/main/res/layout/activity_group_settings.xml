@@ -39,29 +39,30 @@
     </androidx.appcompat.widget.Toolbar>
 
     <Button
+        android:id="@+id/btnGroupSetting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:text="Settings"
+        android:visibility="gone"
+        android:layout_marginTop="5dp"
+        android:fontFamily="@font/advent_pro_medium"
+        android:backgroundTint="@color/colorPurple"
+        android:background="@drawable/bg_et_message"/>
+
+    <Button
         android:id="@+id/btnLeaveGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/bg_et_message"
         android:backgroundTint="@color/colorPurple"
         android:fontFamily="@font/advent_pro_medium"
         android:gravity="center"
         android:text="Leave Group"
         android:textColor="@color/white" />
-
-   <Button
-       android:id="@+id/btnGroupSetting"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:gravity="center"
-       android:textColor="@color/white"
-       android:text="Settings"
-       android:layout_marginBottom="5dp"
-       android:layout_marginTop="5dp"
-       android:fontFamily="@font/advent_pro_medium"
-       android:backgroundTint="@color/colorPurple"
-       android:background="@drawable/bg_et_message"/>
 
     <Button
         android:id="@+id/btnAddParticipant"

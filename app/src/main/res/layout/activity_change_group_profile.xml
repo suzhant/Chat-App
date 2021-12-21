@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ChangeGroupProfile">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/colorPurple"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:gravity="end">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/backArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:tint="@color/white"
+            app:srcCompat="?attr/actionModeCloseDrawable" />
+
+
+        <TextView
+            android:id="@+id/txtGroupName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GroupName"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:fontFamily="@font/advent_pro_medium"
+            android:layout_gravity="center_horizontal" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <Button
+        android:id="@+id/btnChangeGroupName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Change Group Name"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/advent_pro_medium"
+        android:background="@color/colorPurple"/>
+
+    <Button
+        android:id="@+id/btnChangeGroupPic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Change Group Pic"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/advent_pro_medium"
+        android:background="@color/colorPurple"/>
+
+    <Button
+        android:id="@+id/btnRemoveUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remove user"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/advent_pro_medium"
+        android:background="@color/colorPurple"/>
+
+    <FrameLayout
+        android:id="@+id/flFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+<!--    <androidx.viewpager.widget.ViewPager-->
+<!--        android:id="@+id/viewPager"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:backgroundTint="@color/white" />-->
+
+
+
+</LinearLayout>

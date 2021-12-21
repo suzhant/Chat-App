@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#C5C4FF"
+    tools:context=".Fragments.GroupNameFragment">
+
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/linear_bg">
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editNewGroupName"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:hint="Group Name"
+            app:boxBackgroundColor="@color/white"
+            app:boxCornerRadiusTopEnd="5dp"
+            app:boxCornerRadiusTopStart="5dp"
+            app:boxStrokeColor="@color/purple_200"
+            app:endIconMode="password_toggle"
+            app:errorIconDrawable="@drawable/ic_error"
+            app:errorIconTint="@color/red"
+            app:helperTextTextColor="@color/red"
+            app:hintTextColor="@color/purple_700"
+            app:startIconDrawable="@drawable/ic_people"
+            app:startIconTint="@color/colorPurple">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNewGroupName"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/white"
+                android:inputType="textPassword"
+                android:maxLength="20" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnRenameGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/editNewGroupName"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="50dp"
+            android:background="@drawable/bg_et_message"
+            android:backgroundTint="@color/colorPurple"
+            android:padding="15dp"
+            android:text="Rename Group"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:rippleColor="@color/grayBackground" />
+
+    </RelativeLayout>
+
+
+
+
+</RelativeLayout>
