@@ -24,7 +24,8 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:tint="@color/white"
-            app:srcCompat="?attr/actionModeCloseDrawable" />
+            app:srcCompat="?attr/actionModeCloseDrawable"
+            android:layout_marginStart="10dp" />
 
 
         <TextView
@@ -43,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Change Group Name"
+        android:layout_marginVertical="5dp"
         android:layout_gravity="center"
         android:gravity="center"
         android:textSize="16sp"

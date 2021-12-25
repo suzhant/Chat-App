@@ -45,9 +45,8 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
@@ -68,15 +67,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/alice"
-                android:maxLength="30"
                 android:paddingTop="2dp"
                 android:paddingBottom="2dp"
                 android:singleLine="true"
+                android:ellipsize="end"
                 android:text="Say Hi!!" />
 
-
         </LinearLayout>
-
     </LinearLayout>
 
 
