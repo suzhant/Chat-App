@@ -1,9 +1,16 @@
 package com.sushant.whatsapp;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -11,8 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,6 +49,7 @@ public class GroupSettings extends AppCompatActivity {
     String Gid,GName,GPP,CreatedOn,CreatedBy;
     AlertDialog dialog;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,25 +65,26 @@ public class GroupSettings extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
 
-        DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
-        Query query=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
 
-       query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snapshot1:snapshot.getChildren()){
-                    String role= snapshot1.child("role").getValue(String.class);
-                    if ("Admin".equals(role)){
-                        binding.btnGroupSetting.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+//        DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
+//        Query query=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+//
+//       query.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                for (DataSnapshot snapshot1:snapshot.getChildren()){
+//                    String role= snapshot1.child("role").getValue(String.class);
+//                    if ("Admin".equals(role)){
+//                        binding.btnGroupSetting.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
 
        binding.btnGroupSetting.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -160,12 +171,37 @@ public class GroupSettings extends AppCompatActivity {
 
         binding.txtGroupName.setText(GName);
 
-        adapter = new MemberAdapter(list,Gid,this);
-        binding.participantRecycler.setItemAnimator(new DefaultItemAnimator());
-        binding.participantRecycler.setAdapter(adapter);
-        binding.participantRecycler.addItemDecoration(new DividerItemDecoration(binding.participantRecycler.getContext(), DividerItemDecoration.VERTICAL));
-        layoutManager = new LinearLayoutManager(this);
-        binding.participantRecycler.setLayoutManager(layoutManager);
+//        adapter = new MemberAdapter(list,Gid,this);
+//        binding.participantRecycler.setItemAnimator(new DefaultItemAnimator());
+//        binding.participantRecycler.setAdapter(adapter);
+//        binding.participantRecycler.addItemDecoration(new DividerItemDecoration(binding.participantRecycler.getContext(), DividerItemDecoration.VERTICAL));
+//        layoutManager = new LinearLayoutManager(this);
+//        binding.participantRecycler.setLayoutManager(layoutManager);
+
+        binding.btnShowMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                final Dialog memberDialog= new Dialog(GroupSettings.this);
+                memberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                memberDialog.setContentView(R.layout.bottom_sheet_menu);
+                RecyclerView participantRecycler=(RecyclerView) memberDialog.findViewById(R.id.participantRecyclerInBottom);
+                adapter = new MemberAdapter(list,Gid,getApplicationContext());
+                participantRecycler.setItemAnimator(new DefaultItemAnimator());
+                participantRecycler.setAdapter(adapter);
+                participantRecycler.addItemDecoration(new DividerItemDecoration(participantRecycler.getContext(), DividerItemDecoration.VERTICAL));
+                layoutManager = new LinearLayoutManager(getApplicationContext());
+                participantRecycler.setLayoutManager(layoutManager);
+                getAllUsers();
+
+                memberDialog.show();
+                memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                memberDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                memberDialog.getWindow().getAttributes().windowAnimations=R.anim.scale_up;
+                memberDialog.getWindow().setGravity(Gravity.BOTTOM);
+
+            }
+        });
 
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
@@ -175,7 +211,7 @@ public class GroupSettings extends AppCompatActivity {
             }
         });
 
-        getAllUsers();
+//        getAllUsers();
 
         binding.btnAddParticipant.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -201,6 +237,7 @@ public class GroupSettings extends AppCompatActivity {
 
     private void getAllUsers() {
         valueEventListener1= new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
@@ -219,7 +256,7 @@ public class GroupSettings extends AppCompatActivity {
 
             }
         };
-        ref = FirebaseDatabase.getInstance().getReference("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant");
+        ref = FirebaseDatabase.getInstance().getReference("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
         ref.addValueEventListener(valueEventListener1);
     }
 
@@ -227,5 +264,13 @@ public class GroupSettings extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         ref.removeEventListener(valueEventListener1);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (ref!=null){
+            ref.removeEventListener(valueEventListener1);
+        }
     }
 }

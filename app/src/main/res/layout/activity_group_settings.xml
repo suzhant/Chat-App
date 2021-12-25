@@ -45,7 +45,6 @@
         android:gravity="center"
         android:textColor="@color/white"
         android:text="Settings"
-        android:visibility="gone"
         android:layout_marginTop="5dp"
         android:fontFamily="@font/advent_pro_medium"
         android:backgroundTint="@color/colorPurple"
@@ -76,19 +75,21 @@
         android:background="@drawable/bg_et_message"/>
 
     <Button
+        android:id="@+id/btnShowMember"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="@color/white"
-        android:text="Remove Participant"
+        android:text="show Members"
         android:layout_marginTop="5dp"
-        android:visibility="gone"
+        android:fontFamily="@font/advent_pro_medium"
         android:backgroundTint="@color/colorPurple"
         android:background="@drawable/bg_et_message"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Members"
+        android:visibility="gone"
         android:layout_gravity="center"
         android:textColor="@color/colorPurple"
         android:textStyle="bold"
@@ -97,6 +98,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/participantRecycler"
         android:layout_width="match_parent"
+        android:visibility="gone"
         android:layout_height="wrap_content"
         android:background="@color/white" />
 

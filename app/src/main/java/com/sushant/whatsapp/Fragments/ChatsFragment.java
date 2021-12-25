@@ -16,6 +16,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Adapters.UsersAdapter;
@@ -34,6 +35,7 @@ public class ChatsFragment extends Fragment {
     FirebaseDatabase database;
     LinearLayoutManager layoutManager;
     UsersAdapter adapter;
+    DatabaseReference d1;
 
 
     public ChatsFragment() {
@@ -50,6 +52,8 @@ public class ChatsFragment extends Fragment {
         binding.chatRecyclerView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getContext());
         binding.chatRecyclerView.setLayoutManager(layoutManager);
+
+        d1=database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
 
         binding.chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -72,7 +76,7 @@ public class ChatsFragment extends Fragment {
         });
 
 
-        database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends").addValueEventListener(new ValueEventListener() {
+        d1.addValueEventListener(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -100,7 +104,7 @@ public class ChatsFragment extends Fragment {
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends").addValueEventListener(new ValueEventListener() {
+                d1.addValueEventListener(new ValueEventListener() {
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -128,6 +132,8 @@ public class ChatsFragment extends Fragment {
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
+
+        d1.keepSynced(true);
 
         return binding.getRoot();
     }

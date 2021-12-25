@@ -71,6 +71,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
                     intent.putExtra("UserNamePA",users.getUserName());
                     intent.putExtra("ProfilePicPA",users.getProfilePic());
                     intent.putExtra("StatusPA",users.getStatus());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                 }
             }
