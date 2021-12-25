@@ -11,16 +11,20 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.animation.AnimationUtils;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -48,6 +52,7 @@ public class GroupSettings extends AppCompatActivity {
     DatabaseReference ref;
     String Gid,GName,GPP,CreatedOn,CreatedBy;
     AlertDialog dialog;
+    ConstraintLayout constraintLayout;
 
 
     @Override
@@ -181,11 +186,14 @@ public class GroupSettings extends AppCompatActivity {
         binding.btnShowMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+//                Animation bottomUp = AnimationUtils.loadAnimation(getApplicationContext(),
+//                        R.anim.bottom_up)
                 final Dialog memberDialog= new Dialog(GroupSettings.this);
                 memberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 memberDialog.setContentView(R.layout.bottom_sheet_menu);
                 RecyclerView participantRecycler=(RecyclerView) memberDialog.findViewById(R.id.participantRecyclerInBottom);
+//                constraintLayout=memberDialog.findViewById(R.id.rootBottomSheet);
+//                constraintLayout.startAnimation(bottomUp);
                 adapter = new MemberAdapter(list,Gid,getApplicationContext());
                 participantRecycler.setItemAnimator(new DefaultItemAnimator());
                 participantRecycler.setAdapter(adapter);
@@ -197,12 +205,11 @@ public class GroupSettings extends AppCompatActivity {
                 memberDialog.show();
                 memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
                 memberDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                memberDialog.getWindow().getAttributes().windowAnimations=R.anim.scale_up;
+                memberDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimation;
                 memberDialog.getWindow().setGravity(Gravity.BOTTOM);
-
+                memberDialog.getWindow().getAttributes().windowAnimations=R.style.NoAnimation;
             }
         });
-
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
