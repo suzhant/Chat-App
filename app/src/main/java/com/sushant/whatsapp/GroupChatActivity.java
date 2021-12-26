@@ -275,7 +275,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
             if (notify) {
                 for (int i=0;i<list.size();i++){
-                    sendNotification(list.get(i), Gname, sendername+": "+message);
+                    sendNotification(list.get(i), Gname, sendername+": "+message,profilePic);
                 }
             }
 
@@ -305,7 +305,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
             if (notify) {
                 for (int i=0;i<list.size();i++){
-                    sendNotification(list.get(i), Gname,sendername+": "+heart);
+                    sendNotification(list.get(i), Gname,sendername+": "+heart,profilePic);
                 }
             }
             notify = false;
@@ -350,7 +350,7 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg) {
+    private void sendNotification(String receiver, String userName, String msg,String image) {
         database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -367,7 +367,7 @@ public class GroupChatActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg, getApplicationContext(), GroupChatActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image, getApplicationContext(), GroupChatActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -430,7 +430,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
                             if (notify) {
                                 for (int i=0;i<list.size();i++){
-                                    sendNotification(list.get(i), Gname, sendername+": "+fdelete.getName());
+                                    sendNotification(list.get(i), Gname, sendername+": "+fdelete.getName(),profilePic);
                                 }
                             }
                             notify = false;

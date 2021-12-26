@@ -2,6 +2,7 @@ package com.sushant.whatsapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -24,15 +25,17 @@ public class FcmNotificationsSender  {
     String body;
     Context mContext;
     Activity mActivity;
+    String avatar;
 
 
     private final String postUrl = "https://fcm.googleapis.com/fcm/send";
     private final String fcmServerKey ="AAAAxHlg9ro:APA91bFbKkDxD4PreTLlBA4j7fjirCtQpgg6CU3iYVlZBH5n9T-T03pd8_COhbrP3kapFdrNcW5uotRHY-efoJGfbJruLVNC2zA7WFpzjKdMVJ2_JEsUbpb4F_rBViaA5PqS0cZWSr3h";
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body, Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar, Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
+        this.avatar=avatar;
         this.mContext = mContext;
         this.mActivity = mActivity;
 
@@ -48,10 +51,8 @@ public class FcmNotificationsSender  {
             JSONObject notiObject = new JSONObject();
             notiObject.put("title", title);
             notiObject.put("body", body);
+            notiObject.put("image",avatar);
             notiObject.put("icon", R.drawable.ic_notification); // enter icon that exists in drawable only
-
-
-
             mainObj.put("notification", notiObject);
 
 

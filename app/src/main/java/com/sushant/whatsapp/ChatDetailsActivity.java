@@ -288,7 +288,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             updateLastMessage(message);
 
             if (notify) {
-                sendNotification(receiverId, sendername, message);
+                sendNotification(receiverId, sendername, message,profilePic);
             }
             notify = false;
 
@@ -326,7 +326,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             updateLastMessage(heart);
 
             if (notify) {
-                sendNotification(receiverId, sendername, heart);
+                sendNotification(receiverId, sendername, heart,profilePic);
             }
             notify = false;
 
@@ -428,7 +428,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg) {
+    private void sendNotification(String receiver, String userName, String msg,String image) {
         database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -445,7 +445,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg, getApplicationContext(), ChatDetailsActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image, getApplicationContext(), ChatDetailsActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -533,7 +533,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             updateLastMessage(fdelete.getName());
 
                             if (notify) {
-                                sendNotification(receiverId, sendername,fdelete.getName());
+                                sendNotification(receiverId, sendername,filePath,profilePic);
                             }
                             notify = false;
 

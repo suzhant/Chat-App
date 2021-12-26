@@ -11,7 +11,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -23,9 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.animation.AnimationUtils;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,7 +34,6 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityGroupSettingsBinding;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Objects;
 
 public class GroupSettings extends AppCompatActivity {
@@ -270,7 +265,9 @@ public class GroupSettings extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ref.removeEventListener(valueEventListener1);
+        if(ref!=null){
+            ref.removeEventListener(valueEventListener1);
+        }
     }
 
     @Override

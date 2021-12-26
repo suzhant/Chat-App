@@ -202,7 +202,7 @@ public class ProfileActivity extends AppCompatActivity {
                     user2.setRequest("Req_Pending");
 
                     if (notify) {
-                        sendNotification(Receiverid, sendername, "sent you a Friend Request");
+                        sendNotification(Receiverid, sendername, "sent you a Friend Request",profilePic);
                     }
                     notify = false;
 
@@ -231,7 +231,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg) {
+    private void sendNotification(String receiver, String userName, String msg,String image) {
         database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -248,7 +248,7 @@ public class ProfileActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg, getApplicationContext(), ProfileActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image, getApplicationContext(), ProfileActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };

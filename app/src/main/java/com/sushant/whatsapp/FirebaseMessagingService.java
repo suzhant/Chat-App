@@ -6,17 +6,31 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
 
@@ -32,6 +46,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         Log.d("FCM", "onMessageReceived: "+remoteMessage.getNotification().getBody());
+        Log.d("TAG", "onMessageReceived: "+remoteMessage.getNotification().getImageUrl());
 
 // playing audio and vibration when user see request
         String path = "android.resource://" + getPackageName() + "/" + R.raw.iphone;
@@ -51,32 +66,35 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "CHANNEL_ID");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            builder.setSmallIcon(R.drawable.icontrans);
-            builder.setSmallIcon(resourceImage);
-        } else {
-//            builder.setSmallIcon(R.drawable.icon_kritikar);
-            builder.setSmallIcon(resourceImage);
-        }
-
-
-
         Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentTitle(remoteMessage.getNotification().getTitle());
-        builder.setContentText(remoteMessage.getNotification().getBody());
         builder.setContentIntent(pendingIntent);
-        builder.setStyle(new NotificationCompat.BigTextStyle().bigText(remoteMessage.getNotification().getBody()));
         builder.setAutoCancel(true);
         builder.setPriority(Notification.PRIORITY_MAX);
         builder.setSound(Uri.parse(path),AudioManager.STREAM_NOTIFICATION);
+        builder.setSmallIcon(resourceImage);
+
+        Uri img=remoteMessage.getNotification().getImageUrl();
+        Bitmap bitmap2 = getBitmapfromUrl(String.valueOf(img));
+        if (Objects.requireNonNull(remoteMessage.getNotification().getBody()).contains("https://firebasestorage.googleapis.com")){
+            Bitmap bitmap1 = getBitmapfromUrl(String.valueOf(remoteMessage.getNotification().getBody()));
+            builder.setContentText("Sent you a pic");
+            builder.setLargeIcon(bitmap1).setStyle(
+                            new NotificationCompat.BigPictureStyle()
+                                    .bigPicture(bitmap1)
+                    .bigLargeIcon(null)
+                    );
+        } else {
+            builder.setStyle(new NotificationCompat.BigTextStyle().bigText(remoteMessage.getNotification().getBody()));
+            builder.setContentText(remoteMessage.getNotification().getBody());
+            builder.setLargeIcon(bitmap2);
+        }
+
 
         mNotificationManager =
                 (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
@@ -102,6 +120,22 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
     }
 
+    public Bitmap getBitmapfromUrl(String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            return BitmapFactory.decodeStream(input);
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+
+        }
+    }
 }
 
 
