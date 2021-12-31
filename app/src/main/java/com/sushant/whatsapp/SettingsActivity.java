@@ -5,7 +5,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,11 +40,15 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.iceteck.silicompressorr.SiliCompressor;
+import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivitySettingsBinding;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -284,6 +292,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (data!=null){
             if (data.getData()!=null) {
                 Uri sFile = data.getData();
+//                File file= new File(Objects.requireNonNull(getFilePath(sFile)));
                 dialog.show();
                 Bitmap bitmap=null;
                 try{
@@ -294,19 +303,27 @@ public class SettingsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                assert bitmap != null;
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
-                byte[] img = baos.toByteArray();
-                binding.imgProfile.setImageURI(sFile);
 
-                final StorageReference reference = storage.getReference().child("Profile Pictures").child(FirebaseAuth.getInstance().getUid());
+                assert bitmap != null;
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+                byte[] img = baos.toByteArray();
+//                Bitmap bitmap1= null;
+//                try {
+//                    bitmap1 = modifyOrientation(bitmap,file.getAbsolutePath());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+                Glide.with(this).load(sFile).into(binding.imgProfile);
+
+
+                final StorageReference reference = storage.getReference().child("Profile Pictures").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
 
                 reference.putBytes(img).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    public void onSuccess(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
                         reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public void onSuccess(Uri uri) {
+                            public void onSuccess(@NonNull Uri uri) {
                                 database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("profilePic").setValue(uri.toString());
                                 database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends").addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
@@ -346,4 +363,57 @@ public class SettingsActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
+
+    public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
+        ExifInterface ei = new ExifInterface(image_absolute_path);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotate(bitmap, 90);
+
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotate(bitmap, 180);
+
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotate(bitmap, 270);
+
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                return flip(bitmap, true, false);
+
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                return flip(bitmap, false, true);
+
+            default:
+                return bitmap;
+        }
+    }
+
+    public static Bitmap rotate(Bitmap bitmap, float degrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    public static Bitmap flip(Bitmap bitmap, boolean horizontal, boolean vertical) {
+        Matrix matrix = new Matrix();
+        matrix.preScale(horizontal ? -1 : 1, vertical ? -1 : 1);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    private String getFilePath(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(projection[0]);
+            String picturePath = cursor.getString(columnIndex); // returns null
+            cursor.close();
+            return picturePath;
+        }
+        return null;
+    }
+
 }

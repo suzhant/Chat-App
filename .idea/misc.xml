@@ -5,12 +5,21 @@
       <map>
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/bg_bottom_sheet.xml" value="0.5" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/bg_et_message.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/bg_sender.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/btn_bg.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_check_circle.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_circle_notifications.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_custom_noti_icon.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_person_remove.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_plus_24.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_status_indicator.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_vertical_dots.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/font/aldrich.xml" value="0.384375" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/font/alice.xml" value="0.384375" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/font/font.xml" value="0.384375" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout-sw320dp/activity_sign_in.xml" value="0.3541666666666667" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout-sw720dp/activity_sign_in.xml" value="0.265625" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_add_participant.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_change_group_profile.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_chat_details.xml" value="0.33" />
@@ -26,6 +35,7 @@
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_privacy.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_profile.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_settings.xml" value="0.33" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_sign_in.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_sign_up.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/bottom_sheet_menu.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/emoji_text_view.xml" value="0.3541666666666667" />
@@ -50,6 +60,8 @@
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/menu/drawer_menu.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/menu/menu.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/menu/top_app_bar.xml" value="0.3541666666666667" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3703125" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/bg_sender.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_audio_call.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/WhatsApp/app/src/main/res/drawable/ic_favorite.xml" value="0.3703125" />

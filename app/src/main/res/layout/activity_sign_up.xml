@@ -9,25 +9,32 @@
     android:orientation="vertical"
     tools:context=".SignUpActivity">
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
     <ImageView
         android:id="@+id/imgIcon"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_marginTop="100dp"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
-        android:layout_marginTop="100dp"
-        android:src="@drawable/whatsapp" />
+        android:src="@drawable/whatsapp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/editName"
-        android:layout_width="350dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imgIcon"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="30dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
         android:hint="Username"
         app:boxBackgroundColor="@color/white"
         app:boxStrokeColor="@color/purple_200"
@@ -35,7 +42,9 @@
         app:errorIconDrawable="@drawable/ic_error"
         app:errorIconTint="@color/red"
         app:hintTextColor="@color/purple_700"
-        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgIcon"
         app:startIconDrawable="@drawable/ic_user"
         app:startIconTint="@color/colorPurple">
 
@@ -48,45 +57,56 @@
             android:maxLength="20" />
     </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/editEmail"
-            android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/editName"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
-            android:hint="Email"
-            app:boxBackgroundColor="@color/white"
-            app:boxStrokeColor="@color/purple_200"
-            app:endIconCheckable="true"
-            app:errorIconDrawable="@drawable/ic_error"
-            app:errorIconTint="@color/red"
-            app:hintTextColor="@color/purple_700"
-            android:layout_marginTop="10dp"
-            app:startIconDrawable="@drawable/ic_email"
-            app:startIconTint="@color/colorPurple">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/editEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editName"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:hint="Email"
+        app:boxBackgroundColor="@color/white"
+        app:boxStrokeColor="@color/purple_200"
+        app:endIconCheckable="true"
+        app:errorIconDrawable="@drawable/ic_error"
+        app:errorIconTint="@color/red"
+        app:hintTextColor="@color/purple_700"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editName"
+        app:startIconDrawable="@drawable/ic_email"
+        app:startIconTint="@color/colorPurple">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmail"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:backgroundTint="@color/white"
-                android:inputType="textEmailAddress"
-                android:maxLength="30" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="@color/white"
+            android:inputType="textEmailAddress"
+            android:maxLength="30" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/editPass"
-        android:layout_width="350dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/editEmail"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="30dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
         android:hint="Password"
         app:boxBackgroundColor="@color/white"
         app:boxStrokeColor="@color/purple_200"
         app:endIconMode="password_toggle"
         app:hintTextColor="@color/purple_700"
-        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editEmail"
         app:startIconDrawable="@drawable/ic_lock"
         app:startIconTint="@color/colorPurple">
 
@@ -106,7 +126,10 @@
         android:layout_below="@+id/editPass"
         android:layout_alignRight="@id/editPass"
         android:text="Already have account"
-        android:textSize="13sp" />
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/editPass"
+        app:layout_constraintTop_toBottomOf="@+id/editPass" />
 
     <Button
         android:id="@+id/btnSignUp"
@@ -114,16 +137,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/txtSignIn"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
         android:padding="13dp"
         android:text="Sign Up"
         android:textSize="12sp"
-        app:cornerRadius="4dp" />
+        app:cornerRadius="4dp"
+        app:layout_constraintEnd_toEndOf="@+id/editPass"
+        app:layout_constraintStart_toStartOf="@+id/editPass"
+        app:layout_constraintTop_toBottomOf="@+id/txtSignIn" />
 
     <LinearLayout
         android:id="@+id/linear1"
@@ -132,7 +153,10 @@
         android:layout_below="@+id/btnSignUp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSignUp">
 
         <Button
             android:id="@+id/btnGoogle"
@@ -164,10 +188,15 @@
         android:layout_below="@+id/linear1"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="32dp"
         android:text="Sign Up With Phone"
         android:textColor="@color/colorPurple"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/linear1"
+        app:layout_constraintStart_toStartOf="@+id/linear1"
+        app:layout_constraintTop_toBottomOf="@+id/linear1" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

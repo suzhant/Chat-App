@@ -2,43 +2,47 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grayBackground"
-    android:orientation="vertical"
     tools:context=".SignInActivity">
 
-    <RelativeLayout
-        android:id="@+id/parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editEmail"
-            android:layout_width="350dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/imgIcon"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
             android:hint="Email"
             app:boxBackgroundColor="@color/white"
+            app:boxCornerRadiusTopEnd="5dp"
+            app:boxCornerRadiusTopStart="5dp"
             app:boxStrokeColor="@color/purple_200"
             app:endIconCheckable="true"
             app:errorIconDrawable="@drawable/ic_error"
             app:errorIconTint="@color/red"
+            app:flow_horizontalBias="0.5"
             app:helperTextEnabled="false"
             app:hintTextColor="@color/purple_700"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imgIcon"
             app:startIconDrawable="@drawable/ic_email"
-            app:startIconTint="@color/colorPurple"
-            app:boxCornerRadiusTopStart="5dp"
-            app:boxCornerRadiusTopEnd="5dp">
+            app:startIconTint="@color/colorPurple">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
                 android:inputType="textEmailAddress"
                 android:maxLength="30" />
@@ -46,28 +50,34 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/editPass"
-            android:layout_width="350dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/editEmail"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
             android:hint="Password"
             app:boxBackgroundColor="@color/white"
+            app:boxCornerRadiusTopEnd="5dp"
+            app:boxCornerRadiusTopStart="5dp"
             app:boxStrokeColor="@color/purple_200"
             app:endIconMode="password_toggle"
-            app:errorIconTint="@color/red"
             app:errorIconDrawable="@drawable/ic_error"
+            app:errorIconTint="@color/red"
+            app:flow_horizontalBias="0.5"
             app:helperTextTextColor="@color/red"
             app:hintTextColor="@color/purple_700"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editEmail"
             app:startIconDrawable="@drawable/ic_lock"
-            app:startIconTint="@color/colorPurple"
-            app:boxCornerRadiusTopStart="5dp"
-            app:boxCornerRadiusTopEnd="5dp">
+            app:startIconTint="@color/colorPurple">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPass"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
                 android:inputType="textPassword"
                 android:maxLength="20" />
@@ -78,102 +88,97 @@
             android:id="@+id/imgIcon"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
             android:layout_marginTop="100dp"
             android:src="@drawable/whatsapp"
-            android:transitionName="login_whatsapp" />
+            android:transitionName="login_whatsapp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/txtSignUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/editPass"
-            android:layout_alignRight="@id/editPass"
             android:text="Click for Sign Up"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/editPass"
+            app:layout_constraintTop_toBottomOf="@+id/editPass" />
 
         <TextView
             android:id="@+id/txtForgotPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/editPass"
-            android:layout_alignLeft="@id/editPass"
             android:text="Forgot Password"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/editPass"
+            app:layout_constraintTop_toBottomOf="@+id/editPass" />
+
 
         <Button
             android:id="@+id/btnSignIn"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/txtSignUp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="48dp"
             android:padding="13dp"
             android:text="Sign IN"
             android:textSize="12sp"
-            app:cornerRadius="4dp" />
+            app:cornerRadius="4dp"
+            app:layout_constraintEnd_toEndOf="@+id/editPass"
+            app:layout_constraintStart_toStartOf="@+id/editPass"
+            app:layout_constraintTop_toBottomOf="@+id/editPass" />
 
-        <ProgressBar
-            android:id="@+id/progress_circular"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:indeterminate="true"
-            android:layout_toEndOf="@+id/btnSignIn"
-            android:layout_below="@+id/txtSignUp"
-            android:layout_marginTop="15dp"
-            android:visibility="gone"
-            android:indeterminateTint="@color/colorPrimary"
-            android:indeterminateTintMode="src_in" />
-
-        <LinearLayout
-            android:id="@+id/linear1"
+        <Button
+            android:id="@+id/btnGoogle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btnSignIn"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:drawableLeft="@drawable/ic_google"
+            android:enabled="false"
+            android:padding="10dp"
+            android:text="Google"
+            android:textColor="@color/black"
+            app:backgroundTint="@color/white"
+            app:cornerRadius="4dp"
+            app:layout_constraintEnd_toStartOf="@+id/btnFb"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnSignIn" />
 
-            <Button
-                android:id="@+id/btnGoogle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:drawableLeft="@drawable/ic_google"
-                android:padding="10dp"
-                android:text="Google"
-                android:enabled="false"
-                android:textColor="@color/black"
-                app:backgroundTint="@color/white"
-                app:cornerRadius="4dp" />
-
-            <Button
-                android:id="@+id/btnFb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_facebook"
-                android:padding="10dp"
-                android:text="FaceBook"
-                app:backgroundTint="@color/fb_color"
-                app:cornerRadius="4dp" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/btnFb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_facebook"
+            android:padding="10dp"
+            android:text="FaceBook"
+            app:backgroundTint="@color/fb_color"
+            app:cornerRadius="4dp"
+            app:layout_constraintBottom_toBottomOf="@+id/btnGoogle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btnGoogle"
+            app:layout_constraintTop_toTopOf="@+id/btnGoogle" />
 
         <ImageView
             android:id="@+id/imgFingerPrint"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="108dp"
+            android:src="@drawable/ic_fingerprint"
             android:visibility="visible"
-            android:layout_marginTop="100dp"
-            android:layout_below="@+id/linear1"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_fingerprint"/>
-
-    </RelativeLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/btnFb"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/btnGoogle"
+            app:layout_constraintTop_toBottomOf="@+id/btnGoogle"
+            app:layout_constraintVertical_bias="0.91" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

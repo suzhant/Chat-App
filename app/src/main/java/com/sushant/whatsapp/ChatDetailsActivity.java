@@ -82,7 +82,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
     boolean notify = false;
     FirebaseStorage storage;
     ProgressDialog dialog;
-    String senderId,receiverId,senderRoom,receiverRoom,profilePic;
+    String senderId,receiverId,senderRoom,receiverRoom,profilePic,senderPP,email,Status,receiverName;
     ValueEventListener eventListener1,eventListener2;
     Query checkStatus,checkStatus1;
     String currentPhotoPath,seen="true";
@@ -111,12 +111,12 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
         senderId = auth.getUid();
         receiverId = getIntent().getStringExtra("UserId");
-        String userName = getIntent().getStringExtra("UserName");
+        receiverName = getIntent().getStringExtra("UserName");
         profilePic = getIntent().getStringExtra("ProfilePic");
-        String email = getIntent().getStringExtra("userEmail");
-        String Status = getIntent().getStringExtra("UserStatus");
+        email = getIntent().getStringExtra("userEmail");
+        Status = getIntent().getStringExtra("UserStatus");
 
-        binding.userName.setText(userName);
+        binding.userName.setText(receiverName);
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
 
         binding.icSetting.setOnClickListener(new View.OnClickListener() {
@@ -124,7 +124,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
                 intent.putExtra("UserIdPA", receiverId);
-                intent.putExtra("UserNamePA", userName);
+                intent.putExtra("UserNamePA", receiverName);
                 intent.putExtra("ProfilePicPA", profilePic);
                 intent.putExtra("EmailPA", email);
                 intent.putExtra("StatusPA",Status);
@@ -231,6 +231,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Users users = snapshot.getValue(Users.class);
                 sendername = users.getUserName();
+                senderPP=users.getProfilePic();
             }
 
             @Override
@@ -288,7 +289,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             updateLastMessage(message);
 
             if (notify) {
-                sendNotification(receiverId, sendername, message,profilePic);
+                sendNotification(receiverId, sendername, message,senderPP,email,Status,senderId);
             }
             notify = false;
 
@@ -326,7 +327,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             updateLastMessage(heart);
 
             if (notify) {
-                sendNotification(receiverId, sendername, heart,profilePic);
+                sendNotification(receiverId, sendername, heart,senderPP,email,Status,senderId);
             }
             notify = false;
 
@@ -426,9 +427,19 @@ public class ChatDetailsActivity extends AppCompatActivity {
         checkStatus.addValueEventListener(eventListener1);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        senderId = auth.getUid();
+        receiverId = getIntent().getStringExtra("UserId");
+        receiverName = getIntent().getStringExtra("UserName");
+        profilePic = getIntent().getStringExtra("ProfilePic");
+        email = getIntent().getStringExtra("userEmail");
+        Status = getIntent().getStringExtra("UserStatus");
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg,String image) {
+    private void sendNotification(String receiver, String userName, String msg,String image,String email,String status,String senderId) {
         database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -445,7 +456,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image, getApplicationContext(), ChatDetailsActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image,receiver,email,status,senderId,getApplicationContext(), ChatDetailsActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -533,7 +544,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             updateLastMessage(fdelete.getName());
 
                             if (notify) {
-                                sendNotification(receiverId, sendername,filePath,profilePic);
+                                sendNotification(receiverId, sendername,filePath,senderPP,email,Status,senderId);
                             }
                             notify = false;
 
@@ -644,4 +655,6 @@ public class ChatDetailsActivity extends AppCompatActivity {
         database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
         super.onBackPressed();
     }
+
+
 }
