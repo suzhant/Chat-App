@@ -13,7 +13,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,7 +21,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityProfileBinding;
 
@@ -202,7 +200,7 @@ public class ProfileActivity extends AppCompatActivity {
                     user2.setRequest("Req_Pending");
 
                     if (notify) {
-                        sendNotification(Receiverid, sendername, "sent you a Friend Request",profilePic);
+                        sendNotification(Receiverid, sendername, pp);
                     }
                     notify = false;
 
@@ -231,7 +229,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg,String image) {
+    private void sendNotification(String receiver, String userName, String image) {
         database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -248,7 +246,7 @@ public class ProfileActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image, getApplicationContext(), ProfileActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, "sent you a Friend Request",image, "text","FriendRequest","true",getApplicationContext(), ProfileActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };

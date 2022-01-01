@@ -2,7 +2,6 @@ package com.sushant.whatsapp;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -11,14 +10,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.firebase.auth.FirebaseAuth;
-import com.sushant.whatsapp.Models.Messages;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,30 +24,47 @@ public class FcmNotificationsSender  {
     String body;
     Context mContext;
     Activity mActivity;
-    String avatar,receiverId,email,status,senderId;
+    String avatar,receiverId,email,senderId,msgType,Gid,Type,Notification;
 
 
     private final String postUrl = "https://fcm.googleapis.com/fcm/send";
     private final String fcmServerKey ="AAAAxHlg9ro:APA91bFbKkDxD4PreTLlBA4j7fjirCtQpgg6CU3iYVlZBH5n9T-T03pd8_COhbrP3kapFdrNcW5uotRHY-efoJGfbJruLVNC2zA7WFpzjKdMVJ2_JEsUbpb4F_rBViaA5PqS0cZWSr3h";
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String receiverId,String email,String status,String senderId, Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String receiverId,String email,String senderId,String msgType,String Type, Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
         this.avatar=avatar;
         this.receiverId=receiverId;
         this.email=email;
-        this.status=status;
         this.senderId=senderId;
+        this.msgType=msgType;
+        this.Type=Type;
         this.mContext = mContext;
         this.mActivity = mActivity;
     }
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String Gid,String misType,String Type,String Notification,Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
         this.avatar=avatar;
+        this.Gid=Gid;
+        this.msgType=misType;
+        this.Type=Type;
+        this.Notification=Notification;
+        this.mContext = mContext;
+        this.mActivity = mActivity;
+    }
+
+    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String msgType,String Type,String Notification, Context mContext, Activity mActivity) {
+        this.userFcmToken = userFcmToken;
+        this.title = title;
+        this.body = body;
+        this.avatar=avatar;
+        this.msgType=msgType;
+        this.Type=Type;
+        this.Notification=Notification;
         this.mContext = mContext;
         this.mActivity = mActivity;
     }
@@ -63,19 +75,27 @@ public class FcmNotificationsSender  {
         JSONObject mainObj = new JSONObject();
         try {
             mainObj.put("to", userFcmToken);
-            JSONObject notiObject = new JSONObject();
-            notiObject.put("title", title);
-            notiObject.put("body", body);
-            notiObject.put("image",avatar);
-            notiObject.put("click_action",".ChatDetailsActivity");
-            notiObject.put("icon", R.drawable.ic_circle_notifications); // enter icon that exists in drawable only
+//            JSONObject notiObject = new JSONObject();
+//            notiObject.put("title", title);
+//            notiObject.put("body", body);
+//            notiObject.put("image",avatar);
+//            notiObject.put("click_action",".ChatDetailsActivity");
+//            notiObject.put("icon", R.drawable.ic_circle_notifications); // enter icon that exists in drawable only
             JSONObject dataObject = new JSONObject();
+            dataObject.put("Type",Type);
+            dataObject.put("GId",Gid);
+            dataObject.put("title",title);
             dataObject.put("UserId",senderId);
+            dataObject.put("message",body);
             dataObject.put("ProfilePic",avatar);
             dataObject.put("userEmail",email);
-            dataObject.put("UserStatus",status);
             dataObject.put("UserName",title);
-            mainObj.put("notification", notiObject);
+            dataObject.put("msgType",msgType);
+            dataObject.put("Notification",Notification);
+            dataObject.put("click_action1",".ChatDetailsActivity");
+            dataObject.put("click_action2",".GroupChatActivity");
+            dataObject.put("click_action3",".FriendRequestActivity");
+            dataObject.put("icon",R.drawable.ic_circle_notifications);
             mainObj.put("data",dataObject);
 
 
@@ -111,9 +131,5 @@ public class FcmNotificationsSender  {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
-
-
     }
 }

@@ -1,29 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".FriendRequestActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <LinearLayout
+        android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:liftOnScroll="true"
-        app:layout_scrollFlags="scroll|enterAlways|snap"
-        android:theme="@style/ThemeOverlay.AppCompat.Light">
+        android:layout_height="?actionBarSize"
+        android:background="@color/colorPurple"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="Friend Requests"
-            app:menu="@menu/top_app_bar"
-            android:background="@color/colorPurple"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            />
+        <ImageView
+            android:id="@+id/backArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_backarrow"
+            app:tint="@color/white" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Friend Requests"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
 
     <!-- Note: A RecyclerView can also be used -->
     <androidx.recyclerview.widget.RecyclerView
@@ -35,5 +45,5 @@
         <!-- Scrollable content -->
 
     </androidx.recyclerview.widget.RecyclerView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
 

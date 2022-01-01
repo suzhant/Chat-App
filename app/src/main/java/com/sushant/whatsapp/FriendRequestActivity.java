@@ -1,17 +1,13 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,9 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Adapters.FriendRequestAdapter;
-import com.sushant.whatsapp.Adapters.ProfileAdapter;
 import com.sushant.whatsapp.Models.Users;
-import com.sushant.whatsapp.databinding.ActivityFindFriendBinding;
 import com.sushant.whatsapp.databinding.ActivityFriendRequestBinding;
 
 import java.util.ArrayList;
@@ -39,6 +33,7 @@ public class FriendRequestActivity extends AppCompatActivity {
     FriendRequestAdapter adapter;
     DatabaseReference ref;
     ValueEventListener valueEventListener1;
+    String Notification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +41,11 @@ public class FriendRequestActivity extends AppCompatActivity {
         binding=ActivityFriendRequestBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        toolbar = findViewById(R.id.topAppBar);
-        setSupportActionBar(toolbar);
-        ActionBar ab= getSupportActionBar();
-        ab.setDisplayHomeAsUpEnabled(true);
+//        toolbar = findViewById(R.id.topAppBar);
+//        setSupportActionBar(toolbar);
+//        ActionBar ab= getSupportActionBar();
+//        ab.setDisplayHomeAsUpEnabled(true);
+        Notification=getIntent().getStringExtra("Notification");
 
         database = FirebaseDatabase.getInstance();
 
@@ -58,44 +54,55 @@ public class FriendRequestActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         binding.friendRequestRecycleView.setLayoutManager(layoutManager);
         getAllUsers();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.top_app_bar,menu);
-        MenuItem searchItem = menu.findItem(R.id.search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setQueryHint("Type here to search");
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (!TextUtils.isEmpty(query.trim())){
-                    ref.removeEventListener(valueEventListener1);
-                    searchUser(query);
+            public void onClick(View view) {
+                if ("true".equals(Notification)){
+                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                    startActivity(intent);
+                }else {
+                    finish();
                 }
-                else {
-                    getAllUsers();
-                }
-
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (!TextUtils.isEmpty(newText.trim())){
-                    ref.removeEventListener(valueEventListener1);
-                    searchUser(newText);
-                }
-                else {
-                    getAllUsers();
-                }
-                return false;
             }
         });
-        return true;
     }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        super.onCreateOptionsMenu(menu);
+//        getMenuInflater().inflate(R.menu.top_app_bar,menu);
+//        MenuItem searchItem = menu.findItem(R.id.search);
+//        SearchView searchView = (SearchView) searchItem.getActionView();
+//        searchView.setQueryHint("Type here to search");
+//
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                if (!TextUtils.isEmpty(query.trim())){
+//                    ref.removeEventListener(valueEventListener1);
+//                    searchUser(query);
+//                }
+//                else {
+//                    getAllUsers();
+//                }
+//
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                if (!TextUtils.isEmpty(newText.trim())){
+//                    ref.removeEventListener(valueEventListener1);
+//                    searchUser(newText);
+//                }
+//                else {
+//                    getAllUsers();
+//                }
+//                return false;
+//            }
+//        });
+//        return true;
+//    }
 
     FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
     private void getAllUsers() {

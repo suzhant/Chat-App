@@ -37,6 +37,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -52,7 +53,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.UUID;
 
 public class GroupChatActivity extends AppCompatActivity {
 
@@ -69,7 +69,7 @@ public class GroupChatActivity extends AppCompatActivity {
     ArrayList<String> list= new ArrayList<>();
     FirebaseStorage storage;
     ProgressDialog dialog;
-
+    String Notification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,17 +82,19 @@ public class GroupChatActivity extends AppCompatActivity {
         auth=FirebaseAuth.getInstance();
         storage=FirebaseStorage.getInstance();
 
-
         dialog= new ProgressDialog(this);
         dialog.setMessage("Uploading Image...");
         dialog.setCancelable(false);
 
 
+        Notification=getIntent().getStringExtra("Notification");
         Gid = getIntent().getStringExtra("GId");
         GPP = getIntent().getStringExtra("GPic");
         Gname = getIntent().getStringExtra("GName");
         CreatedOn=getIntent().getStringExtra("CreatedOn");
         CreatedBy=getIntent().getStringExtra("CreatedBy");
+
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
 
         senderId = FirebaseAuth.getInstance().getUid();
         updateSeen(seen,senderId);
@@ -123,7 +125,12 @@ public class GroupChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 seen="true";
                 updateSeen(seen,senderId);
-                finish();
+                if ("true".equals(Notification)){
+                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                    startActivity(intent);
+                }else {
+                    finish();
+                }
             }
         });
 
@@ -274,9 +281,7 @@ public class GroupChatActivity extends AppCompatActivity {
             binding.editMessage.getText().clear();
 
             if (notify) {
-                for (int i=0;i<list.size();i++){
-                    sendNotification(list.get(i), Gname, sendername+": "+message,profilePic);
-                }
+                sendNotification("/topics/all", Gname, sendername + ": " + message, GPP,Gid,"text");
             }
 
             notify = false;
@@ -305,7 +310,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
             if (notify) {
                 for (int i=0;i<list.size();i++){
-                    sendNotification(list.get(i), Gname,sendername+": "+heart,profilePic);
+                    sendNotification(list.get(i), Gname,sendername+": "+heart,GPP,Gid,"text");
                 }
             }
             notify = false;
@@ -350,7 +355,7 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg,String image) {
+    private void sendNotification(String receiver, String GName, String msg,String GPic,String Gid,String msgType ) {
         database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -367,7 +372,7 @@ public class GroupChatActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image, getApplicationContext(), GroupChatActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(receiver, GName, msg,GPic,Gid,msgType,"Group","true",getApplicationContext(), GroupChatActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -375,6 +380,7 @@ public class GroupChatActivity extends AppCompatActivity {
             handler.postDelayed(runnable, 2000);
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -430,7 +436,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
                             if (notify) {
                                 for (int i=0;i<list.size();i++){
-                                    sendNotification(list.get(i), Gname, sendername+": "+fdelete.getName(),profilePic);
+                                    sendNotification(list.get(i), Gname, sendername+": "+fdelete.getName(),GPP,Gid,"photo");
                                 }
                             }
                             notify = false;

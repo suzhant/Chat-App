@@ -140,6 +140,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
                 HashMap<String,Object> map= new HashMap<>();
                 map.put("Typing","Not Typing...");
                 database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
+                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                startActivity(intent);
                 finish();//Method finish() will destroy your activity and show the one that started it.
             }
         });
@@ -289,7 +291,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             updateLastMessage(message);
 
             if (notify) {
-                sendNotification(receiverId, sendername, message,senderPP,email,Status,senderId);
+                sendNotification(receiverId, sendername, message,senderPP,email,senderId,"text");
             }
             notify = false;
 
@@ -327,7 +329,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
             updateLastMessage(heart);
 
             if (notify) {
-                sendNotification(receiverId, sendername, heart,senderPP,email,Status,senderId);
+                sendNotification(receiverId, sendername, heart,senderPP,email,senderId,"text");
             }
             notify = false;
 
@@ -427,19 +429,18 @@ public class ChatDetailsActivity extends AppCompatActivity {
         checkStatus.addValueEventListener(eventListener1);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        senderId = auth.getUid();
-        receiverId = getIntent().getStringExtra("UserId");
-        receiverName = getIntent().getStringExtra("UserName");
-        profilePic = getIntent().getStringExtra("ProfilePic");
-        email = getIntent().getStringExtra("userEmail");
-        Status = getIntent().getStringExtra("UserStatus");
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        senderId = auth.getUid();
+//        receiverId = getIntent().getStringExtra("UserId");
+//        receiverName = getIntent().getStringExtra("UserName");
+//        profilePic = getIntent().getStringExtra("ProfilePic");
+//        email = getIntent().getStringExtra("userEmail");
+//    }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg,String image,String email,String status,String senderId) {
+    private void sendNotification(String receiver, String userName, String msg,String image,String email,String senderId,String msgType) {
         database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -456,7 +457,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image,receiver,email,status,senderId,getApplicationContext(), ChatDetailsActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image,receiver,email,senderId,msgType,"Chat",getApplicationContext(), ChatDetailsActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -544,7 +545,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
                             updateLastMessage(fdelete.getName());
 
                             if (notify) {
-                                sendNotification(receiverId, sendername,filePath,senderPP,email,Status,senderId);
+                                sendNotification(receiverId, sendername,filePath,senderPP,email,senderId,"photo");
                             }
                             notify = false;
 

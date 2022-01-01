@@ -59,7 +59,12 @@
             android:name=".FriendRequestActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            <intent-filter>
+                <action android:name=".FriendRequestActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
@@ -97,20 +102,30 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".GroupChatActivity" />
-        <activity android:name=".ChatDetailsActivity"
+        <activity
+            android:name=".GroupChatActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name=".GroupChatActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ChatDetailsActivity"
             android:exported="false">
             <intent-filter>
                 <action android:name=".ChatDetailsActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>        </activity>
+            </intent-filter>
+        </activity>
         <activity android:name=".SignInActivity" />
         <activity android:name=".SignUpActivity" />
         <activity
             android:name=".MainActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-            android:exported="false">
-        </activity>
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+
         <service
             android:name=".FirebaseMessagingService"
             android:exported="false">

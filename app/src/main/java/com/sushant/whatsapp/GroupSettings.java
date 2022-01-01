@@ -29,6 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.sushant.whatsapp.Adapters.MemberAdapter;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityGroupSettingsBinding;
@@ -102,11 +103,12 @@ public class GroupSettings extends AppCompatActivity {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
-                database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+                database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for (DataSnapshot snapshot1: snapshot.getChildren()){
                             Users users=snapshot1.getValue(Users.class);
+                            assert users != null;
                             DatabaseReference reference=database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant");
                             Query participant=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
                             participant.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -157,7 +159,7 @@ public class GroupSettings extends AppCompatActivity {
                 });
 
                 database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).removeValue();
-
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("all");
                 Intent intent= new Intent(GroupSettings.this, MainActivity.class);
                 startActivity(intent);
             }
