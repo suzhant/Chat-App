@@ -15,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.ActivityCreateGroup;
@@ -33,6 +34,8 @@ public class GroupChatFragment extends Fragment {
     FirebaseDatabase database;
     LinearLayoutManager layoutManager;
     GroupAdapter adapter;
+    ValueEventListener eventListener;
+    DatabaseReference groupChat;
 
     public GroupChatFragment() {
         // Required empty public constructor
@@ -59,7 +62,8 @@ public class GroupChatFragment extends Fragment {
             }
         });
 
-        database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).addValueEventListener(new ValueEventListener() {
+        groupChat=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
+        eventListener=new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -77,36 +81,22 @@ public class GroupChatFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+        groupChat.addValueEventListener(eventListener);
 
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).addValueEventListener(new ValueEventListener() {
-                    @SuppressLint("NotifyDataSetChanged")
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        list.clear();
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            Groups groups = dataSnapshot.getValue(Groups.class);
-                            assert groups != null;
-                            if (groups.getGroupId()!=null){
-                                list.add(groups);
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
+                groupChat.addValueEventListener(eventListener);
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
         return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        groupChat.removeEventListener(eventListener);
     }
 }

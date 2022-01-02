@@ -2,6 +2,7 @@ package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -178,6 +179,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
         database.getReference().child("Group Chat").child(Gid)
                 .addValueEventListener(new ValueEventListener() {
+                    @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         int count = messageModel.size();

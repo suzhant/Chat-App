@@ -49,6 +49,7 @@ import com.sushant.whatsapp.databinding.ActivitySettingsBinding;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -292,28 +293,19 @@ public class SettingsActivity extends AppCompatActivity {
         if (data!=null){
             if (data.getData()!=null) {
                 Uri sFile = data.getData();
-//                File file= new File(Objects.requireNonNull(getFilePath(sFile)));
                 dialog.show();
-                Bitmap bitmap=null;
-                try{
-                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
-                }
-                catch(Exception e)
-                {
+
+                Bitmap bitmap1= null;
+                try {
+                    bitmap1 = handleSamplingAndRotationBitmap(SettingsActivity.this,sFile);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                assert bitmap != null;
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+                assert bitmap1 != null;
+                bitmap1.compress(Bitmap.CompressFormat.JPEG, 40, baos);
                 byte[] img = baos.toByteArray();
-//                Bitmap bitmap1= null;
-//                try {
-//                    bitmap1 = modifyOrientation(bitmap,file.getAbsolutePath());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-                Glide.with(this).load(sFile).into(binding.imgProfile);
+                binding.imgProfile.setImageBitmap(bitmap1);
 
 
                 final StorageReference reference = storage.getReference().child("Profile Pictures").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
@@ -346,6 +338,43 @@ public class SettingsActivity extends AppCompatActivity {
                                     }
                                 });
 
+                                database.getReference().child("Groups").child(auth.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        if (snapshot.exists()){
+                                            for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                                Groups groups=snapshot1.getValue(Groups.class);
+                                                assert groups != null;
+                                                database.getReference().child("Groups").child(auth.getUid()).child(groups.getGroupId()).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                        if (snapshot.exists()){
+                                                            for (DataSnapshot snapshot2:snapshot.getChildren()){
+                                                                Users users= snapshot2.getValue(Users.class);
+                                                                assert users != null;
+                                                                DatabaseReference reference = database.getReference().child("Groups").child(users.getUserId()).child(groups.getGroupId()).child("participant");
+                                                                HashMap<String, Object> map = new HashMap<>();
+                                                                map.put("profilePic", uri.toString());
+                                                                reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(map);
+                                                            }
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+
                                 dialog.dismiss();
                                 Toast.makeText(SettingsActivity.this, "Profile Pic Updated", Toast.LENGTH_SHORT).show();
                             }
@@ -364,56 +393,94 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
-        ExifInterface ei = new ExifInterface(image_absolute_path);
+    public static Bitmap handleSamplingAndRotationBitmap(Context context, Uri selectedImage)
+            throws IOException {
+        int MAX_HEIGHT = 1024;
+        int MAX_WIDTH = 1024;
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        InputStream imageStream = context.getContentResolver().openInputStream(selectedImage);
+        BitmapFactory.decodeStream(imageStream, null, options);
+        imageStream.close();
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, MAX_WIDTH, MAX_HEIGHT);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        imageStream = context.getContentResolver().openInputStream(selectedImage);
+        Bitmap img = BitmapFactory.decodeStream(imageStream, null, options);
+
+        img = rotateImageIfRequired(context, img, selectedImage);
+        return img;
+    }
+
+    private static int calculateInSampleSize(BitmapFactory.Options options,
+                                             int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            // Calculate ratios of height and width to requested height and width
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+
+            // Choose the smallest ratio as inSampleSize value, this will guarantee a final image
+            // with both dimensions larger than or equal to the requested height and width.
+            inSampleSize = Math.min(heightRatio, widthRatio);
+
+            // This offers some additional logic in case the image has a strange
+            // aspect ratio. For example, a panorama may have a much larger
+            // width than height. In these cases the total pixels might still
+            // end up being too large to fit comfortably in memory, so we should
+            // be more aggressive with sample down the image (=larger inSampleSize).
+
+            final float totalPixels = width * height;
+
+            // Anything more than 2x the requested pixels we'll sample down further
+            final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+
+            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+                inSampleSize++;
+            }
+        }
+        return inSampleSize;
+    }
+
+    private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
+
+        InputStream input = context.getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei;
+        if (Build.VERSION.SDK_INT > 23)
+            ei = new ExifInterface(input);
+        else
+            ei = new ExifInterface(selectedImage.getPath());
+
         int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 
         switch (orientation) {
             case ExifInterface.ORIENTATION_ROTATE_90:
-                return rotate(bitmap, 90);
-
+                return rotateImage(img, 90);
             case ExifInterface.ORIENTATION_ROTATE_180:
-                return rotate(bitmap, 180);
-
+                return rotateImage(img, 180);
             case ExifInterface.ORIENTATION_ROTATE_270:
-                return rotate(bitmap, 270);
-
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                return flip(bitmap, true, false);
-
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                return flip(bitmap, false, true);
-
+                return rotateImage(img, 270);
             default:
-                return bitmap;
+                return img;
         }
     }
 
-    public static Bitmap rotate(Bitmap bitmap, float degrees) {
+    private static Bitmap rotateImage(Bitmap img, int degree) {
         Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    public static Bitmap flip(Bitmap bitmap, boolean horizontal, boolean vertical) {
-        Matrix matrix = new Matrix();
-        matrix.preScale(horizontal ? -1 : 1, vertical ? -1 : 1);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    private String getFilePath(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(projection[0]);
-            String picturePath = cursor.getString(columnIndex); // returns null
-            cursor.close();
-            return picturePath;
-        }
-        return null;
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
     }
 
 }

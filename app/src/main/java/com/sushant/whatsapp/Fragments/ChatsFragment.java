@@ -36,6 +36,7 @@ public class ChatsFragment extends Fragment {
     LinearLayoutManager layoutManager;
     UsersAdapter adapter;
     DatabaseReference d1;
+    ValueEventListener eventListener;
 
 
     public ChatsFragment() {
@@ -76,7 +77,7 @@ public class ChatsFragment extends Fragment {
         });
 
 
-        d1.addValueEventListener(new ValueEventListener() {
+       eventListener=new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -99,42 +100,23 @@ public class ChatsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+       d1.addValueEventListener(eventListener);
 
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                d1.addValueEventListener(new ValueEventListener() {
-                    @SuppressLint("NotifyDataSetChanged")
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        list.clear();
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            Users users = dataSnapshot.getValue(Users.class);
-                            assert users != null;
-                            users.setUserId(dataSnapshot.getKey());
-                            if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                                if (users.getRequest().equals("Accepted")){
-                                    list.add(users);
-                                }
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
+                d1.addValueEventListener(eventListener);
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
-        d1.keepSynced(true);
 
         return binding.getRoot();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        d1.removeEventListener(eventListener);
+    }
 }
