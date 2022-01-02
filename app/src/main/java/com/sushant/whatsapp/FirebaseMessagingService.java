@@ -114,6 +114,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         builder.setPriority(Notification.PRIORITY_MAX);
         builder.setSound(Uri.parse(path),AudioManager.STREAM_NOTIFICATION);
         builder.setSmallIcon(resourceImage);
+        builder.setOnlyAlertOnce(true);
 
         //        Uri img=remoteMessage.getNotification().getImageUrl();
         Bitmap bitmap2 = getBitmapFromUrl(String.valueOf(profilePic));
