@@ -2,6 +2,7 @@
 package com.sushant.whatsapp;
 
 import android.annotation.SuppressLint;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FirebaseDatabase database;
     BroadcastReceiver broadcastReceiver;
     DatabaseReference reference;
+    ValueEventListener eventListener;
+    DatabaseReference NavDrawer;
     SharedPreferences sharedPreferences;
 
 
@@ -169,25 +173,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         //retrieving logged in user data from real time database into the nav header views
-        reference.child(Objects.requireNonNull(auth.getUid()))
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Users user = snapshot.getValue(Users.class);
-                        assert user != null;
-                        Glide.with(getApplicationContext()).load(user.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .into(nav_profile);
-                        nav_email.setText(user.getMail());
-                        nav_username.setText(user.getUserName());
-                        txtUserName.setText(user.getUserName().toUpperCase(Locale.ROOT));
-                    }
+       eventListener=new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull DataSnapshot snapshot) {
+               Users user = snapshot.getValue(Users.class);
+               assert user != null;
+               Glide.with(getApplicationContext()).load(user.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                       .into(nav_profile);
+               nav_email.setText(user.getMail());
+               nav_username.setText(user.getUserName());
+               txtUserName.setText(user.getUserName().toUpperCase(Locale.ROOT));
+           }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+           @Override
+           public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
-
+           }
+       };
+       NavDrawer=reference.child(Objects.requireNonNull(auth.getUid()));
+//       NavDrawer.addValueEventListener(eventListener);
 
         //check email verification
         assert user != null;
@@ -243,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onMoveToForeground() {
         // app moved to foreground
         if (auth.getCurrentUser()!=null){
+            NavDrawer.addValueEventListener(eventListener);
 //            database.goOnline();
             updateStatus("online");
             if (!auth.getCurrentUser().isEmailVerified()){
@@ -255,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onMoveToBackground() {
         // app moved to background
         if (auth.getCurrentUser()!=null){
+            NavDrawer.removeEventListener(eventListener);
 //            database.goOffline();
             updateStatus("offline");
             if (!auth.getCurrentUser().isEmailVerified()){
@@ -332,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.nav_logout:
                 Log.d("TAG", "onSuccess: logout started");
+                Log.d("TAG", "onNavigationItemSelected: destroyed");
                 updateStatus("offline");
                 CheckConnection checkConnection= new CheckConnection();
                 if (!checkConnection.isConnected(getApplicationContext())){
@@ -408,8 +415,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         super.onDestroy();
 //        unregisterNetwork();
+        NavDrawer.removeEventListener(eventListener);
+        Log.d("Drawer", "onDestroy: eventDeleted");
     }
-
 
     private void showCustomDialog() {
         AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);

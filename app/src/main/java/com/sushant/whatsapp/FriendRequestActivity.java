@@ -58,8 +58,8 @@ public class FriendRequestActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if ("true".equals(Notification)){
-                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);
-                    startActivity(intent);
+                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                startActivity(intent);
                 }else {
                     finish();
                 }
