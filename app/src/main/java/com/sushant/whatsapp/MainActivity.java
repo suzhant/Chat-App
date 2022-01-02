@@ -2,7 +2,6 @@
 package com.sushant.whatsapp;
 
 import android.annotation.SuppressLint;
-import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,7 +48,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -80,9 +77,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FirebaseDatabase database;
     BroadcastReceiver broadcastReceiver;
     DatabaseReference reference;
-    ValueEventListener eventListener;
+    ValueEventListener eventListener1;
     DatabaseReference NavDrawer;
     SharedPreferences sharedPreferences;
+    TextView txtConnection;
+    Boolean conn;
+    ValueEventListener eventListener;
+    DatabaseReference infoConnected;
 
 
     @Override
@@ -93,15 +94,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-
+        txtConnection=findViewById(R.id.txtNoConnection);
 
 
         database= FirebaseDatabase.getInstance();
         reference=database.getReference().child("Users");
         auth = FirebaseAuth.getInstance();
+        manageConnection();
 
-        broadcastReceiver=new InternetCheckServices();
-//        registerBroadcastReceiver();
+        broadcastReceiver= new InternetCheckServices();
+        registerBroadcastReceiver();
+        CheckConnection checkConnection= new CheckConnection();
+        conn= !checkConnection.isConnected(getApplicationContext());
+        if (!conn){
+            txtConnection.setVisibility(View.VISIBLE);
+        }
 
 
         sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
@@ -173,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         //retrieving logged in user data from real time database into the nav header views
-       eventListener=new ValueEventListener() {
+       eventListener1=new ValueEventListener() {
            @Override
            public void onDataChange(@NonNull DataSnapshot snapshot) {
                Users user = snapshot.getValue(Users.class);
@@ -191,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
            }
        };
        NavDrawer=reference.child(Objects.requireNonNull(auth.getUid()));
-//       NavDrawer.addValueEventListener(eventListener);
+       NavDrawer.addValueEventListener(eventListener1);
 
         //check email verification
         assert user != null;
@@ -246,8 +253,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onMoveToForeground() {
         // app moved to foreground
+        CheckConnection checkConnection= new CheckConnection();
+        if (checkConnection.isConnected(getApplicationContext())){
+            txtConnection.setVisibility(View.VISIBLE);
+        }else {
+            txtConnection.setVisibility(View.GONE);
+        }
         if (auth.getCurrentUser()!=null){
-            NavDrawer.addValueEventListener(eventListener);
+            NavDrawer.addValueEventListener(eventListener1);
 //            database.goOnline();
             updateStatus("online");
             if (!auth.getCurrentUser().isEmailVerified()){
@@ -260,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onMoveToBackground() {
         // app moved to background
         if (auth.getCurrentUser()!=null){
-            NavDrawer.removeEventListener(eventListener);
+            NavDrawer.removeEventListener(eventListener1);
 //            database.goOffline();
             updateStatus("offline");
             if (!auth.getCurrentUser().isEmailVerified()){
@@ -341,12 +354,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("TAG", "onNavigationItemSelected: destroyed");
                 updateStatus("offline");
                 CheckConnection checkConnection= new CheckConnection();
-                if (!checkConnection.isConnected(getApplicationContext())){
+                if (checkConnection.isConnected(getApplicationContext())){
                     showCustomDialog();
                     return false;
                 }
                 deleteToken();
-                database.goOffline();
+//                database.goOffline();
                 auth.signOut();
 
                 Intent intentLogout = new Intent(getApplicationContext(), SignInActivity.class);
@@ -399,7 +412,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
             registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
-
     }
 
     private void unregisterNetwork(){
@@ -414,9 +426,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        unregisterNetwork();
-        NavDrawer.removeEventListener(eventListener);
+        unregisterNetwork();
+        infoConnected.removeEventListener(eventListener);
+        NavDrawer.removeEventListener(eventListener1);
         Log.d("Drawer", "onDestroy: eventDeleted");
+    }
+
+    private void manageConnection() {
+        final DatabaseReference status = database.getReference().child("Users").child((auth.getUid())).child("Connection").child("Status");
+        final DatabaseReference lastOnlineRef = database.getReference().child("Users").child(auth.getUid()).child("Connection").child("lastOnline");
+        infoConnected = database.getReference(".info/connected");
+
+        eventListener=infoConnected.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    status.setValue("online");
+                    lastOnlineRef.setValue(ServerValue.TIMESTAMP);
+                }else{
+                    status.onDisconnect().setValue("offline");
+                    lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void showCustomDialog() {

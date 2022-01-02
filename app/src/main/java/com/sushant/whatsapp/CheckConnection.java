@@ -1,23 +1,17 @@
 package com.sushant.whatsapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import androidx.constraintlayout.motion.widget.Debug;
-
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 
 
 public class CheckConnection {
     public boolean isConnected(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnectedOrConnecting());
+        return (networkInfo == null || !networkInfo.isConnectedOrConnecting());
 
 //        if (connectivityManager != null) {
 //            NetworkInfo[] infos = connectivityManager.getAllNetworkInfo();

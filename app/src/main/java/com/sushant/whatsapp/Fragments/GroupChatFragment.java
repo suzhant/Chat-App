@@ -98,5 +98,6 @@ public class GroupChatFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         groupChat.removeEventListener(eventListener);
+        groupChat.keepSynced(false);
     }
 }

@@ -153,6 +153,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
             }
         });
+        checkStatus.keepSynced(false);
+        reference.keepSynced(false);
 
         DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
                 .child("Friends");

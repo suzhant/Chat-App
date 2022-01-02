@@ -6,15 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".ChatDetailsActivity">
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/linear"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@id/toolbar"
         android:background="#C5C4FF"
         android:transcriptMode="alwaysScroll" />
+
+    <TextView
+        android:id="@+id/txtChatConn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:background="@color/red"
+        android:gravity="center"
+        android:text="No Connection"
+        android:visibility="gone"
+        android:textColor="@color/white" />
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linear"
@@ -60,8 +71,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:padding="5dp"
             android:contentDescription="Record voice"
+            android:padding="5dp"
             android:src="@drawable/ic_mic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/editMessage"

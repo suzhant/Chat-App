@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -115,6 +116,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         builder.setSound(Uri.parse(path),AudioManager.STREAM_NOTIFICATION);
         builder.setSmallIcon(resourceImage);
         builder.setOnlyAlertOnce(true);
+        builder.setLights(Color.MAGENTA, 500, 500);
 
         //        Uri img=remoteMessage.getNotification().getImageUrl();
         Bitmap bitmap2 = getBitmapFromUrl(String.valueOf(profilePic));

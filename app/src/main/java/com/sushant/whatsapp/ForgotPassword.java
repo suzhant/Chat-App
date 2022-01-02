@@ -55,7 +55,7 @@ public class ForgotPassword extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 CheckConnection checkConnection= new CheckConnection();
-                if (!checkConnection.isConnected(getApplicationContext())){
+                if (checkConnection.isConnected(getApplicationContext())){
                     showCustomDialog();
                     return;
                 }

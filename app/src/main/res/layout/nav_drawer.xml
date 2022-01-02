@@ -49,10 +49,12 @@
         app:tabSelectedTextColor="@color/white"
         app:tabTextColor="@color/white"
         tools:targetApi="lollipop" />
+    <include
+        layout="@layout/no_connection" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:backgroundTint="@color/white" />
-</LinearLayout>
+    </LinearLayout>

@@ -33,6 +33,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
@@ -66,7 +70,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class ChatDetailsActivity extends AppCompatActivity {
+public class ChatDetailsActivity extends AppCompatActivity implements LifecycleObserver {
 
     public static final int PICK_IMAGE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 200;
@@ -87,6 +91,9 @@ public class ChatDetailsActivity extends AppCompatActivity {
     ValueEventListener eventListener1,eventListener2;
     Query checkStatus,checkStatus1;
     String currentPhotoPath,seen="true";
+    DatabaseReference chat;
+    ValueEventListener eventListener;
+    DatabaseReference infoConnected;
 
 
     @Override
@@ -108,6 +115,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
         scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up);
         blackCircle = findViewById(R.id.black_circle);
 
+        manageConnection();
+
         senderId = auth.getUid();
         receiverId = getIntent().getStringExtra("UserId");
         receiverName = getIntent().getStringExtra("UserName");
@@ -117,6 +126,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
         binding.userName.setText(receiverName);
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
+        checkConn();
 
         binding.icSetting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,7 +169,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
         updateSeen(seen,senderId,receiverId);
 
-        DatabaseReference chat=database.getReference().child("Chats").child(senderRoom);
+        chat=database.getReference().child("Chats").child(senderRoom);
                 chat.addValueEventListener(new ValueEventListener() {
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
@@ -274,6 +284,30 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
             }
         });
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onMoveToForeground() {
+        // app moved to foreground
+        CheckConnection checkConnection= new CheckConnection();
+        if (checkConnection.isConnected(getApplicationContext())){
+            binding.txtChatConn.setVisibility(View.VISIBLE);
+        }else {
+            binding.txtChatConn.setVisibility(View.GONE);
+        }
+        if (auth.getCurrentUser()!=null){
+//            database.goOnline();
+            updateStatus("online");
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onMoveToBackground() {
+        // app moved to background
+        if (auth.getCurrentUser()!=null){
+            updateStatus("offline");
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
@@ -627,11 +661,47 @@ public class ChatDetailsActivity extends AppCompatActivity {
         }
     }
 
+    void checkConn(){
+        CheckConnection checkConnection= new CheckConnection();
+        if (checkConnection.isConnected(getApplicationContext())){
+            binding.txtChatConn.setVisibility(View.VISIBLE);
+        }else {
+            binding.txtChatConn.setVisibility(View.GONE);
+        }
+    }
+
+    private void manageConnection() {
+        final DatabaseReference status = database.getReference().child("Users").child((auth.getUid())).child("Connection").child("Status");
+        final DatabaseReference lastOnlineRef = database.getReference().child("Users").child(auth.getUid()).child("Connection").child("lastOnline");
+        infoConnected = database.getReference(".info/connected");
+
+        eventListener=infoConnected.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    status.setValue("online");
+                    lastOnlineRef.setValue(ServerValue.TIMESTAMP);
+                }else{
+                    status.onDisconnect().setValue("offline");
+                    lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
     @Override
     protected void onDestroy() {
         checkStatus.removeEventListener(eventListener1);
         checkStatus1.removeEventListener(eventListener2);
+        infoConnected.removeEventListener(eventListener);
+        chat.keepSynced(false);
         super.onDestroy();
     }
 
@@ -639,13 +709,16 @@ public class ChatDetailsActivity extends AppCompatActivity {
     protected void onStop() {
         checkStatus.removeEventListener(eventListener1);
         checkStatus1.removeEventListener(eventListener2);
+        chat.keepSynced(false);
         super.onStop();
     }
 
     @Override
     protected void onRestart() {
+        checkConn();
         checkStatus.addValueEventListener(eventListener1);
         checkStatus1.addValueEventListener(eventListener2);
+        chat.keepSynced(true);
         super.onRestart();
     }
 
@@ -655,6 +728,12 @@ public class ChatDetailsActivity extends AppCompatActivity {
         map.put("Typing","Not Typing...");
         database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
         super.onBackPressed();
+    }
+
+    void updateStatus(String status){
+        HashMap<String,Object> obj= new HashMap<>();
+        obj.put("Status",status);
+        database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("Connection").updateChildren(obj);
     }
 
 
