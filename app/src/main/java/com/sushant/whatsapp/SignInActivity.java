@@ -105,7 +105,7 @@ public class SignInActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         broadcastReceiver = new InternetCheckServices();
-        registerBroadcastReceiver();
+//        registerBroadcastReceiver();
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -284,7 +284,7 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterNetwork();
+//        unregisterNetwork();
     }
 
     //Google Authentication
@@ -367,7 +367,7 @@ public class SignInActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         dialog.dismiss();
                         if (task.isSuccessful()) {
-//                            database.goOnline();
+                            database.goOnline();
                             flag = false;
                             binding.etEmail.setText("");
                             binding.etPass.setText("");

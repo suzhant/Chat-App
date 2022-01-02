@@ -113,7 +113,7 @@ public class ChatsFragment extends Fragment {
                             Users users = dataSnapshot.getValue(Users.class);
                             assert users != null;
                             users.setUserId(dataSnapshot.getKey());
-                            if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                            if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
                                 if (users.getRequest().equals("Accepted")){
                                     list.add(users);
                                 }
@@ -132,7 +132,6 @@ public class ChatsFragment extends Fragment {
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
-
         d1.keepSynced(true);
 
         return binding.getRoot();

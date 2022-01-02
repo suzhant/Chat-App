@@ -46,6 +46,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -88,7 +89,6 @@ public class ChatDetailsActivity extends AppCompatActivity {
     String currentPhotoPath,seen="true";
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +107,6 @@ public class ChatDetailsActivity extends AppCompatActivity {
         scale_down = AnimationUtils.loadAnimation(this, R.anim.scale_down);
         scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up);
         blackCircle = findViewById(R.id.black_circle);
-
 
         senderId = auth.getUid();
         receiverId = getIntent().getStringExtra("UserId");
@@ -160,8 +159,8 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
         updateSeen(seen,senderId,receiverId);
 
-        database.getReference().child("Chats").child(senderRoom)
-                .addValueEventListener(new ValueEventListener() {
+        DatabaseReference chat=database.getReference().child("Chats").child(senderRoom);
+                chat.addValueEventListener(new ValueEventListener() {
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -189,6 +188,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
 
                     }
                 });
+                chat.keepSynced(true);
 
 
         getTypingStatus();

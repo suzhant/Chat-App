@@ -76,8 +76,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     CircleImageView nav_profile;
     FirebaseAuth auth;
     FirebaseDatabase database;
-    ValueEventListener eventListener;
-    DatabaseReference infoConnected;
     BroadcastReceiver broadcastReceiver;
     DatabaseReference reference;
     SharedPreferences sharedPreferences;
@@ -99,9 +97,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         auth = FirebaseAuth.getInstance();
 
         broadcastReceiver=new InternetCheckServices();
-        registerBroadcastReceiver();
+//        registerBroadcastReceiver();
 
-        manageConnection();
 
         sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
         boolean Notification = sharedPreferences.getBoolean("Notification", true);
@@ -252,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 showErrorDialog();
             }
         }
-
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -265,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 showErrorDialog();
             }
         }
-
     }
 
 
@@ -344,8 +339,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     return false;
                 }
                 deleteToken();
-                infoConnected.removeEventListener(eventListener);
-//                database.goOffline();
+                database.goOffline();
                 auth.signOut();
 
                 Intent intentLogout = new Intent(getApplicationContext(), SignInActivity.class);
@@ -378,31 +372,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             super.onBackPressed();
         }
-    }
-
-    private void manageConnection() {
-       final DatabaseReference status = database.getReference().child("Users").child(auth.getUid()).child("Connection").child("Status");
-       final DatabaseReference lastOnlineRef = database.getReference().child("Users").child(auth.getUid()).child("Connection").child("lastOnline");
-        infoConnected = database.getReference(".info/connected");
-
-       eventListener=infoConnected.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean connected = snapshot.getValue(Boolean.class);
-                if (connected) {
-                    status.setValue("online");
-                    lastOnlineRef.setValue(ServerValue.TIMESTAMP);
-                }else{
-                    status.onDisconnect().setValue("offline");
-                    lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     private void deleteToken(){
@@ -438,8 +407,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterNetwork();
-        infoConnected.removeEventListener(eventListener);
+//        unregisterNetwork();
     }
 
 
@@ -527,8 +495,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
     }
-
-
-
-
 }
