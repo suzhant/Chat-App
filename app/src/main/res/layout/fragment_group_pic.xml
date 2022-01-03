@@ -32,7 +32,8 @@
         app:tint="#2979FF" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btnSaveGp"
+        android:enabled="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

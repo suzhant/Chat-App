@@ -61,7 +61,10 @@ public class ChangeGroupProfile extends AppCompatActivity {
         binding.btnChangeGroupName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("GroupId",Gid);
                 GroupNameFragment groupNameFragment= new GroupNameFragment();
+                groupNameFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, groupNameFragment).commit();
             }
         });
@@ -69,7 +72,10 @@ public class ChangeGroupProfile extends AppCompatActivity {
         binding.btnChangeGroupPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("GroupId",Gid);
                 GroupPicFragment groupPicFragment=new GroupPicFragment();
+                groupPicFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, groupPicFragment).commit();
             }
         });

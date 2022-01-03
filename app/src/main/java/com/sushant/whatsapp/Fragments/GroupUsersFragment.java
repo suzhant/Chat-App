@@ -20,11 +20,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.sushant.whatsapp.Adapters.AddMemberAdapter;
 import com.sushant.whatsapp.Adapters.RemoveUserAdapter;
 import com.sushant.whatsapp.Interface.isClicked;
 import com.sushant.whatsapp.Models.Users;
-import com.sushant.whatsapp.R;
 import com.sushant.whatsapp.databinding.FragmentGroupUsersBinding;
 
 import java.util.ArrayList;
@@ -98,30 +96,29 @@ public class GroupUsersFragment extends Fragment {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
+              DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
                 for (int j=0;j<participant.size();j++){
                     Users users1=participant.get(j);
                     database.getReference().child("Groups").child(users1.getUserId()).child(Gid).setValue(null);
                     reference.child(users1.getUserId()).setValue(null);
-                }
-
-                reference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot snapshot1:snapshot.getChildren()){
-                            Users users=snapshot1.getValue(Users.class);
-                            for (int j=0;j<participant.size();j++){
-                                Users users1=participant.get(j);
-                                database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").child(users1.getUserId()).setValue(null);
+                    reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                Users users=snapshot1.getValue(Users.class);
+                                assert users != null;
+                                HashMap<String,Object> map= new HashMap<>();
+                                map.put(users1.getUserId(),null);
+                                database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").updateChildren(map);
                             }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
+                        }
+                    });
+                }
 
                 list.removeAll(participant);
                 binding.groupRecyclerView.setAdapter(new RemoveUserAdapter(list,getContext(),clicked));
@@ -182,4 +179,11 @@ public class GroupUsersFragment extends Fragment {
         ref.addValueEventListener(valueEventListener1);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (ref!=null){
+            ref.removeEventListener(valueEventListener1);
+        }
+    }
 }

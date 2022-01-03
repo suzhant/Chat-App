@@ -116,7 +116,8 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         builder.setSound(Uri.parse(path),AudioManager.STREAM_NOTIFICATION);
         builder.setSmallIcon(resourceImage);
         builder.setOnlyAlertOnce(true);
-        builder.setLights(Color.MAGENTA, 500, 500);
+        builder.setLights(Color.BLUE, 200, 200);
+        builder.setDefaults(Notification.FLAG_SHOW_LIGHTS);
 
         //        Uri img=remoteMessage.getNotification().getImageUrl();
         Bitmap bitmap2 = getBitmapFromUrl(String.valueOf(profilePic));
@@ -155,7 +156,6 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 mNotificationManager.createNotificationChannel(channel);
                 builder.setChannelId(channelId);
             }
-
 
 
 // notificationId is a unique int for each notification that you must define
