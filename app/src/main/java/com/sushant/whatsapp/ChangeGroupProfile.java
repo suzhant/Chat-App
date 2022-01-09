@@ -24,6 +24,9 @@ public class ChangeGroupProfile extends AppCompatActivity {
 
     ActivityChangeGroupProfileBinding binding;
     FirebaseDatabase database;
+    ValueEventListener eventListener;
+    DatabaseReference reference;
+    Query query;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,10 +40,10 @@ public class ChangeGroupProfile extends AppCompatActivity {
         String GName=getIntent().getStringExtra("GName");
         binding.txtGroupName.setText(GName);
 
-        DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
-        Query query=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+        reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
+        query=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
 
-        query.addValueEventListener(new ValueEventListener() {
+      eventListener=new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot snapshot1:snapshot.getChildren()){
@@ -55,7 +58,8 @@ public class ChangeGroupProfile extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+        query.addValueEventListener(eventListener);
 
 
         binding.btnChangeGroupName.setOnClickListener(new View.OnClickListener() {
@@ -99,5 +103,13 @@ public class ChangeGroupProfile extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (reference!=null){
+            query.removeEventListener(eventListener);
+        }
     }
 }

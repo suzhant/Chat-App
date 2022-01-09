@@ -193,7 +193,8 @@ public class SettingsActivity extends AppCompatActivity {
 
                                             }
                                         });
-                                        database.getReference().child("Groups").child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                        database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                                 for (DataSnapshot snapshot1:snapshot.getChildren()){
@@ -233,10 +234,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                                             }
                                         });
-
-
                                     }
-
                                 }
                             }
 

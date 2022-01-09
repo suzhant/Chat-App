@@ -41,7 +41,7 @@ import java.util.Objects;
 public class GroupSettings extends AppCompatActivity {
 
     ActivityGroupSettingsBinding binding;
-    ValueEventListener valueEventListener1;
+    ValueEventListener valueEventListener1,valueEventListener;
     ArrayList<Users> list = new ArrayList<>();
     FirebaseDatabase database;
     LinearLayoutManager layoutManager;
@@ -50,6 +50,8 @@ public class GroupSettings extends AppCompatActivity {
     String Gid,GName,GPP,CreatedOn,CreatedBy;
     AlertDialog dialog;
     ConstraintLayout constraintLayout;
+    String role;
+    Query participant;
 
 
     @Override
@@ -68,25 +70,28 @@ public class GroupSettings extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
 
 
-//        DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
-//        Query query=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-//
-//       query.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                for (DataSnapshot snapshot1:snapshot.getChildren()){
-//                    String role= snapshot1.child("role").getValue(String.class);
-//                    if ("Admin".equals(role)){
-//                        binding.btnGroupSetting.setVisibility(View.VISIBLE);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
+        DatabaseReference reference=database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant");
+        participant=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+        valueEventListener=new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    for (DataSnapshot snapshot1:snapshot.getChildren()){
+                        Users users=snapshot1.getValue(Users.class);
+                        assert users != null;
+                        role=users.getRole();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        participant.addValueEventListener(valueEventListener);
+
+
 
        binding.btnGroupSetting.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -105,63 +110,67 @@ public class GroupSettings extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(Gid);
-                database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot snapshot1: snapshot.getChildren()){
-                            Users users=snapshot1.getValue(Users.class);
-                            assert users != null;
-                            DatabaseReference reference=database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant");
-                            Query participant=reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-                            participant.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    for (DataSnapshot snapshot2:snapshot.getChildren()){
-                                        Users users1=snapshot2.getValue(Users.class);
-                                        if (users1.getRole().equals("Admin")){
-                                            reference.child(FirebaseAuth.getInstance().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    Query query=reference.orderByValue().limitToLast(1);
-                                                    query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                            for (DataSnapshot snapshot3: snapshot.getChildren()){
-                                                                String userId=snapshot3.child("userId").getValue(String.class);
-                                                                reference.child(userId).child("role").setValue("Admin");
-                                                            }
-                                                        }
+                if (!role.equals("Admin")){
+                    DatabaseReference reference=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
+                    reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                Users users=snapshot1.getValue(Users.class);
+                                assert users != null;
+                                if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())){
+                                    HashMap<String,Object> map= new HashMap<>();
+                                    map.put(FirebaseAuth.getInstance().getUid(), null);
+                                    database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").updateChildren(map);
+                                }
+                            }
+                        }
 
-                                                        @Override
-                                                        public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                                                        }
-                                                    });
-                                                }
-                                            });
+                        }
+                    });
+                }else {
+                    DatabaseReference reference1=database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant");
+                    reference1.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot snapshot1:snapshot.getChildren()){
+                                Users users=snapshot1.getValue(Users.class);
+                                assert users != null;
+                                if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())){
+                                    DatabaseReference reference2=database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant");
+                                    HashMap<String,Object> map= new HashMap<>();
+                                    map.put(FirebaseAuth.getInstance().getUid(), null);
+                                    reference2.updateChildren(map);
+                                    Query query=reference2.orderByValue().limitToLast(1);
+                                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            for (DataSnapshot snapshot3: snapshot.getChildren()){
+                                                String userId=snapshot3.child("userId").getValue(String.class);
+                                                reference2.child(userId).child("role").setValue("Admin");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
 
                                         }
-                                        HashMap<String,Object> map= new HashMap<>();
-                                        map.put(FirebaseAuth.getInstance().getUid(), null);
-                                       reference.updateChildren(map);
-
-                                    }
+                                    });
                                 }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-
-                                }
-                            });
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
-                database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).removeValue();
+                        }
+                    });
+                }
+                database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).setValue(null);
+
                 Intent intent= new Intent(GroupSettings.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -273,6 +282,9 @@ public class GroupSettings extends AppCompatActivity {
         if(ref!=null){
             ref.removeEventListener(valueEventListener1);
         }
+        if (participant!=null){
+            participant.removeEventListener(valueEventListener);
+        }
     }
 
     @Override
@@ -280,6 +292,9 @@ public class GroupSettings extends AppCompatActivity {
         super.onStop();
         if (ref!=null){
             ref.removeEventListener(valueEventListener1);
+        }
+        if (participant!=null){
+            participant.removeEventListener(valueEventListener);
         }
     }
 }

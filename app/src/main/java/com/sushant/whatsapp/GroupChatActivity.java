@@ -64,7 +64,6 @@ public class GroupChatActivity extends AppCompatActivity {
     String senderId,profilePic,sendername,Gid,GPP,Gname,CreatedOn,CreatedBy,seen="true";
     boolean notify = false;
     FirebaseDatabase database;
-    String userToken;
     Handler handler;
     Runnable runnable;
     ArrayList<String> list= new ArrayList<>();
@@ -128,8 +127,9 @@ public class GroupChatActivity extends AppCompatActivity {
                 if ("true".equals(Notification)){
                     Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                     startActivity(intent);
+                }else {
+                    finish();
                 }
-                finish();
             }
         });
 
@@ -212,25 +212,6 @@ public class GroupChatActivity extends AppCompatActivity {
                 Users users = snapshot.getValue(Users.class);
                 sendername = users.getUserName();
                 profilePic=users.getProfilePic();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                list.clear();
-                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                    Users user = snapshot1.getValue(Users.class);
-                    assert user != null;
-                    if (!FirebaseAuth.getInstance().getUid().equals(user.getUserId())){
-                        list.add(user.getUserId());
-                    }
-                }
             }
 
             @Override
@@ -355,18 +336,6 @@ public class GroupChatActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private void sendNotification( String topic,String GName, String msg,String GPic,String Gid,String msgType ) {
-//        database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                userToken = snapshot.getValue(String.class);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-
         handler = new Handler();
         runnable = new Runnable() {
             @Override
