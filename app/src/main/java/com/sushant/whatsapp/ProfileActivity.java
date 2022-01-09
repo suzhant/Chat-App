@@ -246,7 +246,7 @@ public class ProfileActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, "sent you a Friend Request",image, "text","FriendRequest","true",getApplicationContext(), ProfileActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, "sent you a Friend Request",image, "text","FriendRequest","true",".FriendRequestActivity",getApplicationContext(), ProfileActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };

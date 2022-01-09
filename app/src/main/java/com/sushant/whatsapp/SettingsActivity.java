@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -90,9 +92,17 @@ public class SettingsActivity extends AppCompatActivity {
                     token=snapshot.child("Token").getValue(String.class);
                     assert token != null;
                     binding.textNotification.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_notification,0,0,0);
+                    binding.toggleNoti.setChecked(true);
+                    binding.toggleNoti.setText("ON");
+                    binding.toggleNoti.getThumbDrawable().setColorFilter(getResources().getColor(R.color.colorPurple), PorterDuff.Mode.MULTIPLY);
+                    binding.toggleNoti.getTrackDrawable().setColorFilter(getResources().getColor(R.color.colorPurple), PorterDuff.Mode.MULTIPLY);
                 }else {
                     binding.textNotification.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_notifications_off,0,0,0);
+                    binding.toggleNoti.setChecked(false);
                     tokenExist=false;
+                    binding.toggleNoti.setText("OFF");
+                    binding.toggleNoti.getThumbDrawable().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
+                    binding.toggleNoti.getTrackDrawable().setColorFilter(getResources().getColor(R.color.grayBackground), PorterDuff.Mode.MULTIPLY);
                 }
 
             }
@@ -115,7 +125,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        binding.textNotification.setOnClickListener(new View.OnClickListener() {
+        binding.toggleNoti.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (tokenExist){
@@ -124,14 +134,22 @@ public class SettingsActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
                     editor.putBoolean("Notification", flag);
                     editor.apply();
-                    Toast.makeText(getApplicationContext(), "Notification turned Off!!", Toast.LENGTH_SHORT).show();
+                    binding.toggleNoti.setChecked(false);
+                    binding.toggleNoti.setText("OFF");
+                    binding.toggleNoti.getThumbDrawable().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
+                    binding.toggleNoti.getTrackDrawable().setColorFilter(getResources().getColor(R.color.grayBackground), PorterDuff.Mode.MULTIPLY);
+                    Toast.makeText(getApplicationContext(), "Notification turned off!!", Toast.LENGTH_SHORT).show();
                 }else {
                     flag=true;
                     SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
                     editor.putBoolean("Notification", flag);
                     editor.apply();
                     setToken(Token);
-                    Toast.makeText(getApplicationContext(), "Notification turned On!!", Toast.LENGTH_SHORT).show();
+                    binding.toggleNoti.setChecked(true);
+                    binding.toggleNoti.setText("ON");
+                    binding.toggleNoti.getThumbDrawable().setColorFilter(getResources().getColor(R.color.colorPurple), PorterDuff.Mode.MULTIPLY);
+                    binding.toggleNoti.getTrackDrawable().setColorFilter(getResources().getColor(R.color.colorPurple), PorterDuff.Mode.MULTIPLY);
+                    Toast.makeText(getApplicationContext(), "Notification turned on!!", Toast.LENGTH_SHORT).show();
                 }
             }
         });

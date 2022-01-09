@@ -10,7 +10,6 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -103,6 +102,7 @@ public class FinalCreateGroup extends AppCompatActivity{
                 groups.setGroupId(id);
                 groups.setCreatedBy(uid);
                 groups.setCreatedOn(timeStamp);
+                database.getReference().child("GroupList").child(id).setValue(groups);
                 createLastMessage();
 
                 for (int i=0;i<list.size();i++){

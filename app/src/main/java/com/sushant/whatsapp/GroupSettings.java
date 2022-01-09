@@ -35,6 +35,7 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityGroupSettingsBinding;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class GroupSettings extends AppCompatActivity {
@@ -103,6 +104,7 @@ public class GroupSettings extends AppCompatActivity {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(Gid);
                 database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -138,9 +140,11 @@ public class GroupSettings extends AppCompatActivity {
                                                 }
                                             });
 
-                                        }else {
-                                            reference.child(FirebaseAuth.getInstance().getUid()).removeValue();
                                         }
+                                        HashMap<String,Object> map= new HashMap<>();
+                                        map.put(FirebaseAuth.getInstance().getUid(), null);
+                                       reference.updateChildren(map);
+
                                     }
                                 }
 
@@ -157,11 +161,10 @@ public class GroupSettings extends AppCompatActivity {
 
                     }
                 });
-
-                database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).removeValue();
-                FirebaseMessaging.getInstance().unsubscribeFromTopic("all");
+                database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).removeValue();
                 Intent intent= new Intent(GroupSettings.this, MainActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {

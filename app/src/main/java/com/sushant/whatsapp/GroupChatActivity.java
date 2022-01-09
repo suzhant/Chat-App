@@ -95,7 +95,6 @@ public class GroupChatActivity extends AppCompatActivity {
         CreatedOn=getIntent().getStringExtra("CreatedOn");
         CreatedBy=getIntent().getStringExtra("CreatedBy");
 
-        FirebaseMessaging.getInstance().subscribeToTopic("all");
 
         senderId = FirebaseAuth.getInstance().getUid();
         updateSeen(seen,senderId);
@@ -129,9 +128,8 @@ public class GroupChatActivity extends AppCompatActivity {
                 if ("true".equals(Notification)){
                     Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                     startActivity(intent);
-                }else {
-                    finish();
                 }
+                finish();
             }
         });
 
@@ -225,6 +223,7 @@ public class GroupChatActivity extends AppCompatActivity {
         database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                list.clear();
                 for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                     Users user = snapshot1.getValue(Users.class);
                     assert user != null;
@@ -283,7 +282,7 @@ public class GroupChatActivity extends AppCompatActivity {
             binding.editMessage.getText().clear();
 
             if (notify) {
-                sendNotification("/topics/all", Gname, sendername + ": " + message, GPP,Gid,"text");
+                sendNotification("/topics/"+Gid, Gname, sendername + ": " + message, GPP,Gid,"text");
             }
 
             notify = false;
@@ -311,9 +310,7 @@ public class GroupChatActivity extends AppCompatActivity {
             updateLastMessage(heart);
 
             if (notify) {
-                for (int i=0;i<list.size();i++){
-                    sendNotification(list.get(i), Gname,sendername+": "+heart,GPP,Gid,"text");
-                }
+                sendNotification( "/topics/"+Gid,Gname,sendername+": "+heart,GPP,Gid,"text");
             }
             notify = false;
 
@@ -357,24 +354,24 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String GName, String msg,String GPic,String Gid,String msgType ) {
-        database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                userToken = snapshot.getValue(String.class);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+    private void sendNotification( String topic,String GName, String msg,String GPic,String Gid,String msgType ) {
+//        database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                userToken = snapshot.getValue(String.class);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
 
         handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(receiver, GName, msg,GPic,Gid,msgType,"Group","true",getApplicationContext(), GroupChatActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(topic, GName, msg,GPic,Gid,msgType,"Group","true",".GroupChatActivity",getApplicationContext(), GroupChatActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -438,7 +435,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
                             if (notify) {
                                 for (int i=0;i<list.size();i++){
-                                    sendNotification(list.get(i), Gname, sendername+": "+fdelete.getName(),GPP,Gid,"photo");
+                                    sendNotification("/topics/"+Gid, Gname, sendername+": "+fdelete.getName(),GPP,Gid,"photo");
                                 }
                             }
                             notify = false;

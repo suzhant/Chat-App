@@ -22,6 +22,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Patterns;
@@ -63,6 +64,8 @@ public class SignInActivity extends AppCompatActivity {
     GoogleSignInClient googleSignInClient;
     FirebaseDatabase database;
     BroadcastReceiver broadcastReceiver;
+    int numberOfTries=0;
+    boolean mTimerRunning=false;
 
     SharedPreferences sharedPreferences;
     boolean flag;
@@ -202,8 +205,13 @@ public class SignInActivity extends AppCompatActivity {
                 } else if (!emailValidation() | !passValidation()) {
                     return;
                 }
-                performAuth(email, pass);
-
+                if (numberOfTries<5){
+                    performAuth(email, pass);
+                }else {
+                    if (!mTimerRunning){
+                        startCountDownTimer();
+                    }
+                }
             }
         });
 
@@ -333,31 +341,51 @@ public class SignInActivity extends AppCompatActivity {
     //Firebase Email Authentication
     public void performAuth(String email, String password) {
         dialog.show();
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        dialog.dismiss();
-                        if (task.isSuccessful()) {
+            auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            dialog.dismiss();
+                            if (task.isSuccessful()) {
 //                            database.goOnline();
-                            flag = false;
-                            binding.etEmail.setText("");
-                            binding.etPass.setText("");
-                            SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-                            editor.putString("email", email);
-                            editor.putString("password", password);
-                            editor.putBoolean("isLogin", true);
-                            editor.putBoolean("isGoogle", flag);
-                            editor.apply();
+                                flag = false;
+                                binding.etEmail.setText("");
+                                binding.etPass.setText("");
+                                SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                                editor.putString("email", email);
+                                editor.putString("password", password);
+                                editor.putBoolean("isLogin", true);
+                                editor.putBoolean("isGoogle", flag);
+                                editor.apply();
 
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                            Toast.makeText(SignInActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(SignInActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(intent);
+                                Toast.makeText(SignInActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(SignInActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                numberOfTries++;
+                            }
                         }
-                    }
-                });
+                    });
+
+    }
+
+    private void startCountDownTimer() {
+        binding.txtTimerMessage.setVisibility(View.VISIBLE);
+       new CountDownTimer(30000,1000) {
+            @Override
+            public void onTick(long l) {
+                binding.txtTimerMessage.setText("Retry after: "+ l/1000 +" sec");
+            }
+
+            @Override
+            public void onFinish() {
+                binding.txtTimerMessage.setVisibility(View.GONE);
+                numberOfTries=0;
+                mTimerRunning=false;
+            }
+        }.start();
+        mTimerRunning=true;
     }
 
     public boolean emailValidation() {

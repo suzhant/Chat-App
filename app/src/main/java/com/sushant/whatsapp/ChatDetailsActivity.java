@@ -491,7 +491,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image,receiver,email,senderId,msgType,"Chat",getApplicationContext(), ChatDetailsActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image,receiver,email,senderId,msgType,"Chat",".ChatDetailsActivity",getApplicationContext(), ChatDetailsActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };

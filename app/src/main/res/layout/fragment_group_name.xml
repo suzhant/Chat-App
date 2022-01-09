@@ -32,7 +32,6 @@
             app:boxCornerRadiusTopEnd="5dp"
             app:boxCornerRadiusTopStart="5dp"
             app:boxStrokeColor="@color/purple_200"
-            app:endIconMode="password_toggle"
             app:errorIconDrawable="@drawable/ic_error"
             app:errorIconTint="@color/red"
             app:helperTextTextColor="@color/red"

@@ -11,9 +11,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +28,13 @@ public class FcmNotificationsSender  {
     String body;
     Context mContext;
     Activity mActivity;
-    String avatar,receiverId,email,senderId,msgType,Gid,Type,Notification;
+    String avatar,receiverId,email,senderId,msgType,Gid,Type,Notification,click_action;
 
 
     private final String postUrl = "https://fcm.googleapis.com/fcm/send";
     private final String fcmServerKey ="AAAAxHlg9ro:APA91bFbKkDxD4PreTLlBA4j7fjirCtQpgg6CU3iYVlZBH5n9T-T03pd8_COhbrP3kapFdrNcW5uotRHY-efoJGfbJruLVNC2zA7WFpzjKdMVJ2_JEsUbpb4F_rBViaA5PqS0cZWSr3h";
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String receiverId,String email,String senderId,String msgType,String Type, Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String receiverId,String email,String senderId,String msgType,String Type,String click_action, Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
@@ -40,11 +44,12 @@ public class FcmNotificationsSender  {
         this.senderId=senderId;
         this.msgType=msgType;
         this.Type=Type;
+        this.click_action=click_action;
         this.mContext = mContext;
         this.mActivity = mActivity;
     }
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String Gid,String misType,String Type,String Notification,Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body, String avatar, String Gid, String misType, String Type, String Notification,String click_action, Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
@@ -53,11 +58,12 @@ public class FcmNotificationsSender  {
         this.msgType=misType;
         this.Type=Type;
         this.Notification=Notification;
+        this.click_action=click_action;
         this.mContext = mContext;
         this.mActivity = mActivity;
     }
 
-    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String msgType,String Type,String Notification, Context mContext, Activity mActivity) {
+    public FcmNotificationsSender(String userFcmToken, String title, String body,String avatar,String msgType,String Type,String Notification,String click_action, Context mContext, Activity mActivity) {
         this.userFcmToken = userFcmToken;
         this.title = title;
         this.body = body;
@@ -65,6 +71,7 @@ public class FcmNotificationsSender  {
         this.msgType=msgType;
         this.Type=Type;
         this.Notification=Notification;
+        this.click_action=click_action;
         this.mContext = mContext;
         this.mActivity = mActivity;
     }
@@ -92,9 +99,7 @@ public class FcmNotificationsSender  {
             dataObject.put("UserName",title);
             dataObject.put("msgType",msgType);
             dataObject.put("Notification",Notification);
-            dataObject.put("click_action1",".ChatDetailsActivity");
-            dataObject.put("click_action2",".GroupChatActivity");
-            dataObject.put("click_action3",".FriendRequestActivity");
+            dataObject.put("click_action",click_action);
             dataObject.put("icon",R.drawable.ic_circle_notifications);
             mainObj.put("data",dataObject);
 

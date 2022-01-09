@@ -153,7 +153,7 @@ public class GroupPicFragment extends Fragment {
                             public void onSuccess(Uri uri) {
                                 dialog.dismiss();
                                 image=uri.toString();
-                                Toast.makeText(getContext(), "Profile Pic Uploaded", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Pic Uploaded", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }

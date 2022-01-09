@@ -117,6 +117,19 @@
             app:layout_constraintTop_toBottomOf="@+id/editPass" />
 
 
+        <TextView
+            android:id="@+id/txt_timer_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Retry after "
+            android:visibility="gone"
+            android:textColor="@color/red"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/btnSignIn"
+            app:layout_constraintHorizontal_bias="0.479"
+            app:layout_constraintStart_toStartOf="@+id/btnSignIn"
+            app:layout_constraintTop_toBottomOf="@+id/btnSignIn" />
+
         <Button
             android:id="@+id/btnSignIn"
             android:layout_width="120dp"
@@ -134,9 +147,8 @@
             android:id="@+id/btnGoogle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:layout_marginEnd="4dp"
-            android:layout_marginRight="4dp"
             android:drawableLeft="@drawable/ic_google"
             android:enabled="false"
             android:padding="10dp"

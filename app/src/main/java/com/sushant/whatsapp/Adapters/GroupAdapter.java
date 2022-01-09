@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.sushant.whatsapp.GroupChatActivity;
 import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.R;
@@ -52,6 +53,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
     @Override
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
         Groups groups = list.get(position);
+//        FirebaseMessaging.getInstance().subscribeToTopic(groups.getGroupId());
         Glide.with(context).load(groups.getGroupPP()).placeholder(R.drawable.avatar).into(holder.image);
         holder.groupName.setText(groups.getGroupName());
 

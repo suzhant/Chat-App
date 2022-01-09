@@ -116,7 +116,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         builder.setSound(Uri.parse(path),AudioManager.STREAM_NOTIFICATION);
         builder.setSmallIcon(resourceImage);
         builder.setOnlyAlertOnce(true);
-        builder.setLights(Color.BLUE, 200, 200);
+        builder.setLights(Color.WHITE , 200, 200);
         builder.setDefaults(Notification.FLAG_SHOW_LIGHTS);
 
         //        Uri img=remoteMessage.getNotification().getImageUrl();
