@@ -64,12 +64,13 @@ public class ChatAdapter extends RecyclerView.Adapter {
         Messages message = messageModel.get(position);
         if (holder.getClass() == SenderViewHolder.class) {
             if ("photo".equals(message.getType())){ //yoda condition solves unsafe null behaviour
+                holder.setIsRecyclable(false);
                 ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
                 ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                 ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
                 Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
-                        diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
+                        diskCacheStrategy(DiskCacheStrategy.ALL).thumbnail(0.1f).into(((SenderViewHolder) holder).imgSender);
             }else{
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
             }
@@ -77,12 +78,13 @@ public class ChatAdapter extends RecyclerView.Adapter {
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
         } else {
             if ("photo".equals(message.getType())){
+                holder.setIsRecyclable(false);
                 ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
                 ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                 ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
                 Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
+                        .diskCacheStrategy(DiskCacheStrategy.ALL).thumbnail(0.1f).into(((ReceiverViewHolder) holder).imgReceiver);
             }else{
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
             }

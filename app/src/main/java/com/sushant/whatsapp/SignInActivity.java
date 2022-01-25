@@ -64,8 +64,8 @@ public class SignInActivity extends AppCompatActivity {
     GoogleSignInClient googleSignInClient;
     FirebaseDatabase database;
     BroadcastReceiver broadcastReceiver;
-    int numberOfTries=0;
-    boolean mTimerRunning=false;
+    int numberOfTries;
+    boolean mTimerRunning;
 
     SharedPreferences sharedPreferences;
     boolean flag;
@@ -451,6 +451,4 @@ public class SignInActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
-
-
 }

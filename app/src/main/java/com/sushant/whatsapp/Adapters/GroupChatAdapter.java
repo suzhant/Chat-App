@@ -60,6 +60,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
         Messages message = messageModel.get(position);
         if (holder.getClass() == GroupChatAdapter.SenderViewHolder.class) {
             if ("photo".equals(message.getType())){ //yoda condition solves unsafe null behaviour
+                holder.setIsRecyclable(false);
                 ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
                 ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                 ((GroupChatAdapter.SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
@@ -75,6 +76,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter {
             ((GroupChatAdapter.SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
         } else {
             if ("photo".equals(message.getType())){
+                holder.setIsRecyclable(false);
                 ((GroupChatAdapter.ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
                 ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                 ((GroupChatAdapter.ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);

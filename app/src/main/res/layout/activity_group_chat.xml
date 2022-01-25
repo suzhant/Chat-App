@@ -6,17 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".GroupChatActivity">
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/linear"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@id/toolbar"
         android:background="#C5C4FF"
         android:transcriptMode="alwaysScroll" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/txtChatConn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:background="@color/red"
+        android:gravity="center"
+        android:text="No Connection"
+        android:visibility="gone"
+        android:textColor="@color/white" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,9 +40,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="4dp"
             android:contentDescription="Capture Picture and Send"
-            android:padding="10dp"
+            android:padding="5dp"
             android:src="@drawable/ic_camera"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imgGallery"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white" />
 
         <ImageView
@@ -39,9 +56,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginEnd="4dp"
             android:contentDescription="Send Pic from Gallery"
-            android:padding="10dp"
+            android:padding="5dp"
             android:src="@drawable/ic_gallery"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imgMic"
+            app:layout_constraintStart_toEndOf="@+id/imgCamera"
+            app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white" />
 
         <ImageView
@@ -50,21 +72,32 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:contentDescription="Record voice"
-            android:padding="10dp"
+            android:padding="5dp"
             android:src="@drawable/ic_mic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/editMessage"
+            app:layout_constraintStart_toEndOf="@+id/imgGallery"
+            app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white" />
 
         <EditText
             android:id="@+id/editMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_et_message"
             android:ems="10"
             android:hint="Enter your message"
+            android:imeOptions="actionSend"
             android:inputType="textMultiLine|textAutoComplete|textAutoCorrect|text"
-            android:padding="10dp"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/icSend"
+            app:layout_constraintStart_toEndOf="@+id/imgMic"
+            app:layout_constraintTop_toTopOf="parent"
             app:stackFromEnd="true" />
 
         <ImageView
@@ -73,20 +106,22 @@
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_marginEnd="5dp"
-            android:layout_marginRight="5dp"
             android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/editMessage"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_favorite"
             tools:ignore="VectorDrawableCompat" />
 
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?android:actionBarSize"
+        android:layout_height="?actionBarSize"
         android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -106,7 +141,7 @@
                 android:id="@+id/profile_image"
                 android:layout_width="45dp"
                 android:layout_height="47dp"
-                android:layout_margin="10dp"
+                android:layout_margin="5dp"
                 android:padding="5dp"
                 android:src="@drawable/avatar"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -119,14 +154,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:fontFamily="@font/advent_pro_medium"
                 android:text="UserName"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/profile_image"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.437" />
+
 
             <ImageView
                 android:id="@+id/ic_videoCam"

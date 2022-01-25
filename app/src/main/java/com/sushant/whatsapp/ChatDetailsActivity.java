@@ -128,6 +128,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
         checkConn();
 
+        final ArrayList<Messages> messageModel = new ArrayList<>();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        binding.chatRecyclerView.setLayoutManager(layoutManager);
+        layoutManager.setStackFromEnd(true);
+        binding.chatRecyclerView.setHasFixedSize(true);
+        final ChatAdapter chatAdapter = new ChatAdapter(messageModel, this, receiverId);
+        binding.chatRecyclerView.setAdapter(chatAdapter);
+
         binding.icSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -154,15 +162,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 finish();//Method finish() will destroy your activity and show the one that started it.
             }
         });
-
-        final ArrayList<Messages> messageModel = new ArrayList<>();
-        final ChatAdapter chatAdapter = new ChatAdapter(messageModel, this, receiverId);
-        binding.chatRecyclerView.setAdapter(chatAdapter);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        layoutManager.setStackFromEnd(true);
-        binding.chatRecyclerView.setLayoutManager(layoutManager);
-
-
 
         senderRoom = senderId + receiverId;
         receiverRoom = receiverId + senderId;

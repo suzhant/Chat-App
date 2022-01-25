@@ -106,6 +106,15 @@ public class GroupChatActivity extends AppCompatActivity {
         scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up);
         auth = FirebaseAuth.getInstance();
 
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final ArrayList<Messages> messageModel = new ArrayList<>();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        layoutManager.setStackFromEnd(true);
+        binding.chatRecyclerView.setHasFixedSize(true);
+        binding.chatRecyclerView.setLayoutManager(layoutManager);
+        final GroupChatAdapter chatAdapter = new GroupChatAdapter(messageModel, this,Gid);
+        binding.chatRecyclerView.setAdapter(chatAdapter);
+
         binding.icSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,19 +142,7 @@ public class GroupChatActivity extends AppCompatActivity {
             }
         });
 
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final ArrayList<Messages> messageModel = new ArrayList<>();
-
         senderId = FirebaseAuth.getInstance().getUid();
-
-        final GroupChatAdapter chatAdapter = new GroupChatAdapter(messageModel, this,Gid);
-        binding.chatRecyclerView.setAdapter(chatAdapter);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        layoutManager.setStackFromEnd(true);
-        binding.chatRecyclerView.setHasFixedSize(true);
-        binding.chatRecyclerView.setLayoutManager(layoutManager);
-
 
         binding.editMessage.addTextChangedListener(new TextWatcher() {
             @Override
