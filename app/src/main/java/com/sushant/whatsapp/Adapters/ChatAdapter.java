@@ -70,7 +70,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                 ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
                 Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
-                        diskCacheStrategy(DiskCacheStrategy.ALL).thumbnail(0.1f).into(((SenderViewHolder) holder).imgSender);
+                        diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
             }else{
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
             }
@@ -84,7 +84,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                 ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
                 Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL).thumbnail(0.1f).into(((ReceiverViewHolder) holder).imgReceiver);
+                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
             }else{
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
             }
