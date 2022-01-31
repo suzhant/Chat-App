@@ -28,6 +28,34 @@ android:layout_height="wrap_content">
                 android:visibility="gone" />
         </com.google.android.material.card.MaterialCardView>
 
+        <LinearLayout
+            android:id="@+id/layout_audio"
+            android:background="@drawable/bg_et_message"
+            android:backgroundTint="@color/purple_700"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="end"
+            android:visibility="gone">
+            <ImageView
+                android:id="@+id/img_play_record"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_play"
+                android:padding="5dp"
+                android:tint="@color/white"/>
+
+            <TextView
+                android:id="@+id/txt_audio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="Play Recording"
+                android:padding="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
     <FrameLayout
         android:background="@drawable/bg_sender"
         android:backgroundTint="@color/purple_700"

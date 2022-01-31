@@ -10,16 +10,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -31,8 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -71,6 +73,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
+
+
 public class ChatDetailsActivity extends AppCompatActivity implements LifecycleObserver {
 
     public static final int PICK_IMAGE = 1;
@@ -95,14 +99,30 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     DatabaseReference chat;
     ValueEventListener eventListener;
     DatabaseReference infoConnected;
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+    private static String fileName = null;
 
+    private MediaRecorder recorder = null;
+    private static final String LOG_TAG = "AudioRecordTest";
 
+    // Requesting permission to RECORD_AUDIO
+    private boolean permissionToRecordAccepted = false;
+    private final String [] permissions = {Manifest.permission.RECORD_AUDIO};
+
+    boolean recording;
+    CountDownTimer timer;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityChatDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().hide();
+
+        ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+        fileName = getExternalCacheDir().getAbsolutePath();
+        fileName += "/recorded_audio.3gp";
 
         dialog= new ProgressDialog(this);
         dialog.setMessage("Uploading Image...");
@@ -158,6 +178,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 HashMap<String,Object> map= new HashMap<>();
                 map.put("Typing","Not Typing...");
                 database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
+                if (binding.audioLayout.getVisibility()==View.VISIBLE){
+                    binding.audioLayout.setVisibility(View.GONE);
+                    binding.linear.setVisibility(View.VISIBLE);
+                }
                 Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                 startActivity(intent);
                 finish();//Method finish() will destroy your activity and show the one that started it.
@@ -278,12 +302,123 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 ImagePicker.with(ChatDetailsActivity.this)
                         .cameraOnly()
                         .crop()
+                        .saveDir(new File(String.valueOf(getExternalFilesDir(Environment.DIRECTORY_PICTURES))))
                         .start(REQUEST_IMAGE_CAPTURE);
+            }
+        });
+
+        binding.imgMic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.linear.setVisibility(View.GONE);
+                binding.audioLayout.setVisibility(View.VISIBLE);
+                recording=true;
+                startRecording();
+                startCountDownTimer();
+            }
+        });
+
+        binding.stopRecording.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (recording){
+                    binding.stopRecording.setImageResource(R.drawable.ic_delete);
+                    binding.txtRecording.setText("Recording stopped..");
+                    binding.audioLayout.setVisibility(View.VISIBLE);
+                    binding.btnSend.setVisibility(View.VISIBLE);
+                    recording=false;
+                    timer.cancel();
+                    stopRecording();
+                }else {
+                    binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
+                    binding.txtRecording.setText("Recording..");
+                    binding.btnSend.setVisibility(View.GONE);
+                    binding.linear.setVisibility(View.VISIBLE);
+                    binding.audioLayout.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        binding.btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadAudioToFirebase();
             }
         });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
+
+    private void uploadAudioToFirebase() {
+        dialog.setMessage("uploading audio");
+        dialog.show();
+        Calendar calendar = Calendar.getInstance();
+        StorageReference filepath=storage.getReference().child("Audio").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
+        Uri uri=Uri.fromFile(new File(fileName));
+        filepath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()){
+                    binding.linear.setVisibility(View.VISIBLE);
+                    binding.audioLayout.setVisibility(View.GONE);
+                    dialog.dismiss();
+                    filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String filePath = uri.toString();
+                            notify = true;
+                            Date date = new Date();
+                            final Messages model = new Messages(senderId, profilePic, date.getTime());
+                            model.setMessage("Recorded Audio");
+                            model.setAudioFile(filePath);
+                            model.setType("audio");
+                            binding.editMessage.getText().clear();
+                            updateLastMessage("Recorded Audio");
+
+                            if (notify) {
+                                sendNotification(receiverId, sendername,filePath,senderPP,email,senderId,"audio");
+                            }
+                            notify = false;
+
+                            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                }
+                                            });
+                                        }
+                                    });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void startCountDownTimer() {
+        binding.txtTimer.setVisibility(View.VISIBLE);
+        timer= new CountDownTimer(30000,1000) {
+            @Override
+            public void onTick(long l) {
+                binding.txtTimer.setText(l/1000 +" sec");
+            }
+
+            @Override
+            public void onFinish() {
+                binding.stopRecording.setImageResource(R.drawable.ic_delete);
+                binding.txtRecording.setText("Recording stopped..");
+                binding.audioLayout.setVisibility(View.VISIBLE);
+                binding.btnSend.setVisibility(View.VISIBLE);
+                stopRecording();
+            }
+        };
+       timer.start();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -316,7 +451,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         }
     }
 
-    private void uploadToFirebase(Uri uri,int requestCode){
+    private void uploadToFirebase(Uri uri, int requestCode){
         Calendar calendar = Calendar.getInstance();
         final StorageReference reference = storage.getReference().child("Chats Images").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
         dialog.show();
@@ -324,7 +459,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                //File file= new File(uri.toString());
+                //File fdelete= new File(String.valueOf(uri));
                 File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
 
                 if (requestCode==PICK_IMAGE){
@@ -381,6 +516,40 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                break;
+        }
+        if (!permissionToRecordAccepted ) finish();
+
+    }
+
+    private void startRecording() {
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setOutputFile(fileName);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        try {
+            recorder.prepare();
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "prepare() failed");
+        }
+
+        recorder.start();
+    }
+
+    private void stopRecording() {
+        recorder.stop();
+        recorder.release();
+        recorder = null;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -642,6 +811,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         checkStatus1.removeEventListener(eventListener2);
         infoConnected.removeEventListener(eventListener);
         chat.keepSynced(false);
+        if (recorder != null) {
+            recorder.release();
+            recorder = null;
+        }
         super.onDestroy();
     }
 

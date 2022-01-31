@@ -1,10 +1,8 @@
 package com.sushant.whatsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.net.Uri;
 import android.os.Bundle;
-import android.widget.ImageView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.ortiz.touchview.TouchImageView;

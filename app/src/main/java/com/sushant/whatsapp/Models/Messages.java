@@ -1,7 +1,7 @@
 package com.sushant.whatsapp.Models;
 
 public class Messages {
-    private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName,type,imageUrl;
+    private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName,type,imageUrl,audioFile;
     private Long timestamp;
 
     public Messages(String uId, String profilePic, Long timestamp) {
@@ -87,5 +87,13 @@ public class Messages {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
+    }
+
+    public String getAudioFile() {
+        return audioFile;
+    }
+
+    public void setAudioFile(String audioFile) {
+        this.audioFile = audioFile;
     }
 }
