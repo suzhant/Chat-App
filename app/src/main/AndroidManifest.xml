@@ -26,6 +26,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsApp">
         <activity
+            android:name=".FullScreenImage"
+            android:exported="false" />
+        <activity
             android:name=".ChangeGroupProfile"
             android:exported="false" />
         <activity
@@ -63,6 +66,7 @@
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
             <intent-filter>
                 <action android:name=".FriendRequestActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -108,6 +112,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name=".GroupChatActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

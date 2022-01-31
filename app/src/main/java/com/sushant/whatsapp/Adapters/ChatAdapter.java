@@ -3,6 +3,7 @@ package com.sushant.whatsapp.Adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.sushant.whatsapp.FullScreenImage;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.R;
 
@@ -113,6 +115,18 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     }
                 }).show();
                 return false;
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if ("photo".equals(message.getType())){
+                    Intent fullScreenImage=new Intent(context, FullScreenImage.class);
+                    //fullScreenImage.setData(Uri.parse(message.getImageUrl()));
+                    fullScreenImage.putExtra("messageImage",message.getImageUrl());
+                    context.startActivity(fullScreenImage);
+                }
             }
         });
 
