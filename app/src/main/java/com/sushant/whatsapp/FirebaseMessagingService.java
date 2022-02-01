@@ -132,6 +132,9 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         } else if (msgType.equals("text")){
             builder.setContentText(message).setStyle(new NotificationCompat.BigTextStyle().bigText(message));
             builder.setLargeIcon(bitmap2);
+        }else if(msgType.equals("audio")){
+            builder.setContentText("sent you an audio");
+            builder.setLargeIcon(bitmap2);
         }
 
 
