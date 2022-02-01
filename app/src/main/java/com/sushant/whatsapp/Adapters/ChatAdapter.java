@@ -73,12 +73,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
         holder.setIsRecyclable(false);
         if (holder.getClass() == SenderViewHolder.class) {
             if ("photo".equals(message.getType())){ //yoda condition solves unsafe null behaviour
-                ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
-                ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
-                ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
-                Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
-                        diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
+                if (message.getImageUrl()!=null){
+                    ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
+                    ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
+                    ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
+                    ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
+                    Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
+                            diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
+                }
             }else if ("text".equals(message.getType())){
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
             }else {
@@ -91,12 +93,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
         } else {
             if ("photo".equals(message.getType())){
-                ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
-                ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
-                ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
-                Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
+                if (message.getImageUrl()!=null){
+                    ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
+                    ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
+                    ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                    ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
+                    Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
+                }
             }else if ("text".equals(message.getType())){
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
             }else {
@@ -154,6 +158,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             @Override
                             public void onCompletion(MediaPlayer mediaPlayer) {
                                 mediaPlayer.release();
+                                stopPlaying();
                                 if (holder.getClass()==SenderViewHolder.class){
                                     ((SenderViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_play);
                                     ((SenderViewHolder) holder).txtAudio.setText("Play Recording");
@@ -161,11 +166,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                     ((ReceiverViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_play);
                                     ((ReceiverViewHolder) holder).txtAudio.setText("Play Recording");
                                 }
+                                isPlaying=false;
                             }
                         });
                         isPlaying=true;
                     }else {
-                         stopPlaying();
+                        stopPlaying();
                         if (holder.getClass()==SenderViewHolder.class){
                             ((SenderViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_play);
                             ((SenderViewHolder) holder).txtAudio.setText("Play Recording");

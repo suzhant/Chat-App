@@ -1,15 +1,22 @@
 package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
+import static com.sushant.whatsapp.R.color.ucrop_color_widget_rotate_mid_line;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.Ringtone;
@@ -56,6 +63,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.iceteck.silicompressorr.SiliCompressor;
@@ -64,10 +72,16 @@ import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityChatDetailsBinding;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -120,12 +134,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         setContentView(binding.getRoot());
         getSupportActionBar().hide();
 
-        ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/recorded_audio.3gp";
 
         dialog= new ProgressDialog(this);
-        dialog.setMessage("Uploading Image...");
         dialog.setCancelable(false);
 
 
@@ -302,7 +314,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 ImagePicker.with(ChatDetailsActivity.this)
                         .cameraOnly()
                         .crop()
-                        .saveDir(new File(String.valueOf(getExternalFilesDir(Environment.DIRECTORY_PICTURES))))
                         .start(REQUEST_IMAGE_CAPTURE);
             }
         });
@@ -310,6 +321,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.imgMic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
                 binding.linear.setVisibility(View.GONE);
                 binding.audioLayout.setVisibility(View.VISIBLE);
                 recording=true;
@@ -350,7 +362,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     }
 
     private void uploadAudioToFirebase() {
-        dialog.setMessage("uploading audio");
+        dialog.setMessage("Uploading Audio...");
         dialog.show();
         Calendar calendar = Calendar.getInstance();
         StorageReference filepath=storage.getReference().child("Audio").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
@@ -428,10 +440,24 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 if (data!=null) {
                     if (data.getData() != null) {
                         Uri selectedImage = data.getData();
-                        File dir = getCacheDir();
-                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
-                        Uri uri = Uri.parse(file);
-                        uploadToFirebase(uri,PICK_IMAGE);
+                        Bitmap bitmap=null;
+                        try {
+                            //convert uri to bitmap
+                            //bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                            //convert uri to bitmap and handle rotation
+                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this,selectedImage);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+//                        File dir = getCacheDir();
+//                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
+//                        Uri uri = Uri.parse(file);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        assert bitmap != null;
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] bytes = baos.toByteArray();
+                        int length =  bytes.length/1024;
+                        uploadToFirebase(bytes,PICK_IMAGE,length);
                     }
                 }
             }
@@ -441,36 +467,50 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 if(data!=null) {
                     if (data.getData() != null) {
                         Uri selectedImage = data.getData();
-                        File dir = getCacheDir();
-                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
-                        Uri uri = Uri.parse(file);
-                        uploadToFirebase(uri,REQUEST_IMAGE_CAPTURE);
+                        Bitmap bitmap=null;
+                        try {
+                           // bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this,selectedImage);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        assert bitmap != null;
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] bytes = baos.toByteArray();
+//                        File dir = getCacheDir();
+//                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
+//                        Uri uri = Uri.parse(file);
+                        int length =  bytes.length/1024;
+                        uploadToFirebase(bytes,REQUEST_IMAGE_CAPTURE,length);
                     }
                 }
             }
         }
     }
 
-    private void uploadToFirebase(Uri uri, int requestCode){
+    private void uploadToFirebase(byte[] uri, int requestCode,int length){
         Calendar calendar = Calendar.getInstance();
         final StorageReference reference = storage.getReference().child("Chats Images").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
         dialog.show();
-        reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        UploadTask uploadTask= reference.putBytes(uri);
+        uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                //File fdelete= new File(String.valueOf(uri));
-                File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
+               // Uri fdelete = Uri.fromFile(new File(uri.toString()));
+               // File fdelete= new File(uri.toString());
+                //File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
 
-                if (requestCode==PICK_IMAGE){
-                    if (fdelete.exists()) {
-                        if (fdelete.delete()) {
-                            System.out.println("file Deleted :");
-                        } else {
-                            System.out.println("file not Deleted :");
-                        }
-                    }
-                }
+//                if (requestCode==PICK_IMAGE){
+//                    if (file.exists()) {
+//                        if (file.delete()) {
+//                            System.out.println("file Deleted :");
+//                        } else {
+//                            System.out.println("file not Deleted :");
+//                        }
+//                    }
+//                }
 
                 if (task.isSuccessful()) {
                     dialog.dismiss();
@@ -482,11 +522,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                             notify = true;
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
-                            model.setMessage(fdelete.getName());
+                            model.setMessage("send you a photo");
                             model.setImageUrl(filePath);
                             model.setType("photo");
                             binding.editMessage.getText().clear();
-                            updateLastMessage(fdelete.getName());
+                            updateLastMessage("photo.jpg");
 
                             if (notify) {
                                 sendNotification(receiverId, sendername,filePath,senderPP,email,senderId,"photo");
@@ -514,6 +554,18 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                //only works if image size is greater than 256kb!
+                if (length>256){
+                    double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
+                    int currentProgress=(int) progress;
+                    dialog.setMessage("Uploading Image: " + currentProgress+ "%");
+                }else {
+                    dialog.setMessage("Uploading Image...");
+                }
             }
         });
     }
@@ -847,6 +899,96 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         HashMap<String,Object> obj= new HashMap<>();
         obj.put("Status",status);
         database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("Connection").updateChildren(obj);
+    }
+
+    public static Bitmap handleSamplingAndRotationBitmap(Context context, Uri selectedImage)
+            throws IOException {
+        int MAX_HEIGHT = 1024;
+        int MAX_WIDTH = 1024;
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        InputStream imageStream = context.getContentResolver().openInputStream(selectedImage);
+        BitmapFactory.decodeStream(imageStream, null, options);
+        imageStream.close();
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, MAX_WIDTH, MAX_HEIGHT);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        imageStream = context.getContentResolver().openInputStream(selectedImage);
+        Bitmap img = BitmapFactory.decodeStream(imageStream, null, options);
+
+        img = rotateImageIfRequired(context, img, selectedImage);
+        return img;
+    }
+
+    private static int calculateInSampleSize(BitmapFactory.Options options,
+                                             int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            // Calculate ratios of height and width to requested height and width
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+
+            // Choose the smallest ratio as inSampleSize value, this will guarantee a final image
+            // with both dimensions larger than or equal to the requested height and width.
+            inSampleSize = Math.min(heightRatio, widthRatio);
+
+            // This offers some additional logic in case the image has a strange
+            // aspect ratio. For example, a panorama may have a much larger
+            // width than height. In these cases the total pixels might still
+            // end up being too large to fit comfortably in memory, so we should
+            // be more aggressive with sample down the image (=larger inSampleSize).
+
+            final float totalPixels = width * height;
+
+            // Anything more than 2x the requested pixels we'll sample down further
+            final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+
+            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+                inSampleSize++;
+            }
+        }
+        return inSampleSize;
+    }
+
+    private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
+
+        InputStream input = context.getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei;
+        if (Build.VERSION.SDK_INT > 23)
+            ei = new ExifInterface(input);
+        else
+            ei = new ExifInterface(selectedImage.getPath());
+
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
     }
 
 
