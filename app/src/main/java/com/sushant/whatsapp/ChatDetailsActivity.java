@@ -1,13 +1,15 @@
 package com.sushant.whatsapp;
 
 import static com.sushant.whatsapp.R.color.red;
-import static com.sushant.whatsapp.R.color.ucrop_color_widget_rotate_mid_line;
+import static com.sushant.whatsapp.R.color.white;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -15,9 +17,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.media.ExifInterface;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -25,16 +26,19 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -66,7 +71,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.iceteck.silicompressorr.SiliCompressor;
 import com.sushant.whatsapp.Adapters.ChatAdapter;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
@@ -74,14 +78,10 @@ import com.sushant.whatsapp.databinding.ActivityChatDetailsBinding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,8 +100,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     Animation scale_up, scale_down;
     ImageView blackCircle;
     String userToken;
-    Handler handler;
-    Runnable runnable;
+    Handler handler,audioHandler;
+    Runnable runnable,audioRunnable;
     String sendername;
     boolean notify = false;
     FirebaseStorage storage;
@@ -113,6 +113,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     DatabaseReference chat;
     ValueEventListener eventListener;
     DatabaseReference infoConnected;
+    ImageView stopRecording,btnSend;
+    TextView txtTimer,txtRecording;
+    long recordedTime;
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static String fileName = null;
 
@@ -139,6 +142,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
         dialog= new ProgressDialog(this);
         dialog.setCancelable(false);
+
+        final Dialog memberDialog = new Dialog(ChatDetailsActivity.this);
+        memberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        memberDialog.setContentView(R.layout.bottom_sheet_audio_player);
+        stopRecording=(ImageView) memberDialog.findViewById(R.id.stopRecording);
+        btnSend=(ImageView) memberDialog.findViewById(R.id.btn_send);
+        txtRecording=(TextView) memberDialog.findViewById(R.id.txtRecording);
+        txtTimer=(TextView) memberDialog.findViewById(R.id.txt_timer);
 
 
         database = FirebaseDatabase.getInstance();
@@ -307,7 +318,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             }
         });
 
-        binding.imgCamera.setEnabled(true);
         binding.imgCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -322,45 +332,115 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onClick(View view) {
                 ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
-                binding.linear.setVisibility(View.GONE);
-                binding.audioLayout.setVisibility(View.VISIBLE);
-                recording=true;
-                startRecording();
-                startCountDownTimer();
+//                binding.linear.setVisibility(View.GONE);
+//                binding.audioLayout.setVisibility(View.VISIBLE);
+                stopRecording.setEnabled(false);
+                memberDialog.show();
+                memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                memberDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                memberDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimation;
+                memberDialog.getWindow().setGravity(Gravity.BOTTOM);
+                memberDialog.getWindow().getAttributes().windowAnimations=R.style.NoAnimation;
+                audioHandler=new Handler();
+                audioRunnable= new Runnable() {
+                    @Override
+                    public void run() {
+                        recording=true;
+                        stopRecording.setEnabled(true);
+                        startRecording();
+                        startCountDownTimer();
+                    }
+                };
+                audioHandler.postDelayed(audioRunnable,1000);
             }
         });
 
-        binding.stopRecording.setOnClickListener(new View.OnClickListener() {
+        memberDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (recorder!=null){
+                    stopRecording();
+                    recording=false;
+                    timer.cancel();
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (audioHandler.hasCallbacks(audioRunnable)){
+                        audioHandler.removeCallbacks(audioRunnable);
+                    }
+                }
+                stopRecording.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, white));
+                stopRecording.setImageResource(R.drawable.ic_stop_circle);
+                txtRecording.setText("Recording :");
+                txtTimer.setText("wait..");
+                btnSend.setVisibility(View.GONE);
+            }
+        });
+
+        stopRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (recording){
-                    binding.stopRecording.setImageResource(R.drawable.ic_delete);
-                    binding.txtRecording.setText("Recording stopped..");
-                    binding.btnSend.setVisibility(View.VISIBLE);
+                    stopRecording.setImageResource(R.drawable.ic_delete);
+                    stopRecording.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, red));
+                    txtRecording.setText("Recorded :");
+                    btnSend.setVisibility(View.VISIBLE);
+                    recordedTime=30-recordedTime;
+                    txtTimer.setText(recordedTime+ " sec");
                     recording=false;
                     timer.cancel();
                     stopRecording();
                 }else {
-                    binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
-                    binding.txtRecording.setText("Recording..");
-                    binding.btnSend.setVisibility(View.GONE);
-                    binding.linear.setVisibility(View.VISIBLE);
-                    binding.audioLayout.setVisibility(View.GONE);
+                    stopRecording.setImageResource(R.drawable.ic_stop_circle);
+                    txtRecording.setText("Recording :");
+                    btnSend.setVisibility(View.GONE);
+                    memberDialog.dismiss();
                 }
             }
         });
 
-        binding.btnSend.setOnClickListener(new View.OnClickListener() {
+        btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 recording=false;
-                binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
-                binding.txtRecording.setText("Recording...");
-                binding.audioLayout.setVisibility(View.GONE);
-                binding.btnSend.setVisibility(View.GONE);
-            uploadAudioToFirebase();
+                stopRecording.setImageResource(R.drawable.ic_stop_circle);
+                txtRecording.setText("Recording :");
+                btnSend.setVisibility(View.GONE);
+                memberDialog.dismiss();
+                uploadAudioToFirebase();
             }
         });
+
+//        binding.stopRecording.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (recording){
+//                    binding.stopRecording.setImageResource(R.drawable.ic_delete);
+//                    binding.txtRecording.setText("Recording stopped..");
+//                    binding.btnSend.setVisibility(View.VISIBLE);
+//                    recording=false;
+//                    timer.cancel();
+//                    stopRecording();
+//                }else {
+//                    binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
+//                    binding.txtRecording.setText("Recording..");
+//                    binding.btnSend.setVisibility(View.GONE);
+//                    binding.linear.setVisibility(View.VISIBLE);
+//                    binding.audioLayout.setVisibility(View.GONE);
+//                }
+//            }
+//        });
+//
+//        binding.btnSend.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                recording=false;
+//                binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
+//                binding.txtRecording.setText("Recording :");
+//                binding.audioLayout.setVisibility(View.GONE);
+//                binding.btnSend.setVisibility(View.GONE);
+//            uploadAudioToFirebase();
+//            }
+//        });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
@@ -416,19 +496,26 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     }
 
     private void startCountDownTimer() {
-        binding.txtTimer.setVisibility(View.VISIBLE);
+        txtTimer.setVisibility(View.VISIBLE);
         timer= new CountDownTimer(30000,1000) {
             @Override
             public void onTick(long l) {
-                binding.txtTimer.setText(l/1000 +" sec");
+//                binding.txtTimer.setText(l/1000 +" sec");
+                recordedTime=l/1000;
+                txtTimer.setText(l/1000 +" sec");
             }
 
             @Override
             public void onFinish() {
-                binding.stopRecording.setImageResource(R.drawable.ic_delete);
-                binding.txtRecording.setText("Recording stopped..");
-                binding.audioLayout.setVisibility(View.VISIBLE);
-                binding.btnSend.setVisibility(View.VISIBLE);
+//                binding.stopRecording.setImageResource(R.drawable.ic_delete);
+//                binding.txtRecording.setText("Recording stopped..");
+//                binding.audioLayout.setVisibility(View.VISIBLE);
+//                binding.btnSend.setVisibility(View.VISIBLE);
+                stopRecording.setImageResource(R.drawable.ic_delete);
+                txtRecording.setText("Recorded :");
+                btnSend.setVisibility(View.VISIBLE);
+                recordedTime=30-recordedTime;
+                txtTimer.setText(recordedTime+ " sec");
                 stopRecording();
             }
         };
