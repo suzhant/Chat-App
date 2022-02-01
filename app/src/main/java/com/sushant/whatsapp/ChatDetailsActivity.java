@@ -336,7 +336,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 if (recording){
                     binding.stopRecording.setImageResource(R.drawable.ic_delete);
                     binding.txtRecording.setText("Recording stopped..");
-                    binding.audioLayout.setVisibility(View.VISIBLE);
                     binding.btnSend.setVisibility(View.VISIBLE);
                     recording=false;
                     timer.cancel();
@@ -354,7 +353,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadAudioToFirebase();
+                recording=false;
+                binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
+                binding.txtRecording.setText("Recording...");
+                binding.audioLayout.setVisibility(View.GONE);
+                binding.btnSend.setVisibility(View.GONE);
+            uploadAudioToFirebase();
             }
         });
 
