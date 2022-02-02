@@ -88,7 +88,6 @@ import java.util.HashMap;
 import java.util.Objects;
 
 
-
 public class ChatDetailsActivity extends AppCompatActivity implements LifecycleObserver {
 
     public static final int PICK_IMAGE = 1;
@@ -109,13 +108,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     String senderId,receiverId,senderRoom,receiverRoom,profilePic,senderPP,email,Status,receiverName;
     ValueEventListener eventListener1,eventListener2;
     Query checkStatus,checkStatus1;
-    String currentPhotoPath,seen="true";
+    String seen="true";
     DatabaseReference chat;
     ValueEventListener eventListener;
     DatabaseReference infoConnected;
     ImageView stopRecording,btnSend;
     TextView txtTimer,txtRecording;
     long recordedTime;
+
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static String fileName = null;
 
@@ -150,7 +150,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         btnSend=(ImageView) memberDialog.findViewById(R.id.btn_send);
         txtRecording=(TextView) memberDialog.findViewById(R.id.txtRecording);
         txtTimer=(TextView) memberDialog.findViewById(R.id.txt_timer);
-
 
         database = FirebaseDatabase.getInstance();
         storage=FirebaseStorage.getInstance();
@@ -387,8 +386,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                     recordedTime=30-recordedTime;
                     txtTimer.setText(recordedTime+ " sec");
                     recording=false;
+                    if(recorder!=null){
+                        stopRecording();
+                    }
                     timer.cancel();
-                    stopRecording();
                 }else {
                     stopRecording.setImageResource(R.drawable.ic_stop_circle);
                     txtRecording.setText("Recording :");
@@ -512,11 +513,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 //                binding.audioLayout.setVisibility(View.VISIBLE);
 //                binding.btnSend.setVisibility(View.VISIBLE);
                 stopRecording.setImageResource(R.drawable.ic_delete);
+                stopRecording.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, red));
                 txtRecording.setText("Recorded :");
                 btnSend.setVisibility(View.VISIBLE);
                 recordedTime=30-recordedTime;
                 txtTimer.setText(recordedTime+ " sec");
                 stopRecording();
+                recording=false;
             }
         };
        timer.start();

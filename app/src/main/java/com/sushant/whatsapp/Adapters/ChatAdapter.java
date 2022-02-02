@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
 
 public class ChatAdapter extends RecyclerView.Adapter {
 
@@ -48,7 +49,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
         this.context = context;
     }
 
-    public ChatAdapter(ArrayList<Messages> messageModel, Context context, String recId) {
+    public ChatAdapter(ArrayList<Messages> messageModel, Context context, String recId ) {
         this.messageModel = messageModel;
         this.context = context;
         this.recId = recId;
@@ -85,8 +86,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
             }else {
                 if (message.getAudioFile()!=null){
-                    ((SenderViewHolder) holder).layoutAudio.setVisibility(View.VISIBLE);
+                    ((SenderViewHolder) holder).layoutAudio.setVisibility(View.GONE);
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
+                    ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
+                    ((SenderViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ((SenderViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
+                            ((SenderViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple,R.color.colorPurple);
+                        }
+                    });
                 }
             }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
@@ -105,8 +114,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
             }else {
                 if (message.getAudioFile()!=null){
-                    ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                    ((ReceiverViewHolder) holder).layoutAudio.setVisibility(View.VISIBLE);
+                        ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                        ((ReceiverViewHolder) holder).layoutAudio.setVisibility(View.GONE);
+                        ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
+                    ((ReceiverViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ((ReceiverViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
+                            ((ReceiverViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple,R.color.colorPurple);
+                        }
+                    });
                 }
             }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
@@ -144,44 +161,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     Intent fullScreenImage=new Intent(context, FullScreenImage.class);
                     fullScreenImage.putExtra("messageImage",message.getImageUrl());
                     context.startActivity(fullScreenImage);
-                }else if ("audio".equals(message.getType())){
-                    if (!isPlaying){
-                        startPlaying(message.getAudioFile());
-                        if (holder.getClass()==SenderViewHolder.class){
-                            ((SenderViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_stop_circle);
-                            ((SenderViewHolder) holder).txtAudio.setText("Playing..");
-                        }else {
-                            ((ReceiverViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_stop_circle);
-                            ((ReceiverViewHolder) holder).txtAudio.setText("Playing..");
-                        }
-                        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                            @Override
-                            public void onCompletion(MediaPlayer mediaPlayer) {
-                                mediaPlayer.release();
-                                stopPlaying();
-                                if (holder.getClass()==SenderViewHolder.class){
-                                    ((SenderViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_play);
-                                    ((SenderViewHolder) holder).txtAudio.setText("Play Recording");
-                                }else {
-                                    ((ReceiverViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_play);
-                                    ((ReceiverViewHolder) holder).txtAudio.setText("Play Recording");
-                                }
-                                isPlaying=false;
-                            }
-                        });
-                        isPlaying=true;
-                    }else {
-                        stopPlaying();
-                        if (holder.getClass()==SenderViewHolder.class){
-                            ((SenderViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_play);
-                            ((SenderViewHolder) holder).txtAudio.setText("Play Recording");
-                        }else {
-                            ((ReceiverViewHolder) holder).imgAudio.setImageResource(R.drawable.ic_play);
-                            ((ReceiverViewHolder) holder).txtAudio.setText("Play Recording");
-                        }
-                        isPlaying=false;
-                    }
-
                 }
             }
         });
@@ -208,6 +187,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
         private final CircleImageView profilepic;
         private final ImageView imgReceiver,imgAudio;
         private final LinearLayout layoutAudio;
+        private final VoicePlayerView voicePlayerView;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -218,14 +198,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
             layoutAudio=itemView.findViewById(R.id.layout_audio);
             txtAudio=itemView.findViewById(R.id.txt_audio);
             imgAudio=itemView.findViewById(R.id.img_play_record);
+            voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
         }
     }
 
-    public static class SenderViewHolder extends RecyclerView.ViewHolder {
+    public static class SenderViewHolder extends RecyclerView.ViewHolder{
         private final TextView txtSender;
         private final TextView txtSenderTime,txtAudio;
         private final ImageView imgSender,imgAudio;
         private final LinearLayout layoutAudio;
+        private final VoicePlayerView voicePlayerView;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -235,11 +217,15 @@ public class ChatAdapter extends RecyclerView.Adapter {
             layoutAudio=itemView.findViewById(R.id.layout_audio);
             txtAudio=itemView.findViewById(R.id.txt_audio);
             imgAudio=itemView.findViewById(R.id.img_play_record);
+            voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
+
         }
     }
 
     private void startPlaying(String audio) {
-        player = new MediaPlayer();
+        if (player==null){
+            player = new MediaPlayer();
+        }
         try {
             player.setDataSource(audio);
             player.prepare();
@@ -247,10 +233,28 @@ public class ChatAdapter extends RecyclerView.Adapter {
         } catch (IOException e) {
             Log.e("Audio", "prepare() failed");
         }
+        isPlaying=true;
     }
 
     private void stopPlaying() {
-        player.release();
-        player = null;
+        if (player!=null){
+            player.release();
+            player = null;
+            isPlaying=false;
+        }
     }
+
+    private void pausePlaying() {
+        if (player!=null){
+            player.pause();
+            isPlaying=false;
+        }
+    }
+    private void resumePlaying() {
+        if (player!=null){
+            player.start();
+            isPlaying=true;
+        }
+    }
+
 }

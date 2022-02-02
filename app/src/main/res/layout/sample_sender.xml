@@ -56,7 +56,26 @@ android:layout_height="wrap_content">
                 android:layout_gravity="center"/>
         </LinearLayout>
 
-    <FrameLayout
+        <me.jagar.chatvoiceplayerlibrary.VoicePlayerView
+            android:id="@+id/voicePlayerView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:playPauseBackgroundColor="@color/colorPurple"
+            app:playPauseCornerRadius="100"
+            app:playProgressbarColor="#ff7700"
+            app:progressTimeColor="@color/white"
+            app:seekBarProgressColor="@color/black"
+            app:seekBarThumbColor="@color/colorPurple"
+            app:shareBackgroundColor="#ff7700"
+            app:shareCornerRadius="100"
+            app:shareText="SHARE ME"
+            app:showShareButton="false"
+            app:showTiming="true"
+            app:timingBackgroundColor="@color/colorPurple"
+            app:viewCornerRadius="100"
+            android:visibility="gone"/>
+
+        <FrameLayout
         android:background="@drawable/bg_sender"
         android:backgroundTint="@color/purple_700"
         android:layout_width="wrap_content"
