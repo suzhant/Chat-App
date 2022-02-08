@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OutGoingCall">
+
+    <ImageView
+        android:id="@+id/btnReject"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/btn_endcall_normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/btnMuteAudio"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginEnd="24dp"
+        android:src="@drawable/btn_unmute_normal"
+        app:layout_constraintBottom_toBottomOf="@+id/btnReject"
+        app:layout_constraintEnd_toStartOf="@+id/btnReject" />
+
+    <ImageView
+        android:id="@+id/btnMuteVideo"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="24dp"
+        android:src="@drawable/btn_video_normal"
+        app:layout_constraintBottom_toBottomOf="@+id/btnReject"
+        app:layout_constraintStart_toEndOf="@+id/btnReject" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/user_bg"
+        android:backgroundTint="@color/colorPurple"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgSender"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_margin="5dp"
+            app:civ_border_width="2dp"
+            app:civ_border_color="@color/white"
+            android:src="@drawable/avatar" />
+
+        <TextView
+            android:id="@+id/txtSenderName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:text="Sushant Shrestha" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

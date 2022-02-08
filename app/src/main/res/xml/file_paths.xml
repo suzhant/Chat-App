@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <paths>
-                <external-path name="external" path="." />
-                <external-path name="my_images" path="Android/data/com.sushant.whatsapp/files/Pictures" />
-                <cache-path name="cache" path="." />
-                <external-cache-path name="external_cache" path="." />
-                <files-path name="files" path="." />
-        </paths>
-</PreferenceScreen>
+<paths>
+        <external-path name="external" path="." />
+        <external-path name="my_images" path="Android/data/com.sushant.whatsapp/files/Pictures" />
+        <cache-path name="cache" path="." />
+        <external-cache-path name="external_cache" path="." />
+        <files-path name="files" path="." />
+</paths>

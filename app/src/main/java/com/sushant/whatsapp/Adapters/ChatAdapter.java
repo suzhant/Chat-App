@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,9 +23,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.klinker.android.link_builder.Link;
+import com.klinker.android.link_builder.LinkBuilder;
 import com.sushant.whatsapp.FullScreenImage;
 import com.sushant.whatsapp.Models.Messages;
+import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 
 import java.io.IOException;
@@ -43,6 +52,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
     int RECEIVER_VIEW_TYPE = 2;
     private MediaPlayer player = null;
     boolean isPlaying=false;
+    String receiverName,profilePic,email,Status;
 
     public ChatAdapter(ArrayList<Messages> messageModel, Context context) {
         this.messageModel = messageModel;
@@ -84,6 +94,35 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             }else if ("text".equals(message.getType())){
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
+                if (message.getMessage().contains("https://")){
+                    ((SenderViewHolder) holder).txtSender.setSingleLine();
+                    Link link = new Link(message.getMessage())
+                            .setTextColor(Color.parseColor("#000000"))                  // optional, defaults to holo blue
+                            .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
+                            .setHighlightAlpha(.4f)                                     // optional, defaults to .15f
+                            .setUnderlined(true)                                       // optional, defaults to true
+                            .setBold(true)// optional, defaults to false
+                            .setOnLongClickListener(new Link.OnLongClickListener() {
+                                @Override
+                                public void onLongClick(String clickedText) {
+                                    // long clicked
+                                }
+                            })
+                            .setOnClickListener(new Link.OnClickListener() {
+                                @Override
+                                public void onClick(@NonNull String clickedText) {
+                                    // single clicked
+                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedText));
+                                    context.startActivity(browserIntent);
+                                }
+                            });
+
+
+            // create the link builder object add the link rule
+                    LinkBuilder.on( ((SenderViewHolder) holder).txtSender)
+                            .addLink(link)
+                            .build(); // create the clicka
+                }
             }else {
                 if (message.getAudioFile()!=null){
                     ((SenderViewHolder) holder).layoutAudio.setVisibility(View.GONE);
@@ -112,6 +151,36 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             }else if ("text".equals(message.getType())){
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
+                if (message.getMessage().contains("https://")){
+                    ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
+                    Link link = new Link(message.getMessage())
+                            .setTextColor(Color.parseColor("#259B24"))                  // optional, defaults to holo blue
+                            .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
+                            .setHighlightAlpha(.4f)                                     // optional, defaults to .15f
+                            .setUnderlined(true)                                       // optional, defaults to true
+                            .setBold(true)                                              // optional, defaults to false
+                            .setOnLongClickListener(new Link.OnLongClickListener() {
+                                @Override
+                                public void onLongClick(String clickedText) {
+                                    // long clicked
+                                }
+                            })
+                            .setOnClickListener(new Link.OnClickListener() {
+                                @Override
+                                public void onClick(@NonNull String clickedText) {
+                                    // single clicked
+                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedText));
+                                    context.startActivity(browserIntent);
+
+                                }
+                            });
+
+
+                    // create the link builder object add the link rule
+                    LinkBuilder.on( ((ReceiverViewHolder) holder).txtReceiver)
+                            .addLink(link)
+                            .build(); // create the clicka
+                }
             }else {
                 if (message.getAudioFile()!=null){
                         ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
@@ -130,6 +199,36 @@ public class ChatAdapter extends RecyclerView.Adapter {
             ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
             Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(((ReceiverViewHolder) holder).profilepic);
+
+            FirebaseDatabase.getInstance().getReference().child("Users").child(recId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Users users= snapshot.getValue(Users.class);
+                        assert users != null;
+                        receiverName=users.getUserName();
+                        profilePic=users.getProfilePic();
+                        email=users.getMail();
+                        Status=users.getStatus();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+            ((ReceiverViewHolder) holder).profilepic.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, ProfileActivity.class);
+                    intent.putExtra("UserIdPA", recId);
+                    intent.putExtra("UserNamePA", receiverName);
+                    intent.putExtra("ProfilePicPA", profilePic);
+                    intent.putExtra("EmailPA", email);
+                    intent.putExtra("StatusPA",Status);
+                    context.startActivity(intent);
+                }
+            });
         }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {

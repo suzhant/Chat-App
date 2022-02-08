@@ -70,53 +70,76 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
         int resourceImage = getResources().getIdentifier(icon, "drawable", getPackageName());
 
-        if (Type.equals("Chat")){
-            senderId= data.get("UserId");
-            profilePic= data.get("ProfilePic");
-            email= data.get("userEmail");
-            receiverName= data.get("UserName");
-            builder = new NotificationCompat.Builder(this, "CHANNEL_ID1");
-            Intent resultIntent = new Intent(this, ChatDetailsActivity.class);
-            resultIntent.putExtra("UserId",senderId);
-            resultIntent.putExtra("ProfilePic",profilePic);
-            resultIntent.putExtra("userEmail",email);
-            resultIntent.putExtra("UserName",receiverName);
-            resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentTitle(title);
-            builder.setContentIntent(pendingIntent);
-        }else if (Type.equals("Group")){
-            isNotification=data.get("Notification");
-            Gid=data.get("GId");
-            receiverName= data.get("UserName");
-            profilePic= data.get("ProfilePic");
-            builder = new NotificationCompat.Builder(this, "CHANNEL_ID2");
-            Intent resultIntent = new Intent(this, GroupChatActivity.class);
-            resultIntent.putExtra("GName",receiverName);
-            resultIntent.putExtra("GId",Gid);
-            resultIntent.putExtra("GPic",profilePic);
-            resultIntent.putExtra("Notification",isNotification);
-            resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentTitle(title);
-            builder.setContentIntent(pendingIntent);
-        }else {
-            isNotification=data.get("Notification");
-            profilePic= data.get("ProfilePic");
-            builder = new NotificationCompat.Builder(this, "CHANNEL_ID3");
-            Intent resultIntent = new Intent(this, FriendRequestActivity.class);
-            resultIntent.putExtra("Notification",isNotification);
-            resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentTitle(title);
-            builder.setContentIntent(pendingIntent);
+
+        switch (Type) {
+            case "Chat": {
+                senderId = data.get("UserId");
+                profilePic = data.get("ProfilePic");
+                email = data.get("userEmail");
+                receiverName = data.get("UserName");
+                builder = new NotificationCompat.Builder(this, "CHANNEL_ID1");
+                Intent resultIntent = new Intent(this, ChatDetailsActivity.class);
+                resultIntent.putExtra("UserId", senderId);
+                resultIntent.putExtra("ProfilePic", profilePic);
+                resultIntent.putExtra("userEmail", email);
+                resultIntent.putExtra("UserName", receiverName);
+                resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setContentTitle(title);
+                builder.setContentIntent(pendingIntent);
+                break;
+            }
+            case "Group": {
+                isNotification = data.get("Notification");
+                Gid = data.get("GId");
+                receiverName = data.get("UserName");
+                profilePic = data.get("ProfilePic");
+                builder = new NotificationCompat.Builder(this, "CHANNEL_ID2");
+                Intent resultIntent = new Intent(this, GroupChatActivity.class);
+                resultIntent.putExtra("GName", receiverName);
+                resultIntent.putExtra("GId", Gid);
+                resultIntent.putExtra("GPic", profilePic);
+                resultIntent.putExtra("Notification", isNotification);
+                resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setContentTitle(title);
+                builder.setContentIntent(pendingIntent);
+                break;
+            }
+            case "videoCall": {
+                senderId = data.get("UserId");
+                profilePic = data.get("ProfilePic");
+                receiverName = data.get("UserName");
+                builder = new NotificationCompat.Builder(this, "CHANNEL_ID1");
+                Intent resultIntent = new Intent(this, InComingCall.class);
+                resultIntent.putExtra("UserId", senderId);
+                resultIntent.putExtra("ProfilePic", profilePic);
+                resultIntent.putExtra("UserName", receiverName);
+                resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setContentTitle(title);
+                builder.setContentIntent(pendingIntent);
+                break;
+            }
+            default: {
+                isNotification = data.get("Notification");
+                profilePic = data.get("ProfilePic");
+                builder = new NotificationCompat.Builder(this, "CHANNEL_ID3");
+                Intent resultIntent = new Intent(this, FriendRequestActivity.class);
+                resultIntent.putExtra("Notification", isNotification);
+                resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setContentTitle(title);
+                builder.setContentIntent(pendingIntent);
+                break;
+            }
         }
         builder.setAutoCancel(true);
         builder.setPriority(Notification.PRIORITY_MAX);
         builder.setSound(Uri.parse(path),AudioManager.STREAM_NOTIFICATION);
         builder.setSmallIcon(resourceImage);
         builder.setOnlyAlertOnce(true);
-        builder.setLights(Color.WHITE , 200, 200);
+        builder.setLights( 0xff0000ff , 200, 200);
         builder.setDefaults(Notification.FLAG_SHOW_LIGHTS);
 
         //        Uri img=remoteMessage.getNotification().getImageUrl();
@@ -134,6 +157,9 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
             builder.setLargeIcon(bitmap2);
         }else if(msgType.equals("audio")){
             builder.setContentText("sent you an audio");
+            builder.setLargeIcon(bitmap2);
+        }else if (msgType.equals("video")){
+            builder.setContentText(message);
             builder.setLargeIcon(bitmap2);
         }
 

@@ -29,7 +29,12 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -105,7 +110,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     boolean notify = false;
     FirebaseStorage storage;
     ProgressDialog dialog;
-    String senderId,receiverId,senderRoom,receiverRoom,profilePic,senderPP,email,Status,receiverName;
+    String senderId,receiverId,senderRoom,receiverRoom,profilePic,senderPP,email,Status,receiverName,StatusFromDB;
+    long lastOnline;
     ValueEventListener eventListener1,eventListener2;
     Query checkStatus,checkStatus1;
     String seen="true";
@@ -179,18 +185,18 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         final ChatAdapter chatAdapter = new ChatAdapter(messageModel, this, receiverId);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
-        binding.icSetting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                intent.putExtra("UserIdPA", receiverId);
-                intent.putExtra("UserNamePA", receiverName);
-                intent.putExtra("ProfilePicPA", profilePic);
-                intent.putExtra("EmailPA", email);
-                intent.putExtra("StatusPA",Status);
-                startActivity(intent);
-            }
-        });
+//        binding.icSetting.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+//                intent.putExtra("UserIdPA", receiverId);
+//                intent.putExtra("UserNamePA", receiverName);
+//                intent.putExtra("ProfilePicPA", profilePic);
+//                intent.putExtra("EmailPA", email);
+//                intent.putExtra("StatusPA",Status);
+//                startActivity(intent);
+//            }
+//        });
 
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -333,6 +339,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 //                binding.linear.setVisibility(View.GONE);
 //                binding.audioLayout.setVisibility(View.VISIBLE);
+                String path = "android.resource://" + getPackageName() + "/" + R.raw.when_604;
+                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                r.play();
                 stopRecording.setEnabled(false);
                 memberDialog.show();
                 memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -411,6 +420,20 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             }
         });
 
+        binding.icVideoCam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               checkResponse("video");
+            }
+        });
+
+        binding.icAudioCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkResponse("audio");
+            }
+        });
+
 //        binding.stopRecording.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -444,6 +467,44 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 //        });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+
+    private void checkResponse(String type) {
+
+        database.getReference().child("Users").child(receiverId).child("VideoCall").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                        String onCall=snapshot.child("onCall").getValue(String.class);
+                        if ("false".equals(onCall)){
+                            Intent intent= new Intent(ChatDetailsActivity.this,ConnectingActivity.class);
+                            intent.putExtra("ProfilePic",profilePic);
+                            intent.putExtra("UserName",receiverName);
+                            intent.putExtra("UserId",receiverId);
+                            intent.putExtra("userEmail",email);
+                            intent.putExtra("type",type);
+//                            intent.putExtra("Status",StatusFromDB);
+//                            String online= String.valueOf(lastOnline);
+//                            intent.putExtra("LastOnline",online);
+                            startActivity(intent);
+                            finish();
+                        }else {
+                            Toast.makeText(ChatDetailsActivity.this, "Users is on Another Call", Toast.LENGTH_SHORT).show();;
+                        }
+                }else {
+                    HashMap<String,Object> map= new HashMap<>();
+                    map.put("onCall","false");
+                    map.put("response","idle");
+                    map.put("key",auth.getUid()+receiverId);
+                    database.getReference().child("Users").child(receiverId).child("VideoCall").updateChildren(map);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void uploadAudioToFirebase() {
@@ -485,6 +546,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                                             database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
+                                                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                                                    r.play();
                                                 }
                                             });
                                         }
@@ -634,7 +698,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                                             database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
-
+                                                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                                                    r.play();
                                                 }
                                             });
                                         }
@@ -826,8 +892,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    String StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
-                    Long lastOnline = snapshot.child(receiverId).child("Connection").child("lastOnline").getValue(Long.class);
+                    StatusFromDB = snapshot.child(receiverId).child("Connection").child("Status").getValue(String.class);
+                    lastOnline = snapshot.child(receiverId).child("Connection").child("lastOnline").getValue(Long.class);
                     SimpleDateFormat formatter = new SimpleDateFormat("MM/dd hh:mm a");
                     String dateString = formatter.format(new Date(lastOnline));
 

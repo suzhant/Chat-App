@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.sushant.whatsapp">
+    package="com.sushant.whatsapp" >
 
     <uses-sdk tools:overrideLibrary="com.tuann.floatingactionbuttonexpandable" />
 
@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:name=".FirebaseOffline"
@@ -25,7 +26,27 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.WhatsApp">
+        android:theme="@style/Theme.WhatsApp" >
+        <activity
+            android:name=".ConnectingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".InComingCall"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name=".InComingCall" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".OutGoingCall"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name=".OutGoingCall" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".FullScreenImage"
             android:exported="false" />
@@ -50,7 +71,7 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.sushant.whatsapp.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
@@ -64,7 +85,7 @@
             android:name=".FriendRequestActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" >
             <intent-filter>
                 <action android:name=".FriendRequestActivity" />
 
@@ -100,7 +121,7 @@
             android:parentActivityName=".SignInActivity" />
         <activity
             android:name=".LoadingScreenActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -110,7 +131,7 @@
         <activity android:name=".SettingsActivity" />
         <activity
             android:name=".GroupChatActivity"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name=".GroupChatActivity" />
 
@@ -119,7 +140,7 @@
         </activity>
         <activity
             android:name=".ChatDetailsActivity"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name=".ChatDetailsActivity" />
 
@@ -135,7 +156,7 @@
 
         <service
             android:name=".FirebaseMessagingService"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -143,7 +164,7 @@
 
         <receiver
             android:name=".InternetCheckServices"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
                 <action
