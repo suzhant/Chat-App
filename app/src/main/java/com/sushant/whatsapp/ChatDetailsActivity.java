@@ -76,6 +76,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.sushant.whatsapp.Adapters.ChatAdapter;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
@@ -121,16 +127,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     ImageView stopRecording,btnSend;
     TextView txtTimer,txtRecording;
     long recordedTime;
+    Dialog memberDialog;
 
-    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static String fileName = null;
 
     private MediaRecorder recorder = null;
     private static final String LOG_TAG = "AudioRecordTest";
 
-    // Requesting permission to RECORD_AUDIO
-    private boolean permissionToRecordAccepted = false;
-    private final String [] permissions = {Manifest.permission.RECORD_AUDIO};
 
     boolean recording;
     CountDownTimer timer;
@@ -149,7 +152,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         dialog= new ProgressDialog(this);
         dialog.setCancelable(false);
 
-        final Dialog memberDialog = new Dialog(ChatDetailsActivity.this);
+        memberDialog = new Dialog(ChatDetailsActivity.this);
         memberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         memberDialog.setContentView(R.layout.bottom_sheet_audio_player);
         stopRecording=(ImageView) memberDialog.findViewById(R.id.stopRecording);
@@ -336,30 +339,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.imgMic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+                checkAudioPermission();
+//                ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 //                binding.linear.setVisibility(View.GONE);
 //                binding.audioLayout.setVisibility(View.VISIBLE);
-                String path = "android.resource://" + getPackageName() + "/" + R.raw.when_604;
-                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
-                r.play();
-                stopRecording.setEnabled(false);
-                memberDialog.show();
-                memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                memberDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                memberDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimation;
-                memberDialog.getWindow().setGravity(Gravity.BOTTOM);
-                memberDialog.getWindow().getAttributes().windowAnimations=R.style.NoAnimation;
-                audioHandler=new Handler();
-                audioRunnable= new Runnable() {
-                    @Override
-                    public void run() {
-                        recording=true;
-                        stopRecording.setEnabled(true);
-                        startRecording();
-                        startCountDownTimer();
-                    }
-                };
-                audioHandler.postDelayed(audioRunnable,1000);
             }
         });
 
@@ -467,6 +450,40 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 //        });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+
+    private void checkAudioPermission() {
+        Dexter.withContext(this)
+                .withPermission(Manifest.permission.RECORD_AUDIO)
+                .withListener(new PermissionListener() {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        String path = "android.resource://" + getPackageName() + "/" + R.raw.when_604;
+                        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                        r.play();
+                        stopRecording.setEnabled(false);
+                        memberDialog.show();
+                        memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                        memberDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        memberDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimation;
+                        memberDialog.getWindow().setGravity(Gravity.BOTTOM);
+                        memberDialog.getWindow().getAttributes().windowAnimations=R.style.NoAnimation;
+                        audioHandler=new Handler();
+                        audioRunnable= new Runnable() {
+                            @Override
+                            public void run() {
+                                recording=true;
+                                stopRecording.setEnabled(true);
+                                startRecording();
+                                startCountDownTimer();
+                            }
+                        };
+                        audioHandler.postDelayed(audioRunnable,1000);
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(ChatDetailsActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                    }
+                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+                }).check();
     }
 
     private void checkResponse(String type) {
@@ -730,17 +747,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
-            case REQUEST_RECORD_AUDIO_PERMISSION:
-                permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                break;
-        }
-        if (!permissionToRecordAccepted ) finish();
-
-    }
 
     private void startRecording() {
         recorder = new MediaRecorder();

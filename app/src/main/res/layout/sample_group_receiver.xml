@@ -28,39 +28,14 @@
                 android:layout_width="300dp"
                 android:layout_height="300dp"
                 android:src="@drawable/avatar"
-                android:visibility="gone"/>
+                android:visibility="gone" />
         </com.google.android.material.card.MaterialCardView>
-        <LinearLayout
-            android:id="@+id/layout_audio"
-            android:background="@drawable/bg_et_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="start"
-            android:visibility="gone">
-            <ImageView
-                android:id="@+id/img_play_record"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_play"
-                android:padding="5dp"
-                android:tint="@color/black"/>
-
-            <TextView
-                android:id="@+id/txt_audio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:text="Play Recording"
-                android:padding="5dp"
-                android:layout_marginEnd="10dp"
-                android:layout_gravity="center"/>
-        </LinearLayout>
 
         <me.jagar.chatvoiceplayerlibrary.VoicePlayerView
             android:id="@+id/voicePlayerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:playPauseBackgroundColor="@color/colorPurple"
             app:playPauseCornerRadius="100"
             app:playProgressbarColor="#ff7700"
@@ -73,18 +48,17 @@
             app:showShareButton="false"
             app:showTiming="true"
             app:timingBackgroundColor="@color/colorPurple"
-            app:viewCornerRadius="100"
-            android:visibility="gone"/>
+            app:viewCornerRadius="100" />
 
         <TextView
             android:id="@+id/txtGroupReceiver"
-            android:background="@drawable/bg_et_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="3dp"
+            android:background="@drawable/bg_et_message"
             android:inputType="textMultiLine|textLongMessage"
             android:maxWidth="270dp"
             android:minWidth="50dp"

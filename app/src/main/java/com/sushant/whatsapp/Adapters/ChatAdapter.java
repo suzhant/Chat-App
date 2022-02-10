@@ -8,12 +8,10 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,7 +33,6 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -97,7 +94,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 if (message.getMessage().contains("https://")){
                     ((SenderViewHolder) holder).txtSender.setSingleLine();
                     Link link = new Link(message.getMessage())
-                            .setTextColor(Color.parseColor("#000000"))                  // optional, defaults to holo blue
+                            .setTextColor(Color.parseColor("#FFFFFF"))                  // optional, defaults to holo blue
                             .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
                             .setHighlightAlpha(.4f)                                     // optional, defaults to .15f
                             .setUnderlined(true)                                       // optional, defaults to true
@@ -125,7 +122,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             }else {
                 if (message.getAudioFile()!=null){
-                    ((SenderViewHolder) holder).layoutAudio.setVisibility(View.GONE);
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                     ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
                     ((SenderViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
@@ -184,7 +180,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
             }else {
                 if (message.getAudioFile()!=null){
                         ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                        ((ReceiverViewHolder) holder).layoutAudio.setVisibility(View.GONE);
                         ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
                     ((ReceiverViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -258,7 +253,11 @@ public class ChatAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
                 if ("photo".equals(message.getType())){
                     Intent fullScreenImage=new Intent(context, FullScreenImage.class);
+                    fullScreenImage.putExtra("UserId", recId);
                     fullScreenImage.putExtra("messageImage",message.getImageUrl());
+                    fullScreenImage.putExtra("ProfilePic", profilePic);
+                    fullScreenImage.putExtra("userEmail", email);
+                    fullScreenImage.putExtra("UserName", receiverName);
                     context.startActivity(fullScreenImage);
                 }
             }
@@ -282,10 +281,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
     public static class ReceiverViewHolder extends RecyclerView.ViewHolder {
         private final TextView txtReceiver;
-        private final TextView txtReceiverTime,txtAudio;
+        private final TextView txtReceiverTime;
         private final CircleImageView profilepic;
-        private final ImageView imgReceiver,imgAudio;
-        private final LinearLayout layoutAudio;
+        private final ImageView imgReceiver;
         private final VoicePlayerView voicePlayerView;
 
         public ReceiverViewHolder(@NonNull View itemView) {
@@ -294,18 +292,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
             txtReceiverTime = itemView.findViewById(R.id.txtGroupReceiverTime);
             profilepic=itemView.findViewById(R.id.group_profile_image);
             imgReceiver=itemView.findViewById(R.id.imgReceiver);
-            layoutAudio=itemView.findViewById(R.id.layout_audio);
-            txtAudio=itemView.findViewById(R.id.txt_audio);
-            imgAudio=itemView.findViewById(R.id.img_play_record);
             voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
         }
     }
 
     public static class SenderViewHolder extends RecyclerView.ViewHolder{
         private final TextView txtSender;
-        private final TextView txtSenderTime,txtAudio;
-        private final ImageView imgSender,imgAudio;
-        private final LinearLayout layoutAudio;
+        private final TextView txtSenderTime;
+        private final ImageView imgSender;
         private final VoicePlayerView voicePlayerView;
 
         public SenderViewHolder(@NonNull View itemView) {
@@ -313,46 +307,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
             imgSender=itemView.findViewById(R.id.imgSender);
-            layoutAudio=itemView.findViewById(R.id.layout_audio);
-            txtAudio=itemView.findViewById(R.id.txt_audio);
-            imgAudio=itemView.findViewById(R.id.img_play_record);
             voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
-
-        }
-    }
-
-    private void startPlaying(String audio) {
-        if (player==null){
-            player = new MediaPlayer();
-        }
-        try {
-            player.setDataSource(audio);
-            player.prepare();
-            player.start();
-        } catch (IOException e) {
-            Log.e("Audio", "prepare() failed");
-        }
-        isPlaying=true;
-    }
-
-    private void stopPlaying() {
-        if (player!=null){
-            player.release();
-            player = null;
-            isPlaying=false;
-        }
-    }
-
-    private void pausePlaying() {
-        if (player!=null){
-            player.pause();
-            isPlaying=false;
-        }
-    }
-    private void resumePlaying() {
-        if (player!=null){
-            player.start();
-            isPlaying=true;
         }
     }
 

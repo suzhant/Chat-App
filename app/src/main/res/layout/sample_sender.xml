@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:id="@+id/groupChatRelative"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/groupChatRelative"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:id="@+id/parent"
@@ -28,34 +28,6 @@ android:layout_height="wrap_content">
                 android:visibility="gone" />
         </com.google.android.material.card.MaterialCardView>
 
-        <LinearLayout
-            android:id="@+id/layout_audio"
-            android:background="@drawable/bg_et_message"
-            android:backgroundTint="@color/purple_700"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="end"
-            android:visibility="gone">
-            <ImageView
-                android:id="@+id/img_play_record"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_play"
-                android:padding="5dp"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/txt_audio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:text="Play Recording"
-                android:padding="5dp"
-                android:layout_marginEnd="10dp"
-                android:layout_gravity="center"/>
-        </LinearLayout>
-
         <me.jagar.chatvoiceplayerlibrary.VoicePlayerView
             android:id="@+id/voicePlayerView"
             android:layout_width="wrap_content"
@@ -76,24 +48,24 @@ android:layout_height="wrap_content">
             android:visibility="gone"/>
 
         <FrameLayout
-        android:background="@drawable/bg_sender"
-        android:backgroundTint="@color/purple_700"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/txtSender"
+            android:background="@drawable/bg_sender"
+            android:backgroundTint="@color/purple_700"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textMultiLine|textLongMessage"
-            android:layout_marginEnd="5dp"
-            android:maxWidth="270dp"
-            android:minWidth="50dp"
-            android:padding="10dp"
-            android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
-            android:textColor="@color/white" />
+            android:layout_height="wrap_content">
 
-    </FrameLayout>
+            <TextView
+                android:id="@+id/txtSender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine|textLongMessage"
+                android:layout_marginEnd="5dp"
+                android:maxWidth="270dp"
+                android:minWidth="50dp"
+                android:padding="10dp"
+                android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
+                android:textColor="@color/white" />
+
+        </FrameLayout>
         <TextView
             android:id="@+id/txtSenderTime"
             android:layout_width="wrap_content"
