@@ -52,7 +52,6 @@
         app:layout_constraintBottom_toBottomOf="@+id/fullScreenImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
         android:baselineAligned="false">
 
         <LinearLayout

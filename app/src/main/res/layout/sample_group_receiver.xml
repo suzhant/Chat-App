@@ -56,10 +56,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="3dp"
             android:background="@drawable/bg_et_message"
-            android:inputType="textMultiLine|textLongMessage"
             android:maxWidth="270dp"
             android:minWidth="50dp"
             android:padding="10dp"
@@ -71,10 +69,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:layout_marginBottom="4dp"
             android:text="12:00pm"
-            android:textSize="10sp"
+            android:textSize="11sp"
             app:layout_goneMarginBottom="4dp" />
 
     </LinearLayout>
@@ -84,8 +82,8 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignBottom="@+id/parent"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="2dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="2dp"
         android:layout_marginBottom="17dp"
         android:padding="5dp"
         android:src="@drawable/avatar" />

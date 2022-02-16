@@ -57,7 +57,6 @@
                 android:id="@+id/txtSender"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine|textLongMessage"
                 android:layout_marginEnd="5dp"
                 android:maxWidth="270dp"
                 android:minWidth="50dp"
@@ -75,7 +74,7 @@
             android:layout_marginEnd="15dp"
             android:layout_marginBottom="4dp"
             android:text="12:00pm"
-            android:textSize="10sp"
+            android:textSize="11sp"
             app:layout_goneMarginBottom="4dp" />
 
     </LinearLayout>

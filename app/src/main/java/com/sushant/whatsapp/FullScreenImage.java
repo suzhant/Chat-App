@@ -69,7 +69,7 @@ import java.util.Objects;
 public class FullScreenImage extends AppCompatActivity {
 
     ActivityFullScreenImageBinding binding;
-    boolean isVisible = false, notify = false;
+    boolean isVisible = true, notify = false;
     ActivityResultLauncher<Intent> someActivityResultLauncher;
     AlertDialog.Builder alertDialog;
     ProgressDialog dialog;
@@ -176,19 +176,24 @@ public class FullScreenImage extends AppCompatActivity {
         binding.imgEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     startEditIntent();
-                }else {
+                } else {
                     Dexter.withContext(getApplicationContext())
                             .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             .withListener(new PermissionListener() {
-                                @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                                @Override
+                                public void onPermissionGranted(PermissionGrantedResponse response) {
                                     startEditIntent();
                                 }
-                                @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                                @Override
+                                public void onPermissionDenied(PermissionDeniedResponse response) {
                                     Toast.makeText(FullScreenImage.this, "Please accept permissions", Toast.LENGTH_SHORT).show();
                                 }
-                                @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
                             }).check();
                 }
             }
@@ -210,19 +215,24 @@ public class FullScreenImage extends AppCompatActivity {
         binding.imgDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     downloadFile();
-                }else {
+                } else {
                     Dexter.withContext(getApplicationContext())
                             .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             .withListener(new PermissionListener() {
-                                @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                                @Override
+                                public void onPermissionGranted(PermissionGrantedResponse response) {
                                     downloadFile();
                                 }
-                                @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                                @Override
+                                public void onPermissionDenied(PermissionDeniedResponse response) {
                                     Toast.makeText(FullScreenImage.this, "Please accept permissions", Toast.LENGTH_SHORT).show();
                                 }
-                                @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
                             }).check();
                 }
             }
@@ -256,7 +266,7 @@ public class FullScreenImage extends AppCompatActivity {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
-    private void startEditIntent(){
+    private void startEditIntent() {
         Intent dsPhotoEditorIntent = new Intent(FullScreenImage.this, DsPhotoEditorActivity.class);
         dsPhotoEditorIntent.setData(Uri.parse(image));
         dsPhotoEditorIntent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_OUTPUT_DIRECTORY, "Edited Pics");
