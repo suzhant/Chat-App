@@ -21,4 +21,5 @@
     <color name="grayBackground">#BCBCBC</color>
     <color name="chatbackground">#AAAAAA</color>
     <color name="colorPurple">#7C4DFF</color>
+    <color name="green">#00FF00</color>
 </resources>

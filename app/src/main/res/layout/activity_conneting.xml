@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="284dp"
-        android:text="Connecting To"
+        android:text="Connecting..."
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/imgPP"
@@ -64,14 +64,25 @@
 
     <ImageView
         android:id="@+id/btnReject"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginTop="184dp"
         android:src="@drawable/btn_endcall_normal"
         app:layout_constraintEnd_toEndOf="@+id/imgPP"
         app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="@+id/imgPP"
         app:layout_constraintTop_toBottomOf="@+id/imgPP" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:text="End"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/btnReject"
+        app:layout_constraintStart_toStartOf="@+id/btnReject"
+        app:layout_constraintTop_toBottomOf="@+id/btnReject" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package com.sushant.whatsapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -46,6 +47,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityFullScreenImageBinding;
@@ -62,60 +69,58 @@ import java.util.Objects;
 public class FullScreenImage extends AppCompatActivity {
 
     ActivityFullScreenImageBinding binding;
-    boolean isVisible=false;
+    boolean isVisible = false, notify = false;
     ActivityResultLauncher<Intent> someActivityResultLauncher;
     AlertDialog.Builder alertDialog;
     ProgressDialog dialog;
     FirebaseStorage storage;
-    boolean notify = false;
-    String senderId,receiverId,profilePic,senderRoom,receiverRoom,sendername,senderPP,email,receiverName,image;
+    String senderId, receiverId, profilePic, senderRoom, receiverRoom, sendername, senderPP, email, receiverName, image, userToken;
     FirebaseAuth auth;
     FirebaseDatabase database;
-    String userToken;
     Handler handler;
     Runnable runnable;
-    Intent data;
-    ValueEventListener senderDetailsListener,TokenListener;
-    DatabaseReference senderRef,TokenRef;
+    String data;
+    ValueEventListener senderDetailsListener, TokenListener;
+    DatabaseReference senderRef, TokenRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityFullScreenImageBinding.inflate(getLayoutInflater());
+        binding = ActivityFullScreenImageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().hide();
 
-        storage=FirebaseStorage.getInstance();
-        auth=FirebaseAuth.getInstance();
-        database=FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
+        auth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
 
-        dialog= new ProgressDialog(this);
+        dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
 
-        image=getIntent().getStringExtra("messageImage");
-        senderId=auth.getUid();
-        receiverId=getIntent().getStringExtra("UserId");
-        profilePic=getIntent().getStringExtra("ProfilePic");
-        email=getIntent().getStringExtra("userEmail");
-        receiverName=getIntent().getStringExtra("UserName");
+        image = getIntent().getStringExtra("messageImage");
+        senderId = auth.getUid();
+        receiverId = getIntent().getStringExtra("UserId");
+        profilePic = getIntent().getStringExtra("ProfilePic");
+        email = getIntent().getStringExtra("userEmail");
+        receiverName = getIntent().getStringExtra("UserName");
 
         senderRoom = senderId + receiverId;
         receiverRoom = receiverId + senderId;
 
         Glide.with(this).load(image).placeholder(R.drawable.placeholder).into(binding.fullScreenImage);
 
-        alertDialog=new AlertDialog.Builder(FullScreenImage.this).setTitle("Image")
+        alertDialog = new AlertDialog.Builder(FullScreenImage.this).setTitle("Image")
                 .setMessage("Do you want to send the edited image?")
                 .setCancelable(false)
                 .setIcon(R.drawable.ic_gallery)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Bitmap bitmap=null;
+                        Bitmap bitmap = null;
                         try {
 
                             assert data != null;
-                            bitmap = handleSamplingAndRotationBitmap(FullScreenImage.this,data.getData());
+                            bitmap = handleSamplingAndRotationBitmap(FullScreenImage.this, Uri.parse(data));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -123,24 +128,24 @@ public class FullScreenImage extends AppCompatActivity {
                         assert bitmap != null;
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         byte[] bytes = baos.toByteArray();
-                        int length =  bytes.length/1024;
-                        uploadToFirebase(bytes,length);
+                        int length = bytes.length / 1024;
+                        uploadToFirebase(bytes, length);
                     }
                 }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
 
 
-     senderDetailsListener=new ValueEventListener() {
+        senderDetailsListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Users users = snapshot.getValue(Users.class);
                 sendername = users.getUserName();
-                senderPP=users.getProfilePic();
+                senderPP = users.getProfilePic();
             }
 
             @Override
@@ -148,20 +153,22 @@ public class FullScreenImage extends AppCompatActivity {
 
             }
         };
-        senderRef=database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()));
+        senderRef = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()));
         senderRef.addValueEventListener(senderDetailsListener);
 
         binding.fullScreenImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!isVisible){
-                    binding.imgEdit.setVisibility(View.VISIBLE);
-                    binding.imgDownload.setVisibility(View.VISIBLE);
-                    isVisible=true;
-                }else {
-                    binding.imgEdit.setVisibility(View.GONE);
-                    binding.imgDownload.setVisibility(View.GONE);
-                    isVisible=false;
+                if (!isVisible) {
+                    binding.btmLayout.setVisibility(View.VISIBLE);
+//                    binding.imgEdit.setVisibility(View.VISIBLE);
+//                    binding.imgDownload.setVisibility(View.VISIBLE);
+                    isVisible = true;
+                } else {
+                    binding.btmLayout.setVisibility(View.GONE);
+//                    binding.imgEdit.setVisibility(View.GONE);
+//                    binding.imgDownload.setVisibility(View.GONE);
+                    isVisible = false;
                 }
             }
         });
@@ -169,12 +176,21 @@ public class FullScreenImage extends AppCompatActivity {
         binding.imgEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent dsPhotoEditorIntent = new Intent(FullScreenImage.this, DsPhotoEditorActivity.class);
-                dsPhotoEditorIntent.setData(Uri.parse(image));
-                dsPhotoEditorIntent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_OUTPUT_DIRECTORY, "Edited Pics");
-                int[] toolsToHide = {DsPhotoEditorActivity.TOOL_ORIENTATION, DsPhotoEditorActivity.TOOL_CROP};
-                dsPhotoEditorIntent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_TOOLS_TO_HIDE, toolsToHide);
-                someActivityResultLauncher.launch(dsPhotoEditorIntent);
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
+                    startEditIntent();
+                }else {
+                    Dexter.withContext(getApplicationContext())
+                            .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            .withListener(new PermissionListener() {
+                                @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                                    startEditIntent();
+                                }
+                                @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                                    Toast.makeText(FullScreenImage.this, "Please accept permissions", Toast.LENGTH_SHORT).show();
+                                }
+                                @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+                            }).check();
+                }
             }
         });
 
@@ -183,9 +199,9 @@ public class FullScreenImage extends AppCompatActivity {
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             // There are no request codes
-                            data = result.getData();
+                            data = result.getData().getDataString();
                             alertDialog.show();
                         }
                     }
@@ -194,38 +210,66 @@ public class FullScreenImage extends AppCompatActivity {
         binding.imgDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                downloadFile();
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
+                    downloadFile();
+                }else {
+                    Dexter.withContext(getApplicationContext())
+                            .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            .withListener(new PermissionListener() {
+                                @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                                    downloadFile();
+                                }
+                                @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                                    Toast.makeText(FullScreenImage.this, "Please accept permissions", Toast.LENGTH_SHORT).show();
+                                }
+                                @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+                            }).check();
+                }
             }
         });
     }
 
 
-    public void downloadFile() {
+    private void downloadFile() {
         Toast.makeText(this, "Started Downloading..", Toast.LENGTH_SHORT).show();
-        SimpleDateFormat dateFormat= new SimpleDateFormat("yyyymmsshhmmss");
-        String date=dateFormat.format(new Date());
-        String name="IMG"+date+".jpg";
-
-        DownloadManager.Request request= new DownloadManager.Request(Uri.parse(image));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmsshhmmss");
+        String date = dateFormat.format(new Date());
+        String name = "IMG" + date + ".jpg";
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(image));
         request.setAllowedNetworkTypes(
                 DownloadManager.Request.NETWORK_WIFI
                         | DownloadManager.Request.NETWORK_MOBILE)
-                .setAllowedOverRoaming(false).setTitle("Demo")
-                .setTitle("Download")
+                .setAllowedOverRoaming(false)
+                .setTitle(name)
                 .setDescription("Downloading image...")
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, name);
-        request.allowScanningByMediaScanner();
-
-        DownloadManager manager=(DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
+        if (isDownloadManagerAvailable()) {
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.allowScanningByMediaScanner();
+        }
+        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
     }
 
-    private void uploadToFirebase(byte[] uri, int length){
+
+    private static boolean isDownloadManagerAvailable() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+    }
+
+    private void startEditIntent(){
+        Intent dsPhotoEditorIntent = new Intent(FullScreenImage.this, DsPhotoEditorActivity.class);
+        dsPhotoEditorIntent.setData(Uri.parse(image));
+        dsPhotoEditorIntent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_OUTPUT_DIRECTORY, "Edited Pics");
+        int[] toolsToHide = {DsPhotoEditorActivity.TOOL_ORIENTATION, DsPhotoEditorActivity.TOOL_CROP};
+        dsPhotoEditorIntent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_TOOLS_TO_HIDE, toolsToHide);
+        someActivityResultLauncher.launch(dsPhotoEditorIntent);
+    }
+
+    private void uploadToFirebase(byte[] uri, int length) {
         Calendar calendar = Calendar.getInstance();
         final StorageReference reference = storage.getReference().child("Chats Images").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
         dialog.show();
-        UploadTask uploadTask= reference.putBytes(uri);
+        UploadTask uploadTask = reference.putBytes(uri);
         uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
@@ -246,7 +290,7 @@ public class FullScreenImage extends AppCompatActivity {
                             updateLastMessage();
 
                             if (notify) {
-                                sendNotification(receiverId, sendername,filePath,senderPP,email,senderId);
+                                sendNotification(receiverId, sendername, filePath, senderPP, email, senderId);
                             }
                             notify = false;
 
@@ -279,11 +323,11 @@ public class FullScreenImage extends AppCompatActivity {
             @Override
             public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
                 //only works if image size is greater than 256kb!
-                if (length>256){
+                if (length > 256) {
                     double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
-                    int currentProgress=(int) progress;
-                    dialog.setMessage("Uploading Image: " + currentProgress+ "%");
-                }else {
+                    int currentProgress = (int) progress;
+                    dialog.setMessage("Uploading Image: " + currentProgress + "%");
+                } else {
                     dialog.setMessage("Uploading Image...");
                 }
             }
@@ -381,8 +425,8 @@ public class FullScreenImage extends AppCompatActivity {
         return rotatedImg;
     }
 
-    private void updateLastMessage(){
-        HashMap<String,Object> map= new HashMap<>();
+    private void updateLastMessage() {
+        HashMap<String, Object> map = new HashMap<>();
         map.put("lastMessage", "photo.jpg");
         database.getReference().child("Users").child(senderId).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -405,15 +449,15 @@ public class FullScreenImage extends AppCompatActivity {
 
             }
         };
-        TokenRef=database.getReference().child("Users").child(receiver).child("Token");
+        TokenRef = database.getReference().child("Users").child(receiver).child("Token");
         TokenRef.addListenerForSingleValueEvent(TokenListener);
 
         handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image,receiver,email,senderId, "photo",
-                        "Chat",".ChatDetailsActivity",getApplicationContext(), FullScreenImage.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg, image, receiver, email, senderId, "photo",
+                        "Chat", ".ChatDetailsActivity", getApplicationContext(), FullScreenImage.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -424,10 +468,10 @@ public class FullScreenImage extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (TokenRef!=null){
+        if (TokenRef != null) {
             TokenRef.removeEventListener(TokenListener);
         }
-        if (senderRef!=null){
+        if (senderRef != null) {
             senderRef.removeEventListener(senderDetailsListener);
         }
         super.onDestroy();

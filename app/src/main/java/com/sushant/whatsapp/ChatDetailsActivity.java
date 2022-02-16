@@ -11,7 +11,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,12 +28,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -50,7 +44,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -103,39 +96,28 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
     public static final int PICK_IMAGE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 200;
-    private static final int CAMERA_PERMISSION_CODE = 300;
     ActivityChatDetailsBinding binding;
     FirebaseDatabase database;
     FirebaseAuth auth;
     Animation scale_up, scale_down;
-    ImageView blackCircle;
-    String userToken;
-    Handler handler,audioHandler;
-    Runnable runnable,audioRunnable;
-    String sendername;
-    boolean notify = false;
+    ImageView blackCircle, stopRecording, btnSend;
+    Handler handler, audioHandler;
+    Runnable runnable, audioRunnable;
+    boolean notify = false, recording;
     FirebaseStorage storage;
     ProgressDialog dialog;
-    String senderId,receiverId,senderRoom,receiverRoom,profilePic,senderPP,email,Status,receiverName,StatusFromDB;
+    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true";
     long lastOnline;
-    ValueEventListener eventListener1,eventListener2;
-    Query checkStatus,checkStatus1;
-    String seen="true";
-    DatabaseReference chat;
-    ValueEventListener eventListener;
-    DatabaseReference infoConnected;
-    ImageView stopRecording,btnSend;
-    TextView txtTimer,txtRecording;
+    ValueEventListener eventListener1, eventListener2, chatListener, senderListener, tokenListener, eventListener;
+    Query checkStatus, checkStatus1;
+    DatabaseReference infoConnected, chatRef, senderRef, tokenRef;
+    TextView txtTimer, txtRecording;
     long recordedTime;
     Dialog memberDialog;
 
     private static String fileName = null;
-
     private MediaRecorder recorder = null;
     private static final String LOG_TAG = "AudioRecordTest";
-
-
-    boolean recording;
     CountDownTimer timer;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -149,19 +131,19 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/recorded_audio.3gp";
 
-        dialog= new ProgressDialog(this);
+        dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
 
         memberDialog = new Dialog(ChatDetailsActivity.this);
         memberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         memberDialog.setContentView(R.layout.bottom_sheet_audio_player);
-        stopRecording=(ImageView) memberDialog.findViewById(R.id.stopRecording);
-        btnSend=(ImageView) memberDialog.findViewById(R.id.btn_send);
-        txtRecording=(TextView) memberDialog.findViewById(R.id.txtRecording);
-        txtTimer=(TextView) memberDialog.findViewById(R.id.txt_timer);
+        stopRecording = (ImageView) memberDialog.findViewById(R.id.stopRecording);
+        btnSend = (ImageView) memberDialog.findViewById(R.id.btn_send);
+        txtRecording = (TextView) memberDialog.findViewById(R.id.txtRecording);
+        txtTimer = (TextView) memberDialog.findViewById(R.id.txt_timer);
 
         database = FirebaseDatabase.getInstance();
-        storage=FirebaseStorage.getInstance();
+        storage = FirebaseStorage.getInstance();
         auth = FirebaseAuth.getInstance();
         scale_down = AnimationUtils.loadAnimation(this, R.anim.scale_down);
         scale_up = AnimationUtils.loadAnimation(this, R.anim.scale_up);
@@ -204,16 +186,16 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                seen="true";
-                updateSeen(seen,senderId,receiverId);
-                HashMap<String,Object> map= new HashMap<>();
-                map.put("Typing","Not Typing...");
+                seen = "true";
+                updateSeen(seen, senderId, receiverId);
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("Typing", "Not Typing...");
                 database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
-                if (binding.audioLayout.getVisibility()==View.VISIBLE){
+                if (binding.audioLayout.getVisibility() == View.VISIBLE) {
                     binding.audioLayout.setVisibility(View.GONE);
                     binding.linear.setVisibility(View.VISIBLE);
                 }
-                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();//Method finish() will destroy your activity and show the one that started it.
             }
@@ -222,38 +204,39 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         senderRoom = senderId + receiverId;
         receiverRoom = receiverId + senderId;
 
-        updateSeen(seen,senderId,receiverId);
+        updateSeen(seen, senderId, receiverId);
 
-        chat=database.getReference().child("Chats").child(senderRoom);
-                chat.addValueEventListener(new ValueEventListener() {
-                    @SuppressLint("NotifyDataSetChanged")
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        int count = messageModel.size();
-                        messageModel.clear();
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            Messages model = dataSnapshot.getValue(Messages.class);
-                            model.setMessageId(dataSnapshot.getKey());
-                            model.setProfilePic(profilePic);
-                            messageModel.add(model);
+        chatRef = database.getReference().child("Chats").child(senderRoom);
+        chatListener = new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int count = messageModel.size();
+                messageModel.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Messages model = dataSnapshot.getValue(Messages.class);
+                    model.setMessageId(dataSnapshot.getKey());
+                    model.setProfilePic(profilePic);
+                    messageModel.add(model);
 
-                        }
-                        chatAdapter.notifyDataSetChanged();
+                }
+                chatAdapter.notifyDataSetChanged();
 //                        Collections.sort(messageModel, (obj1, obj2) -> obj1.getTimestamp().compareTo(obj2.getTimestamp()));
-                        if (count == 0) {
-                            chatAdapter.notifyDataSetChanged();
-                        } else {
-                            chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
-                            binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
-                        }
-                    }
+                if (count == 0) {
+                    chatAdapter.notifyDataSetChanged();
+                } else {
+                    chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
+                    binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
+                }
+            }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
-                chat.keepSynced(true);
+            }
+        };
+        chatRef.addValueEventListener(chatListener);
+        chatRef.keepSynced(true);
 
 
         getTypingStatus();
@@ -269,14 +252,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (editable.length()>0) {
+                if (editable.length() > 0) {
                     binding.imgCamera.setVisibility(View.GONE);
                     binding.imgGallery.setVisibility(View.GONE);
                     binding.imgMic.setVisibility(View.GONE);
                     binding.icSend.setImageResource(R.drawable.ic_send);
                     binding.icSend.setColorFilter(getResources().getColor(R.color.white));
-                    HashMap<String,Object> map= new HashMap<>();
-                    map.put("Typing","Typing...");
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("Typing", "Typing...");
                     database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 } else {
                     binding.imgCamera.setVisibility(View.VISIBLE);
@@ -284,28 +267,30 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                     binding.imgMic.setVisibility(View.VISIBLE);
                     binding.icSend.setImageResource(R.drawable.ic_favorite);
                     binding.icSend.setColorFilter(getResources().getColor(red));
-                    HashMap<String,Object> map= new HashMap<>();
-                    map.put("Typing","Not Typing...");
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("Typing", "Not Typing...");
                     database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
                 }
             }
         });
 
 
-        database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).addValueEventListener(new ValueEventListener() {
+        senderRef = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()));
+        senderListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Users users = snapshot.getValue(Users.class);
                 sendername = users.getUserName();
-                senderPP=users.getProfilePic();
+                senderPP = users.getProfilePic();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+        senderRef.addValueEventListener(senderListener);
 
 
         binding.icSend.setOnClickListener(new View.OnClickListener() {
@@ -340,22 +325,19 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onClick(View view) {
                 checkAudioPermission();
-//                ActivityCompat.requestPermissions(ChatDetailsActivity.this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
-//                binding.linear.setVisibility(View.GONE);
-//                binding.audioLayout.setVisibility(View.VISIBLE);
             }
         });
 
         memberDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
-                if (recorder!=null){
+                if (recorder != null) {
                     stopRecording();
-                    recording=false;
+                    recording = false;
                     timer.cancel();
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (audioHandler.hasCallbacks(audioRunnable)){
+                    if (audioHandler.hasCallbacks(audioRunnable)) {
                         audioHandler.removeCallbacks(audioRunnable);
                     }
                 }
@@ -370,19 +352,19 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         stopRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (recording){
+                if (recording) {
                     stopRecording.setImageResource(R.drawable.ic_delete);
                     stopRecording.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, red));
                     txtRecording.setText("Recorded :");
                     btnSend.setVisibility(View.VISIBLE);
-                    recordedTime=30-recordedTime;
-                    txtTimer.setText(recordedTime+ " sec");
-                    recording=false;
-                    if(recorder!=null){
+                    recordedTime = 30 - recordedTime;
+                    txtTimer.setText(recordedTime + " sec");
+                    recording = false;
+                    if (recorder != null) {
                         stopRecording();
                     }
                     timer.cancel();
-                }else {
+                } else {
                     stopRecording.setImageResource(R.drawable.ic_stop_circle);
                     txtRecording.setText("Recording :");
                     btnSend.setVisibility(View.GONE);
@@ -394,7 +376,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                recording=false;
+                recording = false;
                 stopRecording.setImageResource(R.drawable.ic_stop_circle);
                 txtRecording.setText("Recording :");
                 btnSend.setVisibility(View.GONE);
@@ -406,7 +388,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.icVideoCam.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               checkResponse("video");
+                checkResponse("video");
             }
         });
 
@@ -417,38 +399,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             }
         });
 
-//        binding.stopRecording.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (recording){
-//                    binding.stopRecording.setImageResource(R.drawable.ic_delete);
-//                    binding.txtRecording.setText("Recording stopped..");
-//                    binding.btnSend.setVisibility(View.VISIBLE);
-//                    recording=false;
-//                    timer.cancel();
-//                    stopRecording();
-//                }else {
-//                    binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
-//                    binding.txtRecording.setText("Recording..");
-//                    binding.btnSend.setVisibility(View.GONE);
-//                    binding.linear.setVisibility(View.VISIBLE);
-//                    binding.audioLayout.setVisibility(View.GONE);
-//                }
-//            }
-//        });
-//
-//        binding.btnSend.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                recording=false;
-//                binding.stopRecording.setImageResource(R.drawable.ic_stop_circle);
-//                binding.txtRecording.setText("Recording :");
-//                binding.audioLayout.setVisibility(View.GONE);
-//                binding.btnSend.setVisibility(View.GONE);
-//            uploadAudioToFirebase();
-//            }
-//        });
-
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
@@ -456,33 +406,38 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.RECORD_AUDIO)
                 .withListener(new PermissionListener() {
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
                         String path = "android.resource://" + getPackageName() + "/" + R.raw.when_604;
                         Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
                         r.play();
                         stopRecording.setEnabled(false);
                         memberDialog.show();
-                        memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+                        memberDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         memberDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        memberDialog.getWindow().getAttributes().windowAnimations=R.style.DialogAnimation;
+                        memberDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                         memberDialog.getWindow().setGravity(Gravity.BOTTOM);
-                        memberDialog.getWindow().getAttributes().windowAnimations=R.style.NoAnimation;
-                        audioHandler=new Handler();
-                        audioRunnable= new Runnable() {
+                        memberDialog.getWindow().getAttributes().windowAnimations = R.style.NoAnimation;
+                        audioHandler = new Handler();
+                        audioRunnable = new Runnable() {
                             @Override
                             public void run() {
-                                recording=true;
+                                recording = true;
                                 stopRecording.setEnabled(true);
                                 startRecording();
                                 startCountDownTimer();
                             }
                         };
-                        audioHandler.postDelayed(audioRunnable,1000);
+                        audioHandler.postDelayed(audioRunnable, 1000);
                     }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
                         Toast.makeText(ChatDetailsActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
                     }
-                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
                 }).check();
     }
 
@@ -491,28 +446,28 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         database.getReference().child("Users").child(receiverId).child("VideoCall").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                        String onCall=snapshot.child("onCall").getValue(String.class);
-                        if ("false".equals(onCall)){
-                            Intent intent= new Intent(ChatDetailsActivity.this,ConnectingActivity.class);
-                            intent.putExtra("ProfilePic",profilePic);
-                            intent.putExtra("UserName",receiverName);
-                            intent.putExtra("UserId",receiverId);
-                            intent.putExtra("userEmail",email);
-                            intent.putExtra("type",type);
+                if (snapshot.exists()) {
+                    String onCall = snapshot.child("onCall").getValue(String.class);
+                    if ("false".equals(onCall)) {
+                        Intent intent = new Intent(ChatDetailsActivity.this, ConnectingActivity.class);
+                        intent.putExtra("ProfilePic", profilePic);
+                        intent.putExtra("UserName", receiverName);
+                        intent.putExtra("UserId", receiverId);
+                        intent.putExtra("userEmail", email);
+                        intent.putExtra("type", type);
 //                            intent.putExtra("Status",StatusFromDB);
 //                            String online= String.valueOf(lastOnline);
 //                            intent.putExtra("LastOnline",online);
-                            startActivity(intent);
-                            finish();
-                        }else {
-                            Toast.makeText(ChatDetailsActivity.this, "Users is on Another Call", Toast.LENGTH_SHORT).show();;
-                        }
-                }else {
-                    HashMap<String,Object> map= new HashMap<>();
-                    map.put("onCall","false");
-                    map.put("response","idle");
-                    map.put("key",auth.getUid()+receiverId);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(ChatDetailsActivity.this, "Users is on Another Call", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("onCall", "false");
+                    map.put("response", "idle");
+                    map.put("key", auth.getUid() + receiverId);
                     database.getReference().child("Users").child(receiverId).child("VideoCall").updateChildren(map);
                 }
             }
@@ -528,12 +483,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         dialog.setMessage("Uploading Audio...");
         dialog.show();
         Calendar calendar = Calendar.getInstance();
-        StorageReference filepath=storage.getReference().child("Audio").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
-        Uri uri=Uri.fromFile(new File(fileName));
+        StorageReference filepath = storage.getReference().child("Audio").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
+        Uri uri = Uri.fromFile(new File(fileName));
         filepath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     binding.linear.setVisibility(View.VISIBLE);
                     binding.audioLayout.setVisibility(View.GONE);
                     dialog.dismiss();
@@ -552,7 +507,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                             updateLastMessage("Recorded Audio");
 
                             if (notify) {
-                                sendNotification(receiverId, sendername,filePath,senderPP,email,senderId,"audio");
+                                sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "audio");
                             }
                             notify = false;
 
@@ -579,12 +534,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
     private void startCountDownTimer() {
         txtTimer.setVisibility(View.VISIBLE);
-        timer= new CountDownTimer(30000,1000) {
+        timer = new CountDownTimer(30000, 1000) {
             @Override
             public void onTick(long l) {
 //                binding.txtTimer.setText(l/1000 +" sec");
-                recordedTime=l/1000;
-                txtTimer.setText(l/1000 +" sec");
+                recordedTime = l / 1000;
+                txtTimer.setText(l / 1000 + " sec");
             }
 
             @Override
@@ -597,30 +552,30 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 stopRecording.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, red));
                 txtRecording.setText("Recorded :");
                 btnSend.setVisibility(View.VISIBLE);
-                recordedTime=30-recordedTime;
-                txtTimer.setText(recordedTime+ " sec");
+                recordedTime = 30 - recordedTime;
+                txtTimer.setText(recordedTime + " sec");
                 stopRecording();
-                recording=false;
+                recording = false;
             }
         };
-       timer.start();
+        timer.start();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode==PICK_IMAGE){
-            if (resultCode==Activity.RESULT_OK){
-                if (data!=null) {
+        if (requestCode == PICK_IMAGE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null) {
                     if (data.getData() != null) {
                         Uri selectedImage = data.getData();
-                        Bitmap bitmap=null;
+                        Bitmap bitmap = null;
                         try {
                             //convert uri to bitmap
                             //bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                             //convert uri to bitmap and handle rotation
-                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this,selectedImage);
+                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this, selectedImage);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -631,21 +586,21 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                         assert bitmap != null;
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         byte[] bytes = baos.toByteArray();
-                        int length =  bytes.length/1024;
-                        uploadToFirebase(bytes,PICK_IMAGE,length);
+                        int length = bytes.length / 1024;
+                        uploadToFirebase(bytes, PICK_IMAGE, length);
                     }
                 }
             }
         }
-        if (requestCode == REQUEST_IMAGE_CAPTURE){
-            if (resultCode==Activity.RESULT_OK){
-                if(data!=null) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null) {
                     if (data.getData() != null) {
                         Uri selectedImage = data.getData();
-                        Bitmap bitmap=null;
+                        Bitmap bitmap = null;
                         try {
-                           // bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this,selectedImage);
+                            // bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this, selectedImage);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -656,25 +611,25 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 //                        File dir = getCacheDir();
 //                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
 //                        Uri uri = Uri.parse(file);
-                        int length =  bytes.length/1024;
-                        uploadToFirebase(bytes,REQUEST_IMAGE_CAPTURE,length);
+                        int length = bytes.length / 1024;
+                        uploadToFirebase(bytes, REQUEST_IMAGE_CAPTURE, length);
                     }
                 }
             }
         }
     }
 
-    private void uploadToFirebase(byte[] uri, int requestCode,int length){
+    private void uploadToFirebase(byte[] uri, int requestCode, int length) {
         Calendar calendar = Calendar.getInstance();
         final StorageReference reference = storage.getReference().child("Chats Images").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
         dialog.show();
-        UploadTask uploadTask= reference.putBytes(uri);
+        UploadTask uploadTask = reference.putBytes(uri);
         uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-               // Uri fdelete = Uri.fromFile(new File(uri.toString()));
-               // File fdelete= new File(uri.toString());
+                // Uri fdelete = Uri.fromFile(new File(uri.toString()));
+                // File fdelete= new File(uri.toString());
                 //File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
 
 //                if (requestCode==PICK_IMAGE){
@@ -704,7 +659,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                             updateLastMessage("photo.jpg");
 
                             if (notify) {
-                                sendNotification(receiverId, sendername,filePath,senderPP,email,senderId,"photo");
+                                sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "photo");
                             }
                             notify = false;
 
@@ -736,11 +691,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
                 //only works if image size is greater than 256kb!
-                if (length>256){
+                if (length > 256) {
                     double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
-                    int currentProgress=(int) progress;
-                    dialog.setMessage("Uploading Image: " + currentProgress+ "%");
-                }else {
+                    int currentProgress = (int) progress;
+                    dialog.setMessage("Uploading Image: " + currentProgress + "%");
+                } else {
                     dialog.setMessage("Uploading Image...");
                 }
             }
@@ -773,13 +728,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onMoveToForeground() {
         // app moved to foreground
-        CheckConnection checkConnection= new CheckConnection();
-        if (checkConnection.isConnected(getApplicationContext())){
+        CheckConnection checkConnection = new CheckConnection();
+        if (checkConnection.isConnected(getApplicationContext())) {
             binding.txtChatConn.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             binding.txtChatConn.setVisibility(View.GONE);
         }
-        if (auth.getCurrentUser()!=null){
+        if (auth.getCurrentUser() != null) {
 //            database.goOnline();
             updateStatus("online");
         }
@@ -788,7 +743,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onMoveToBackground() {
         // app moved to background
-        if (auth.getCurrentUser()!=null){
+        if (auth.getCurrentUser() != null) {
             updateStatus("offline");
         }
     }
@@ -808,7 +763,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             updateLastMessage(message);
 
             if (notify) {
-                sendNotification(receiverId, sendername, message,senderPP,email,senderId,"text");
+                sendNotification(receiverId, sendername, message, senderPP, email, senderId, "text");
             }
             notify = false;
 
@@ -838,15 +793,15 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             binding.icSend.startAnimation(scale_down);
             binding.icSend.startAnimation(scale_up);
             int unicode = 0x2764;
-            String heart=new String(Character.toChars(unicode));
-            final Messages model1 = new Messages(senderId,heart, profilePic);
+            String heart = new String(Character.toChars(unicode));
+            final Messages model1 = new Messages(senderId, heart, profilePic);
             model1.setType("text");
             Date date = new Date();
             model1.setTimestamp(date.getTime());
             updateLastMessage(heart);
 
             if (notify) {
-                sendNotification(receiverId, sendername, heart,senderPP,email,senderId,"text");
+                sendNotification(receiverId, sendername, heart, senderPP, email, senderId, "text");
             }
             notify = false;
 
@@ -870,13 +825,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                         }
                     });
         }
-        seen="false";
-        updateSeen(seen,receiverId,senderId);
+        seen = "false";
+        updateSeen(seen, receiverId, senderId);
     }
 
-    private void updateLastMessage(String message){
-        HashMap<String,Object> map= new HashMap<>();
-        map.put("lastMessage",message);
+    private void updateLastMessage(String message) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("lastMessage", message);
         database.getReference().child("Users").child(senderId).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
@@ -885,8 +840,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         });
     }
 
-    private  void  updateSeen(String seen,String ID1,String ID2){
-        HashMap<String,Object> map= new HashMap<>();
+    private void updateSeen(String seen, String ID1, String ID2) {
+        HashMap<String, Object> map = new HashMap<>();
         map.put("seen", seen);
         database.getReference().child("Users").child(ID1).child("Friends").child(ID2).updateChildren(map);
     }
@@ -894,7 +849,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     private void getTypingStatus() {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         checkStatus = reference.orderByChild("userId").equalTo(receiverId);
-        eventListener1= new ValueEventListener() {
+        eventListener1 = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -908,7 +863,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
                     DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users");
                     checkStatus1 = reference1.orderByChild("userId").equalTo(senderId);
-                    eventListener2= new ValueEventListener() {
+                    eventListener2 = new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (snapshot.exists()) {
@@ -917,13 +872,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                                     if ("Typing...".equals(presence)) {
                                         binding.imgStatus.setColorFilter(Color.GREEN);
                                         binding.txtStatus.setText(presence);
-                                    }else{
+                                    } else {
                                         binding.imgStatus.setColorFilter(Color.GREEN);
                                         binding.txtStatus.setText(StatusFromDB);
                                     }
-                                }else {
+                                } else {
                                     binding.imgStatus.setColorFilter(Color.GRAY);
-                                    binding.txtStatus.setText("Last Online: "+ dateString);
+                                    binding.txtStatus.setText("Last Online: " + dateString);
                                 }
                             }
                         }
@@ -947,8 +902,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendNotification(String receiver, String userName, String msg,String image,String email,String senderId,String msgType) {
-        database.getReference().child("Users").child(receiver).child("Token").addListenerForSingleValueEvent(new ValueEventListener() {
+    private void sendNotification(String receiver, String userName, String msg, String image, String email, String senderId, String msgType) {
+        tokenRef = database.getReference().child("Users").child(receiver).child("Token");
+        tokenListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 userToken = snapshot.getValue(String.class);
@@ -958,13 +914,15 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+        tokenRef.addValueEventListener(tokenListener);
 
         handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg,image,receiver,email,senderId,msgType,"Chat",".ChatDetailsActivity",getApplicationContext(), ChatDetailsActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, msg, image, receiver, email, senderId, msgType,
+                        "Chat", ".ChatDetailsActivity", getApplicationContext(), ChatDetailsActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -988,11 +946,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         return null;
     }
 
-    void checkConn(){
-        CheckConnection checkConnection= new CheckConnection();
-        if (checkConnection.isConnected(getApplicationContext())){
+    void checkConn() {
+        CheckConnection checkConnection = new CheckConnection();
+        if (checkConnection.isConnected(getApplicationContext())) {
             binding.txtChatConn.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             binding.txtChatConn.setVisibility(View.GONE);
         }
     }
@@ -1002,14 +960,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         final DatabaseReference lastOnlineRef = database.getReference().child("Users").child(auth.getUid()).child("Connection").child("lastOnline");
         infoConnected = database.getReference(".info/connected");
 
-        eventListener=infoConnected.addValueEventListener(new ValueEventListener() {
+        eventListener = infoConnected.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 boolean connected = snapshot.getValue(Boolean.class);
                 if (connected) {
                     status.setValue("online");
                     lastOnlineRef.setValue(ServerValue.TIMESTAMP);
-                }else{
+                } else {
                     status.onDisconnect().setValue("offline");
                     lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
                 }
@@ -1025,10 +983,25 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
     @Override
     protected void onDestroy() {
-        checkStatus.removeEventListener(eventListener1);
-        checkStatus1.removeEventListener(eventListener2);
-        infoConnected.removeEventListener(eventListener);
-        chat.keepSynced(false);
+        if (checkStatus != null) {
+            checkStatus.removeEventListener(eventListener1);
+        }
+        if (checkStatus1 != null) {
+            checkStatus1.removeEventListener(eventListener2);
+        }
+        if (infoConnected != null) {
+            infoConnected.removeEventListener(eventListener);
+        }
+        if (chatRef != null) {
+            chatRef.keepSynced(false);
+            chatRef.removeEventListener(chatListener);
+        }
+        if (senderRef != null) {
+            senderRef.removeEventListener(senderListener);
+        }
+        if (tokenRef != null) {
+            tokenRef.removeEventListener(tokenListener);
+        }
         if (recorder != null) {
             recorder.release();
             recorder = null;
@@ -1038,32 +1011,59 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
     @Override
     protected void onStop() {
-        checkStatus.removeEventListener(eventListener1);
-        checkStatus1.removeEventListener(eventListener2);
-        chat.keepSynced(false);
+        if (checkStatus != null) {
+            checkStatus.removeEventListener(eventListener1);
+        }
+        if (checkStatus1 != null) {
+            checkStatus1.removeEventListener(eventListener2);
+        }
+        if (chatRef != null) {
+            chatRef.keepSynced(false);
+            chatRef.removeEventListener(chatListener);
+        }
+        if (senderRef != null) {
+            senderRef.removeEventListener(senderListener);
+        }
+        if (tokenRef != null) {
+            tokenRef.removeEventListener(tokenListener);
+        }
         super.onStop();
     }
 
     @Override
     protected void onRestart() {
         checkConn();
-        checkStatus.addValueEventListener(eventListener1);
-        checkStatus1.addValueEventListener(eventListener2);
-        chat.keepSynced(true);
+        if (checkStatus != null) {
+            checkStatus.addValueEventListener(eventListener1);
+        }
+        if (checkStatus1 != null) {
+            checkStatus1.addValueEventListener(eventListener2);
+        }
+        if (chatRef != null) {
+            chatRef.keepSynced(true);
+            chatRef.addValueEventListener(chatListener);
+        }
+        if (senderRef != null) {
+            senderRef.addValueEventListener(senderListener);
+        }
+        if (tokenRef != null) {
+            tokenRef.addValueEventListener(tokenListener);
+        }
         super.onRestart();
     }
 
     @Override
     public void onBackPressed() {
-        HashMap<String,Object> map= new HashMap<>();
-        map.put("Typing","Not Typing...");
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("Typing", "Not Typing...");
         database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
+        finish();
         super.onBackPressed();
     }
 
-    void updateStatus(String status){
-        HashMap<String,Object> obj= new HashMap<>();
-        obj.put("Status",status);
+    void updateStatus(String status) {
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("Status", status);
         database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("Connection").updateChildren(obj);
     }
 

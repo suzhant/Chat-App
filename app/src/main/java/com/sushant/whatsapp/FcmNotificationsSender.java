@@ -93,6 +93,7 @@ public class FcmNotificationsSender  {
             dataObject.put("GId",Gid);
             dataObject.put("title",title);
             dataObject.put("UserId",senderId);
+            dataObject.put("receiverId",receiverId);
             dataObject.put("message",body);
             dataObject.put("ProfilePic",avatar);
             dataObject.put("userEmail",email);

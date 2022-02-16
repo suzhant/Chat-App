@@ -6,4 +6,6 @@
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
     <string name="channel_name">Notification</string>
     <string name="channel_description">Nothing</string>
+    <string name="accept_call">Accept call</string>
+    <string name="decline_call">Decline call</string>
 </resources>

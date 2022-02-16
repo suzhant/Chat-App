@@ -1,10 +1,12 @@
 package com.sushant.whatsapp;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.sushant.whatsapp.databinding.ActivityOutGoingCallBinding;
@@ -13,6 +15,7 @@ import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 
 import java.net.URL;
+import java.util.HashMap;
 
 public class OutGoingCall extends AppCompatActivity {
 
@@ -39,6 +42,7 @@ public class OutGoingCall extends AppCompatActivity {
 //        Glide.with(this).load(receiverPP).placeholder(R.drawable.placeholder).into(binding.imgSender);
 
         joinMeeting(key);
+        sendResponse();
     }
 
     private void joinMeeting(String key) {
@@ -59,4 +63,27 @@ public class OutGoingCall extends AppCompatActivity {
 
         }
     }
+    private void sendResponse() {
+            HashMap<String,Object> map= new HashMap<>();
+            map.put("onCall","true");
+            map.put("response","accept");
+            map.put("key",key);
+            database.getReference().child("Users").child(auth.getUid()).child("VideoCall").updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    database.getReference().child("Users").child(receiverId).child("VideoCall").updateChildren(map);
+                }
+            });
+
+            Handler handler= new Handler();
+            Runnable runnable= new Runnable() {
+                @Override
+                public void run() {
+                    database.getReference().child("Users").child(auth.getUid()).child("VideoCall").removeValue();
+                    database.getReference().child("Users").child(receiverId).child("VideoCall").removeValue();
+                }
+            };
+            handler.postDelayed(runnable,2000);
+    }
+
 }

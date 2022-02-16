@@ -1,12 +1,7 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.core.content.ContextCompat;
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
+import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -14,22 +9,29 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -49,9 +51,6 @@ import com.sushant.whatsapp.databinding.ActivitySignInBinding;
 
 import java.util.concurrent.Executor;
 
-import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
-import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-
 public class SignInActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 10010;
@@ -66,6 +65,7 @@ public class SignInActivity extends AppCompatActivity {
     BroadcastReceiver broadcastReceiver;
     int numberOfTries;
     boolean mTimerRunning;
+    ActivityResultLauncher<Intent> someActivityResultLauncher;
 
     SharedPreferences sharedPreferences;
     boolean flag;
@@ -112,10 +112,18 @@ public class SignInActivity extends AppCompatActivity {
                 break;
             case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
                 // Prompts the user to create credentials that your app accepts.
-                final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+                Toast.makeText(this, "Your device doesn't have fingerprint saved", Toast.LENGTH_SHORT).show();
+                final Intent enrollIntent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
                 enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
                         BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
-                startActivityForResult(enrollIntent, REQUEST_CODE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    startActivity(new Intent(enrollIntent));
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    startActivity(new Intent(Settings.ACTION_FINGERPRINT_ENROLL));
+                } else {
+                    startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+                }
+                // startActivityForResult(enrollIntent, REQUEST_CODE);
                 break;
         }
         executor = ContextCompat.getMainExecutor(SignInActivity.this);
@@ -139,9 +147,9 @@ public class SignInActivity extends AppCompatActivity {
                 if (!isLogin) {
                     String email = sharedPreferences.getString("email", "");
                     String pass = sharedPreferences.getString("password", "");
-                    if(!email.isEmpty() || !pass.isEmpty()){
+                    if (!email.isEmpty() || !pass.isEmpty()) {
                         performAuth(email, pass);
-                    }else {
+                    } else {
                         Toast.makeText(getApplicationContext(), "This is the first time you're using Biometric!! Please sign in manually", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -205,10 +213,10 @@ public class SignInActivity extends AppCompatActivity {
                 } else if (!emailValidation() | !passValidation()) {
                     return;
                 }
-                if (numberOfTries<5){
+                if (numberOfTries < 5) {
                     performAuth(email, pass);
-                }else {
-                    if (!mTimerRunning){
+                } else {
+                    if (!mTimerRunning) {
                         startCountDownTimer();
                     }
                 }
@@ -233,31 +241,29 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
+        someActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    try {
+                        // Google Sign In was successful, authenticate with Firebase
+                        GoogleSignInAccount account = task.getResult(ApiException.class);
+                        Log.d("TAG", "firebaseAuthWithGoogle:" + account.getId());
+                        firebaseAuthWithGoogle(account.getIdToken());
+
+                    } catch (ApiException e) {
+                        // Google Sign In failed, update UI appropriately
+                        Log.w("TAG", "Google sign in failed", e);
+                    }
+                }
+            }
+        });
+
         //automatically sign in user
         if (auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified()) {
             Intent intent = new Intent(SignInActivity.this, MainActivity.class);
             startActivity(intent);
-        }
-    }
-
-    //check connection
-    private void registerBroadcastReceiver() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        }
-
-    }
-
-    private void unregisterNetwork() {
-        try {
-            unregisterReceiver(broadcastReceiver);
-
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
         }
     }
 
@@ -272,27 +278,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void signIn() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                Log.d("TAG", "firebaseAuthWithGoogle:" + account.getId());
-                firebaseAuthWithGoogle(account.getIdToken());
-
-            } catch (ApiException e) {
-                // Google Sign In failed, update UI appropriately
-                Log.w("TAG", "Google sign in failed", e);
-            }
-        }
+        someActivityResultLauncher.launch(signInIntent);
     }
 
 
@@ -341,51 +327,51 @@ public class SignInActivity extends AppCompatActivity {
     //Firebase Email Authentication
     public void performAuth(String email, String password) {
         dialog.show();
-            auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            dialog.dismiss();
-                            if (task.isSuccessful()) {
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        dialog.dismiss();
+                        if (task.isSuccessful()) {
 //                            database.goOnline();
-                                flag = false;
-                                binding.etEmail.setText("");
-                                binding.etPass.setText("");
-                                SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-                                editor.putString("email", email);
-                                editor.putString("password", password);
-                                editor.putBoolean("isLogin", true);
-                                editor.putBoolean("isGoogle", flag);
-                                editor.apply();
+                            flag = false;
+                            binding.etEmail.setText("");
+                            binding.etPass.setText("");
+                            SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                            editor.putString("email", email);
+                            editor.putString("password", password);
+                            editor.putBoolean("isLogin", true);
+                            editor.putBoolean("isGoogle", flag);
+                            editor.apply();
 
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
-                                Toast.makeText(SignInActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(SignInActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                numberOfTries++;
-                            }
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
+                            Toast.makeText(SignInActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SignInActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            numberOfTries++;
                         }
-                    });
+                    }
+                });
 
     }
 
     private void startCountDownTimer() {
         binding.txtTimerMessage.setVisibility(View.VISIBLE);
-       new CountDownTimer(30000,1000) {
+        new CountDownTimer(30000, 1000) {
             @Override
             public void onTick(long l) {
-                binding.txtTimerMessage.setText("Retry after: "+ l/1000 +" sec");
+                binding.txtTimerMessage.setText("Retry after: " + l / 1000 + " sec");
             }
 
             @Override
             public void onFinish() {
                 binding.txtTimerMessage.setVisibility(View.GONE);
-                numberOfTries=0;
-                mTimerRunning=false;
+                numberOfTries = 0;
+                mTimerRunning = false;
             }
         }.start();
-        mTimerRunning=true;
+        mTimerRunning = true;
     }
 
     public boolean emailValidation() {
