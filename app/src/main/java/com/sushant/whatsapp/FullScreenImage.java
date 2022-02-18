@@ -94,8 +94,8 @@ public class FullScreenImage extends AppCompatActivity {
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.black_95));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.black_95));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.black_95));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.black_95));
 
         storage = FirebaseStorage.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -183,13 +183,13 @@ public class FullScreenImage extends AppCompatActivity {
         binding.imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent= new Intent(FullScreenImage.this,ChatDetailsActivity.class);
+                Intent intent = new Intent(FullScreenImage.this, ChatDetailsActivity.class);
                 intent.putExtra("UserId", receiverId);
                 intent.putExtra("ProfilePic", profilePic);
-                intent.putExtra("UserName",receiverName);
-                intent.putExtra("userEmail",email);
-                intent.putExtra("pos",pos);
-                intent.putExtra("state","fromFull");
+                intent.putExtra("UserName", receiverName);
+                intent.putExtra("userEmail", email);
+                intent.putExtra("pos", pos);
+                intent.putExtra("state", "fromFull");
                 startActivity(intent);
             }
         });
@@ -262,11 +262,11 @@ public class FullScreenImage extends AppCompatActivity {
         FirebaseDatabase.getInstance().getReference().child("Users").child(receiverId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Users users= snapshot.getValue(Users.class);
+                Users users = snapshot.getValue(Users.class);
                 assert users != null;
-                receiverName=users.getUserName();
-                profilePic=users.getProfilePic();
-                email=users.getMail();
+                receiverName = users.getUserName();
+                profilePic = users.getProfilePic();
+                email = users.getMail();
             }
 
             @Override

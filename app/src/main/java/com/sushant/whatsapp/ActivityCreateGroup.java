@@ -30,7 +30,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ActivityCreateGroup extends AppCompatActivity{
+public class ActivityCreateGroup extends AppCompatActivity {
 
     ActivityCreateGroupBinding binding;
     ArrayList<Users> list = new ArrayList<>();
@@ -39,35 +39,35 @@ public class ActivityCreateGroup extends AppCompatActivity{
     ParticipantAdapter adapter;
     DatabaseReference ref;
     ValueEventListener valueEventListener1;
-    ArrayList<Users> participant= new ArrayList<>();
-    int size=0;
+    ArrayList<Users> participant = new ArrayList<>();
+    int size = 0;
     isClicked clicked;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityCreateGroupBinding.inflate(getLayoutInflater());
+        binding = ActivityCreateGroupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
         database = FirebaseDatabase.getInstance();
 
-        clicked= new isClicked() {
+        clicked = new isClicked() {
             @Override
             public void isClicked(Boolean b, int position) {
-                Users users=list.get(position);
-                if (b){
+                Users users = list.get(position);
+                if (b) {
                     participant.add(users);
                     size++;
-                }else {
+                } else {
                     participant.remove(users);
                     size--;
                 }
             }
         };
 
-        adapter = new ParticipantAdapter(list, this,clicked);
+        adapter = new ParticipantAdapter(list, this, clicked);
         binding.participantRecycler.setItemAnimator(new DefaultItemAnimator());
         binding.participantRecycler.setAdapter(adapter);
         binding.participantRecycler.addItemDecoration(new DividerItemDecoration(binding.participantRecycler.getContext(), DividerItemDecoration.VERTICAL));
@@ -75,7 +75,6 @@ public class ActivityCreateGroup extends AppCompatActivity{
         binding.participantRecycler.setLayoutManager(layoutManager);
         database = FirebaseDatabase.getInstance();
         getAllUsers();
-
 
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
@@ -89,59 +88,59 @@ public class ActivityCreateGroup extends AppCompatActivity{
         binding.forwardArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (size>1){
-                    Intent intent= new Intent(ActivityCreateGroup.this,FinalCreateGroup.class);
-                    intent.putExtra("participantList",(Serializable) participant);
+                if (size > 1) {
+                    Intent intent = new Intent(ActivityCreateGroup.this, FinalCreateGroup.class);
+                    intent.putExtra("participantList", participant);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
-                }else {
+                } else {
                     Toast.makeText(getApplicationContext(), "Please select more than one participant", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
 
-      binding.editMessage.addTextChangedListener(new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        binding.editMessage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-          }
+            }
 
-          @Override
-          public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        searchUser(binding.editMessage.getText().toString());
-          }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                searchUser(binding.editMessage.getText().toString());
+            }
 
-          @Override
-          public void afterTextChanged(Editable editable) {
+            @Override
+            public void afterTextChanged(Editable editable) {
 
-          }
-      });
+            }
+        });
 
     }
 
     private void getAllUsers() {
-        valueEventListener1= new ValueEventListener() {
+        valueEventListener1 = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
+                if (snapshot.exists()) {
                     list.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Users users = dataSnapshot.getValue(Users.class);
                         assert users != null;
                         users.setUserId(dataSnapshot.getKey());
                         if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                            if (users.getRequest()!=null && users.getRequest().equals("Accepted")){
+                            if (users.getRequest() != null && users.getRequest().equals("Accepted")) {
                                 list.add(users);
                             }
                         }
                     }
                     adapter.notifyDataSetChanged();
                 }
-                if (list.isEmpty()){
+                if (list.isEmpty()) {
                     binding.txtNoFriend.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     binding.txtNoFriend.setVisibility(View.GONE);
                 }
             }
@@ -151,12 +150,12 @@ public class ActivityCreateGroup extends AppCompatActivity{
 
             }
         };
-        ref =FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
+        ref = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         ref.addValueEventListener(valueEventListener1);
     }
 
     private void searchUser(String query) {
-        FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -166,8 +165,8 @@ public class ActivityCreateGroup extends AppCompatActivity{
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
                     assert user != null;
-                    if (!users.getUserId().equals(user.getUid()) && users.getUserId() != null){
-                        if (users.getRequest()!=null && users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
+                    if (!users.getUserId().equals(user.getUid()) && users.getUserId() != null) {
+                        if (users.getRequest() != null && users.getUserName().contains(query.toLowerCase()) || users.getMail().contains(query.toLowerCase())) {
                             list.add(users);
                         }
                     }

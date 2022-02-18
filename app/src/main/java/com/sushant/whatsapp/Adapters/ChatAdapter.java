@@ -30,7 +30,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.klinker.android.link_builder.Link;
 import com.klinker.android.link_builder.LinkBuilder;
-import com.sushant.whatsapp.ChatDetailsActivity;
 import com.sushant.whatsapp.ConnectingActivity;
 import com.sushant.whatsapp.FullScreenImage;
 import com.sushant.whatsapp.Models.Messages;
@@ -53,16 +52,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
     String recId;
     int SENDER_VIEW_TYPE = 1;
     int RECEIVER_VIEW_TYPE = 2;
-    private MediaPlayer player = null;
-    boolean isPlaying=false;
-    String receiverName,profilePic,email,Status;
+    private final MediaPlayer player = null;
+    boolean isPlaying = false;
+    String receiverName, profilePic, email, Status;
 
     public ChatAdapter(ArrayList<Messages> messageModel, Context context) {
         this.messageModel = messageModel;
         this.context = context;
     }
 
-    public ChatAdapter(ArrayList<Messages> messageModel, Context context, String recId ) {
+    public ChatAdapter(ArrayList<Messages> messageModel, Context context, String recId) {
         this.messageModel = messageModel;
         this.context = context;
         this.recId = recId;
@@ -86,18 +85,18 @@ public class ChatAdapter extends RecyclerView.Adapter {
         Messages message = messageModel.get(position);
         holder.setIsRecyclable(false);
         if (holder.getClass() == SenderViewHolder.class) {
-            if ("photo".equals(message.getType())){ //yoda condition solves unsafe null behaviour
-                if (message.getImageUrl()!=null){
+            if ("photo".equals(message.getType())) { //yoda condition solves unsafe null behaviour
+                if (message.getImageUrl() != null) {
                     ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
                     ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                    ((SenderViewHolder) holder).imgSender.layout(0,0,0,0);
+                    ((SenderViewHolder) holder).imgSender.layout(0, 0, 0, 0);
                     Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
                             diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
                 }
-            }else if ("text".equals(message.getType())){
+            } else if ("text".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
-                if (message.getMessage().contains("https://")){
+                if (message.getMessage().contains("https://")) {
                     ((SenderViewHolder) holder).txtSender.setSingleLine();
                     Link link = new Link(message.getMessage())
                             .setTextColor(Color.parseColor("#FFFFFF"))                  // optional, defaults to holo blue
@@ -121,16 +120,15 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             });
 
 
-            // create the link builder object add the link rule
-                    LinkBuilder.on( ((SenderViewHolder) holder).txtSender)
+                    // create the link builder object add the link rule
+                    LinkBuilder.on(((SenderViewHolder) holder).txtSender)
                             .addLink(link)
                             .build(); // create the clicka
                 }
-            }
-            else if ("videoCall".equals(message.getType())){
+            } else if ("videoCall".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                 ((SenderViewHolder) holder).layoutVideoCall.setVisibility(View.VISIBLE);
-                ((SenderViewHolder) holder).txtVideoCall.setText("The video chat ended");
+                ((SenderViewHolder) holder).txtVideoCall.setText("The video chat ended.");
 
                 ((SenderViewHolder) holder).btnCall.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -138,36 +136,34 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         checkResponse();
                     }
                 });
-            }
-            else {
-                if (message.getAudioFile()!=null){
+            } else {
+                if (message.getAudioFile() != null) {
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                     ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
                     ((SenderViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             ((SenderViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
-                            ((SenderViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple,R.color.colorPurple);
+                            ((SenderViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
                         }
                     });
                 }
             }
-            SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
-        }
-        else {
-            if ("photo".equals(message.getType())){
-                if (message.getImageUrl()!=null){
+        } else {
+            if ("photo".equals(message.getType())) {
+                if (message.getImageUrl() != null) {
                     ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
                     ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                    ((ReceiverViewHolder) holder).imgReceiver.layout(0,0,0,0);
+                    ((ReceiverViewHolder) holder).imgReceiver.layout(0, 0, 0, 0);
                     Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
                             .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
                 }
-            }else if ("text".equals(message.getType())){
+            } else if ("text".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
-                if (message.getMessage().contains("https://")){
+                if (message.getMessage().contains("https://")) {
                     ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
                     Link link = new Link(message.getMessage())
                             .setTextColor(Color.parseColor("#259B24"))                  // optional, defaults to holo blue
@@ -193,12 +189,11 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
 
                     // create the link builder object add the link rule
-                    LinkBuilder.on( ((ReceiverViewHolder) holder).txtReceiver)
+                    LinkBuilder.on(((ReceiverViewHolder) holder).txtReceiver)
                             .addLink(link)
                             .build(); // create the clicka
                 }
-            }
-            else if ("videoCall".equals(message.getType())){
+            } else if ("videoCall".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                 ((ReceiverViewHolder) holder).layoutVideoCall.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtVideoCall.setText("You missed a call.");
@@ -209,21 +204,20 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         checkResponse();
                     }
                 });
-            }
-            else {
-                if (message.getAudioFile()!=null){
-                        ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                        ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
+            } else {
+                if (message.getAudioFile() != null) {
+                    ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                    ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
                     ((ReceiverViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             ((ReceiverViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
-                            ((ReceiverViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple,R.color.colorPurple);
+                            ((ReceiverViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
                         }
                     });
                 }
             }
-            SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
             ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
             Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(((ReceiverViewHolder) holder).profilepic);
@@ -231,12 +225,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
             FirebaseDatabase.getInstance().getReference().child("Users").child(recId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Users users= snapshot.getValue(Users.class);
-                        assert users != null;
-                        receiverName=users.getUserName();
-                        profilePic=users.getProfilePic();
-                        email=users.getMail();
-                        Status=users.getStatus();
+                    Users users = snapshot.getValue(Users.class);
+                    assert users != null;
+                    receiverName = users.getUserName();
+                    profilePic = users.getProfilePic();
+                    email = users.getMail();
+                    Status = users.getStatus();
                 }
 
                 @Override
@@ -253,7 +247,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     intent.putExtra("UserNamePA", receiverName);
                     intent.putExtra("ProfilePicPA", profilePic);
                     intent.putExtra("EmailPA", email);
-                    intent.putExtra("StatusPA",Status);
+                    intent.putExtra("StatusPA", Status);
                     context.startActivity(intent);
                 }
             });
@@ -267,8 +261,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                FirebaseDatabase database= FirebaseDatabase.getInstance();
-                                String senderRoom= FirebaseAuth.getInstance().getUid() + recId;
+                                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
                                 database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).setValue(null);
                             }
                         }).setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -284,10 +278,10 @@ public class ChatAdapter extends RecyclerView.Adapter {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if ("photo".equals(message.getType())){
-                    Intent fullScreenImage=new Intent(context, FullScreenImage.class);
+                if ("photo".equals(message.getType())) {
+                    Intent fullScreenImage = new Intent(context, FullScreenImage.class);
                     fullScreenImage.putExtra("UserId", recId);
-                    fullScreenImage.putExtra("messageImage",message.getImageUrl());
+                    fullScreenImage.putExtra("messageImage", message.getImageUrl());
                     fullScreenImage.putExtra("ProfilePic", profilePic);
                     fullScreenImage.putExtra("userEmail", email);
                     fullScreenImage.putExtra("UserName", receiverName);
@@ -314,7 +308,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
     public static class ReceiverViewHolder extends RecyclerView.ViewHolder {
         private final TextView txtReceiver;
-        private final TextView txtReceiverTime,txtVideoCall;
+        private final TextView txtReceiverTime, txtVideoCall;
         private final CircleImageView profilepic;
         private final ImageView imgReceiver;
         private final VoicePlayerView voicePlayerView;
@@ -325,18 +319,18 @@ public class ChatAdapter extends RecyclerView.Adapter {
             super(itemView);
             txtReceiver = itemView.findViewById(R.id.txtGroupReceiver);
             txtReceiverTime = itemView.findViewById(R.id.txtGroupReceiverTime);
-            profilepic=itemView.findViewById(R.id.group_profile_image);
-            imgReceiver=itemView.findViewById(R.id.imgReceiver);
-            voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
-            txtVideoCall=itemView.findViewById(R.id.txtReceiverVideoCall);
-            layoutVideoCall=itemView.findViewById(R.id.receiverLayoutVideoCall);
-            btnCall=itemView.findViewById(R.id.btnReceiverCall);
+            profilepic = itemView.findViewById(R.id.group_profile_image);
+            imgReceiver = itemView.findViewById(R.id.imgReceiver);
+            voicePlayerView = itemView.findViewById(R.id.voicePlayerView);
+            txtVideoCall = itemView.findViewById(R.id.txtReceiverVideoCall);
+            layoutVideoCall = itemView.findViewById(R.id.receiverLayoutVideoCall);
+            btnCall = itemView.findViewById(R.id.btnReceiverCall);
         }
     }
 
-    public static class SenderViewHolder extends RecyclerView.ViewHolder{
+    public static class SenderViewHolder extends RecyclerView.ViewHolder {
         private final TextView txtSender;
-        private final TextView txtSenderTime,txtVideoCall;
+        private final TextView txtSenderTime, txtVideoCall;
         private final ImageView imgSender;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
@@ -346,15 +340,15 @@ public class ChatAdapter extends RecyclerView.Adapter {
             super(itemView);
             txtSender = itemView.findViewById(R.id.txtSender);
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
-            imgSender=itemView.findViewById(R.id.imgSender);
-            voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
-            layoutVideoCall=itemView.findViewById(R.id.layoutVideoCall);
-            txtVideoCall=itemView.findViewById(R.id.txtVideoCall);
-            btnCall=itemView.findViewById(R.id.btnCall);
+            imgSender = itemView.findViewById(R.id.imgSender);
+            voicePlayerView = itemView.findViewById(R.id.voicePlayerView);
+            layoutVideoCall = itemView.findViewById(R.id.layoutVideoCall);
+            txtVideoCall = itemView.findViewById(R.id.txtVideoCall);
+            btnCall = itemView.findViewById(R.id.btnCall);
         }
     }
 
-    private void checkResponse(){
+    private void checkResponse() {
         FirebaseDatabase.getInstance().getReference().child("Users").child(recId).child("VideoCall").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

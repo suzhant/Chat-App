@@ -24,18 +24,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.viewHolder>{
+public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.viewHolder> {
 
     ArrayList<Users> list;
     Context context;
@@ -56,7 +54,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     @Override
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
         Users users = list.get(position);
-        database=FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance();
         Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.image);
         holder.userName.setText(users.getUserName());
@@ -76,7 +74,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                             intent.putExtra("ProfilePicPA", users.getProfilePic());
                             intent.putExtra("UserNamePA", users.getUserName());
                             intent.putExtra("StatusPA", StatusFromDB);
-                            intent.putExtra("EmailPA",users.getMail());
+                            intent.putExtra("EmailPA", users.getMail());
                             context.startActivity(intent);
                         }
                     }
@@ -88,17 +86,17 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                 });
             }
         });
-        FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
-        assert user!=null;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
         holder.btnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                HashMap<String,Object> obj1= new HashMap<>();
-                obj1.put("request","Accepted");
+                HashMap<String, Object> obj1 = new HashMap<>();
+                obj1.put("request", "Accepted");
 
-                HashMap<String,Object> obj2= new HashMap<>();
-                obj2.put("request","Accepted");
-                    
+                HashMap<String, Object> obj2 = new HashMap<>();
+                obj2.put("request", "Accepted");
+
                 database.getReference().child("Users").child(user.getUid()).child("Friends").child(users.getUserId()).updateChildren(obj1).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
@@ -136,8 +134,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
         public CircleImageView image;
         public ImageView blackCircle;
-        public TextView userName,txtResponse,txtAbout;
-        public Button btnAccept,btnReject;
+        public TextView userName, txtResponse, txtAbout;
+        public Button btnAccept, btnReject;
 
 
         public viewHolder(@NonNull View itemView) {
@@ -145,10 +143,10 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             image = itemView.findViewById(R.id.profile_image);
             userName = itemView.findViewById(R.id.userName);
             blackCircle = itemView.findViewById(R.id.black_circle);
-            btnAccept=itemView.findViewById(R.id.btnAcceptReq);
-            btnReject=itemView.findViewById(R.id.btnRejectReq);
-            txtResponse=itemView.findViewById(R.id.txtResponse);
-            txtAbout=itemView.findViewById(R.id.txtAbout);
+            btnAccept = itemView.findViewById(R.id.btnAcceptReq);
+            btnReject = itemView.findViewById(R.id.btnRejectReq);
+            txtResponse = itemView.findViewById(R.id.txtResponse);
+            txtAbout = itemView.findViewById(R.id.txtAbout);
         }
     }
 }

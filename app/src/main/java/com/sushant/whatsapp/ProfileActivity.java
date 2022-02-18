@@ -31,8 +31,8 @@ import java.util.Objects;
 public class ProfileActivity extends AppCompatActivity {
     ActivityProfileBinding binding;
     FirebaseDatabase database;
-    boolean friend=false;
-    String sendername,pp,userStatus;
+    boolean friend = false;
+    String sendername, pp, userStatus;
     boolean notify = false;
     String userToken;
     Handler handler;
@@ -43,26 +43,26 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityProfileBinding.inflate(getLayoutInflater());
+        binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPurple));
 
-        database=FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance();
 
         String userName = getIntent().getStringExtra("UserNamePA");
         String profilePic = getIntent().getStringExtra("ProfilePicPA");
-        String email=getIntent().getStringExtra("EmailPA");
-        String Receiverid=getIntent().getStringExtra("UserIdPA");
-        String status=getIntent().getStringExtra("StatusPA");
+        String email = getIntent().getStringExtra("EmailPA");
+        String Receiverid = getIntent().getStringExtra("UserIdPA");
+        String status = getIntent().getStringExtra("StatusPA");
 
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.imgProfile);
         binding.txtEmail.setText(email);
         binding.txtUserName.setText(userName);
         binding.txtAbout.setText(status);
 
-        FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         assert user != null;
         database.getReference().child("Users").child(Objects.requireNonNull(user.getUid()))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -70,9 +70,9 @@ public class ProfileActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         Users users = snapshot.getValue(Users.class);
                         assert users != null;
-                       sendername=users.getUserName();
-                       pp=users.getProfilePic();
-                       userStatus=users.getStatus();
+                        sendername = users.getUserName();
+                        pp = users.getProfilePic();
+                        userStatus = users.getStatus();
                     }
 
                     @Override
@@ -82,33 +82,33 @@ public class ProfileActivity extends AppCompatActivity {
                 });
 
         reference = database.getReference("Users").child(user.getUid()).child("Friends");
-        eventListener=new ValueEventListener() {
+        eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    for (DataSnapshot snapshot1:snapshot.getChildren()){
-                        Users users=snapshot1.getValue(Users.class);
+                if (snapshot.exists()) {
+                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                        Users users = snapshot1.getValue(Users.class);
                         assert users != null;
-                        if (Receiverid.equals(users.getUserId())){
-                        if (users.getRequest().equals("Accepted")){
-                            binding.btnAddFriend.setText("Unfriend");
-                            binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
-                            friend=true;
-                        }
-                            if (users.getRequest().equals("Req_Sent")){
-                            binding.btnAddFriend.setText("Cancel Friend Request");
-                            binding.btnAddFriend.setBackgroundColor(Color.RED);
-                            friend=true;
-                        }
+                        if (Receiverid.equals(users.getUserId())) {
+                            if (users.getRequest().equals("Accepted")) {
+                                binding.btnAddFriend.setText("Unfriend");
+                                binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
+                                friend = true;
+                            }
+                            if (users.getRequest().equals("Req_Sent")) {
+                                binding.btnAddFriend.setText("Cancel Friend Request");
+                                binding.btnAddFriend.setBackgroundColor(Color.RED);
+                                friend = true;
+                            }
 
-                        if (users.getRequest().equals("Req_Pending")){
-                            binding.btnAddFriend.setVisibility(View.GONE);
-                            binding.btnAccept.setVisibility(View.VISIBLE);
-                            binding.btnReject.setVisibility(View.VISIBLE);
-                        }
+                            if (users.getRequest().equals("Req_Pending")) {
+                                binding.btnAddFriend.setVisibility(View.GONE);
+                                binding.btnAccept.setVisibility(View.VISIBLE);
+                                binding.btnReject.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
-                    if (!snapshot.child(Receiverid).exists()){
+                    if (!snapshot.child(Receiverid).exists()) {
                         binding.btnAddFriend.setVisibility(View.VISIBLE);
                         binding.btnAddFriend.setText("Add friend");
                         binding.btnAddFriend.setBackgroundColor(0x09af00);
@@ -117,6 +117,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -143,18 +144,18 @@ public class ProfileActivity extends AppCompatActivity {
                 binding.btnAccept.setVisibility(View.GONE);
                 binding.btnReject.setVisibility(View.GONE);
                 binding.btnAddFriend.setVisibility(View.VISIBLE);
-                friend=false;
+                friend = false;
             }
         });
 
         binding.btnAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                HashMap<String,Object> obj1= new HashMap<>();
-                obj1.put("request","Accepted");
+                HashMap<String, Object> obj1 = new HashMap<>();
+                obj1.put("request", "Accepted");
 
-                HashMap<String,Object> obj2= new HashMap<>();
-                obj2.put("request","Accepted");
+                HashMap<String, Object> obj2 = new HashMap<>();
+                obj2.put("request", "Accepted");
 
                 database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).updateChildren(obj1).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -165,7 +166,7 @@ public class ProfileActivity extends AppCompatActivity {
                 binding.btnAccept.setVisibility(View.GONE);
                 binding.btnReject.setVisibility(View.GONE);
                 binding.btnAddFriend.setVisibility(View.VISIBLE);
-                friend=true;
+                friend = true;
             }
         });
 
@@ -173,14 +174,14 @@ public class ProfileActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onClick(View view) {
-                if (friend){
+                if (friend) {
                     database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue();
                     database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
                     binding.btnAddFriend.setText("Add friend");
                     binding.btnAddFriend.setBackgroundColor(0x09af00);
-                    friend=false;
-                }else{
-                    notify=true;
+                    friend = false;
+                } else {
+                    notify = true;
                     Users user1 = new Users();
                     user1.setMail(email);
                     user1.setUserName(userName);
@@ -213,7 +214,7 @@ public class ProfileActivity extends AppCompatActivity {
                             database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(@NonNull Void unused) {
-                                    Toast.makeText(getApplicationContext(), "Friend request sent to "+userName, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Friend request sent to " + userName, Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -221,7 +222,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                     binding.btnAddFriend.setText("Unfriend");
                     binding.btnAddFriend.setBackgroundColor(Color.RED);
-                    friend=true;
+                    friend = true;
                 }
 
             }
@@ -248,7 +249,7 @@ public class ProfileActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, "sent you a Friend Request",image, "text","FriendRequest","true",".FriendRequestActivity",getApplicationContext(), ProfileActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, "sent you a Friend Request", image, "text", "FriendRequest", "true", ".FriendRequestActivity", getApplicationContext(), ProfileActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };
@@ -260,7 +261,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (reference!=null){
+        if (reference != null) {
             Log.d("REF1", "onDestroy: called");
             reference.removeEventListener(eventListener);
         }

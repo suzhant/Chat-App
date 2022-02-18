@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,11 +34,11 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
     isClicked clicked;
     String Gid;
 
-    public AddMemberAdapter(ArrayList<Users> list, Context context,isClicked clicked,String Gid) {
+    public AddMemberAdapter(ArrayList<Users> list, Context context, isClicked clicked, String Gid) {
         this.list = list;
         this.context = context;
-        this.clicked=clicked;
-        this.Gid=Gid;
+        this.clicked = clicked;
+        this.Gid = Gid;
     }
 
     @NonNull
@@ -57,7 +56,6 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
         holder.userName.setText(users.getUserName());
 
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,19 +63,19 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
                         .child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot snapshot1:snapshot.getChildren()){
-                            Users participant=snapshot1.getValue(Users.class);
+                        for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                            Users participant = snapshot1.getValue(Users.class);
                             assert participant != null;
-                            if (participant.getUserId().equals(users.getUserId())){
+                            if (participant.getUserId().equals(users.getUserId())) {
                                 return;
                             }
                         }
-                        if (holder.checkbox.getVisibility()==View.VISIBLE){
+                        if (holder.checkbox.getVisibility() == View.VISIBLE) {
                             holder.checkbox.setVisibility(View.INVISIBLE);
-                            clicked.isClicked(false,position);
-                        }else {
+                            clicked.isClicked(false, position);
+                        } else {
                             holder.checkbox.setVisibility(View.VISIBLE);
-                            clicked.isClicked(true,position);
+                            clicked.isClicked(true, position);
                         }
                     }
 
@@ -94,11 +92,11 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
             @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snapshot1:snapshot.getChildren()){
-                    Users users1= snapshot1.getValue(Users.class);
+                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                    Users users1 = snapshot1.getValue(Users.class);
                     assert users1 != null;
-                        if (users1.getUserId().equals(users.getUserId())){
-                            holder.memberIndicator.setText("Member");
+                    if (users1.getUserId().equals(users.getUserId())) {
+                        holder.memberIndicator.setText("Member");
                     }
                 }
             }
@@ -125,7 +123,7 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
     public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
-        public ImageView blackCircle,checkbox;
+        public ImageView blackCircle, checkbox;
         public TextView userName, lastMessage, memberIndicator;
 
 
@@ -134,9 +132,9 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.view
             image = itemView.findViewById(R.id.profile_image);
             userName = itemView.findViewById(R.id.userName);
             lastMessage = itemView.findViewById(R.id.lastMessage);
-            blackCircle=itemView.findViewById(R.id.black_circle);
-            checkbox=itemView.findViewById(R.id.checkbox);
-            memberIndicator=itemView.findViewById(R.id.txtMemberIndicator);
+            blackCircle = itemView.findViewById(R.id.black_circle);
+            checkbox = itemView.findViewById(R.id.checkbox);
+            memberIndicator = itemView.findViewById(R.id.txtMemberIndicator);
 
         }
     }

@@ -19,8 +19,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
-import com.sushant.whatsapp.ChatDetailsActivity;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
@@ -29,7 +27,7 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHolder>{
+public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHolder> {
 
     ArrayList<Users> list;
     Context context;
@@ -67,7 +65,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
                             intent.putExtra("ProfilePicPA", users.getProfilePic());
                             intent.putExtra("UserNamePA", users.getUserName());
                             intent.putExtra("StatusPA", StatusFromDB);
-                            intent.putExtra("EmailPA",users.getMail());
+                            intent.putExtra("EmailPA", users.getMail());
                             context.startActivity(intent);
                         }
                     }
@@ -98,7 +96,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
             super(itemView);
             image = itemView.findViewById(R.id.profile_image);
             userName = itemView.findViewById(R.id.userName);
-            blackCircle=itemView.findViewById(R.id.black_circle);
+            blackCircle = itemView.findViewById(R.id.black_circle);
 
         }
     }

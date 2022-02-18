@@ -1,7 +1,5 @@
 package com.sushant.whatsapp;
 
-import static com.sushant.whatsapp.R.color.red;
-
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -16,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -46,7 +43,7 @@ public class ConnectingActivity extends AppCompatActivity {
     DatabaseReference databaseReference;
     ValueEventListener eventListener;
     Ringtone r;
-    String key,seen = "true",senderRoom,receiverRoom;
+    String key, seen = "true", senderRoom, receiverRoom;
     CountDownTimer timer;
 
     @Override
@@ -287,7 +284,7 @@ public class ConnectingActivity extends AppCompatActivity {
     }
 
     private void sendMessage() {
-        String message="You missed a Video Call.";
+        String message = "You missed a Video Call.";
         final Messages model = new Messages(auth.getUid(), message, profilePic);
         Date date = new Date();
         model.setTimestamp(date.getTime());

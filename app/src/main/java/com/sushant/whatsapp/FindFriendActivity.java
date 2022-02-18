@@ -27,7 +27,7 @@ import com.sushant.whatsapp.databinding.ActivityFindFriendBinding;
 
 import java.util.ArrayList;
 
-public class FindFriendActivity extends AppCompatActivity{
+public class FindFriendActivity extends AppCompatActivity {
     MaterialToolbar toolbar;
     ActivityFindFriendBinding findFriendBinding;
     ArrayList<Users> list = new ArrayList<>();
@@ -40,15 +40,15 @@ public class FindFriendActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        findFriendBinding=ActivityFindFriendBinding.inflate(getLayoutInflater());
+        findFriendBinding = ActivityFindFriendBinding.inflate(getLayoutInflater());
         setContentView(findFriendBinding.getRoot());
         toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
-        ActionBar ab= getSupportActionBar();
+        ActionBar ab = getSupportActionBar();
         assert ab != null;
         ab.setDisplayHomeAsUpEnabled(true);
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.colorPurple));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.mainNavColor));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.mainNavColor));
 
         database = FirebaseDatabase.getInstance();
 
@@ -64,7 +64,7 @@ public class FindFriendActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.top_app_bar,menu);
+        getMenuInflater().inflate(R.menu.top_app_bar, menu);
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setQueryHint("Type here to search");
@@ -72,11 +72,10 @@ public class FindFriendActivity extends AppCompatActivity{
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (!TextUtils.isEmpty(query.trim())){
+                if (!TextUtils.isEmpty(query.trim())) {
                     ref.removeEventListener(valueEventListener1);
                     searchUser(query);
-                }
-                else {
+                } else {
                     getAllUsers();
                 }
 
@@ -85,11 +84,10 @@ public class FindFriendActivity extends AppCompatActivity{
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (!TextUtils.isEmpty(newText.trim())){
+                if (!TextUtils.isEmpty(newText.trim())) {
                     ref.removeEventListener(valueEventListener1);
                     searchUser(newText);
-                }
-                else {
+                } else {
                     getAllUsers();
                 }
                 return false;
@@ -99,7 +97,7 @@ public class FindFriendActivity extends AppCompatActivity{
     }
 
     private void getAllUsers() {
-        valueEventListener1= new ValueEventListener() {
+        valueEventListener1 = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -108,7 +106,7 @@ public class FindFriendActivity extends AppCompatActivity{
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
                     users.setUserId(dataSnapshot.getKey());
-                    if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                    if (users.getUserId() != null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
                         list.add(users);
                     }
                 }
@@ -120,12 +118,12 @@ public class FindFriendActivity extends AppCompatActivity{
 
             }
         };
-        ref =FirebaseDatabase.getInstance().getReference("Users");
+        ref = FirebaseDatabase.getInstance().getReference("Users");
         ref.addListenerForSingleValueEvent(valueEventListener1);
     }
 
     private void searchUser(String query) {
-        FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")

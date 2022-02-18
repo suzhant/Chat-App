@@ -11,7 +11,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,8 +26,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -110,7 +107,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     boolean notify = false, recording;
     FirebaseStorage storage;
     ProgressDialog dialog;
-    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true",stateLayout;
+    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true", stateLayout;
     long lastOnline;
     ValueEventListener eventListener1, eventListener2, chatListener, senderListener, tokenListener, eventListener;
     Query checkStatus, checkStatus1;
@@ -133,7 +130,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         setContentView(binding.getRoot());
         getSupportActionBar().hide();
 //        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.chatStatusColor));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPurple));
 
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/recorded_audio.3gp";
@@ -144,10 +141,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         memberDialog = new Dialog(ChatDetailsActivity.this);
         memberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         memberDialog.setContentView(R.layout.bottom_sheet_audio_player);
-        stopRecording = (ImageView) memberDialog.findViewById(R.id.stopRecording);
-        btnSend = (ImageView) memberDialog.findViewById(R.id.btn_send);
-        txtRecording = (TextView) memberDialog.findViewById(R.id.txtRecording);
-        txtTimer = (TextView) memberDialog.findViewById(R.id.txt_timer);
+        stopRecording = memberDialog.findViewById(R.id.stopRecording);
+        btnSend = memberDialog.findViewById(R.id.btn_send);
+        txtRecording = memberDialog.findViewById(R.id.txtRecording);
+        txtTimer = memberDialog.findViewById(R.id.txt_timer);
 
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -164,7 +161,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         profilePic = getIntent().getStringExtra("ProfilePic");
         email = getIntent().getStringExtra("userEmail");
         Status = getIntent().getStringExtra("UserStatus");
-        stateLayout=getIntent().getStringExtra("state");
+        stateLayout = getIntent().getStringExtra("state");
 
         binding.userName.setText(receiverName);
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
@@ -218,7 +215,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 intent.putExtra("UserNamePA", receiverName);
                 intent.putExtra("ProfilePicPA", profilePic);
                 intent.putExtra("EmailPA", email);
-                intent.putExtra("StatusPA",Status);
+                intent.putExtra("StatusPA", Status);
                 startActivity(intent);
             }
         });

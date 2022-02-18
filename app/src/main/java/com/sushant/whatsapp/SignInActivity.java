@@ -78,8 +78,8 @@ public class SignInActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.grayBackground));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.grayBackground));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.grayBackground));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.grayBackground));
 
         broadcastReceiver = new InternetCheckServices();
 //        registerBroadcastReceiver();

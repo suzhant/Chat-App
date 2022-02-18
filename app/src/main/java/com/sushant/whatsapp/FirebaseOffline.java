@@ -9,12 +9,13 @@ public class FirebaseOffline extends Application {
 
     FirebaseDatabase database;
     FirebaseAuth auth;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        database=FirebaseDatabase.getInstance();
-        auth=FirebaseAuth.getInstance();
-        if (auth.getCurrentUser()!=null){
+        database = FirebaseDatabase.getInstance();
+        auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
             database.setPersistenceEnabled(true);
         }
 

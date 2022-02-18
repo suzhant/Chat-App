@@ -25,7 +25,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityDeleteAcccountBinding;
@@ -43,16 +42,16 @@ public class DeleteAccount extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityDeleteAcccountBinding.inflate(getLayoutInflater());
+        binding = ActivityDeleteAcccountBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().setTitle("Delete Account");
         ColorDrawable colorDrawable
                 = new ColorDrawable(Color.parseColor("#7C4DFF"));
         getSupportActionBar().setBackgroundDrawable(colorDrawable);
-        
+
         auth = FirebaseAuth.getInstance();
-        database= FirebaseDatabase.getInstance();
-        reference=database.getReference().child("Users");
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference().child("Users");
 
         binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,18 +61,17 @@ public class DeleteAccount extends AppCompatActivity {
         });
 
         FirebaseUser user = auth.getCurrentUser();
-        if (user == null)
-        {
+        if (user == null) {
             sendUserToLoginActivity();
-        }else{
-            uid=user.getUid();
+        } else {
+            uid = user.getUid();
         }
 
         binding.btnDeleteAcc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String Pass = binding.editNewPass.getEditText().getText().toString().trim();
-                if (Pass.isEmpty()){
+                if (Pass.isEmpty()) {
                     emptyError(binding.editNewPass);
                 }
 
@@ -92,11 +90,11 @@ public class DeleteAccount extends AppCompatActivity {
                                     user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()){
+                                            if (task.isSuccessful()) {
                                                 sendUserToLoginActivity();
-                                                Log.d("TAG", "onComplete: User deleted"+user.getEmail());
+                                                Log.d("TAG", "onComplete: User deleted" + user.getEmail());
                                                 Toast.makeText(getApplicationContext(), "User Account has been Deleted", Toast.LENGTH_SHORT).show();
-                                            }else {
+                                            } else {
                                                 Toast.makeText(getApplicationContext(), "Account couldn't be deleted", Toast.LENGTH_SHORT).show();
                                             }
 
@@ -123,7 +121,7 @@ public class DeleteAccount extends AppCompatActivity {
     }
 
     private void sendUserToLoginActivity() {
-        Intent intent= new Intent(DeleteAccount.this,SignInActivity.class);
+        Intent intent = new Intent(DeleteAccount.this, SignInActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
@@ -137,23 +135,23 @@ public class DeleteAccount extends AppCompatActivity {
         }
     }
 
-    public void emptyError(TextInputLayout password){
+    public void emptyError(TextInputLayout password) {
         password.setErrorEnabled(true);
         password.setError("Field cannot be empty");
         password.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error)));
         password.requestFocus();
     }
 
-    void deleteUserFromFriends(String userid){
-        DatabaseReference reference1=FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
+    void deleteUserFromFriends(String userid) {
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
         reference1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snapshot1:snapshot.getChildren()){
-                    Users users= snapshot1.getValue(Users.class);
-                    DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
-                    HashMap<String,Object> map= new HashMap<>();
-                    map.put(userid,null);
+                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                    Users users = snapshot1.getValue(Users.class);
+                    DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put(userid, null);
                     reference2.updateChildren(map);
                 }
             }
@@ -165,9 +163,9 @@ public class DeleteAccount extends AppCompatActivity {
         });
     }
 
-    void deleteUser(String userid){
-        HashMap<String,Object> obj= new HashMap<>();
-        obj.put(userid,null);
+    void deleteUser(String userid) {
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put(userid, null);
         reference.updateChildren(obj);
     }
 }

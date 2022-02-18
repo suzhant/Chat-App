@@ -86,7 +86,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                 .child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                lastMsg= snapshot.child("lastMessage").getValue(String.class);
+                lastMsg = snapshot.child("lastMessage").getValue(String.class);
                 holder.lastMessage.setText(lastMsg);
             }
 
@@ -98,35 +98,34 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
         FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends").child(users.getUserId())
                 .addValueEventListener(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    Users users1 =snapshot.getValue(Users.class);
-                    assert users1 != null;
-                    if (users1.getSeen()!=null){
-                        if (users1.getSeen().equals("false")){
-                            holder.userName.setTextColor(Color.BLACK);
-                            holder.userName.setTypeface(null,Typeface.BOLD);
-                            holder.lastMessage.setTypeface(null,Typeface.BOLD);
-                            holder.lastMessage.setTextColor(Color.BLACK);
-                        }else {
-                            holder.userName.setTextColor(Color.parseColor("#757575"));
-                            holder.lastMessage.setTextColor(Color.parseColor("#757575"));
-                            holder.userName.setTypeface(null,Typeface.NORMAL);
-                            holder.lastMessage.setTypeface(null,Typeface.NORMAL);
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            Users users1 = snapshot.getValue(Users.class);
+                            assert users1 != null;
+                            if (users1.getSeen() != null) {
+                                if (users1.getSeen().equals("false")) {
+                                    holder.userName.setTextColor(Color.BLACK);
+                                    holder.userName.setTypeface(null, Typeface.BOLD);
+                                    holder.lastMessage.setTypeface(null, Typeface.BOLD);
+                                    holder.lastMessage.setTextColor(Color.BLACK);
+                                } else {
+                                    holder.userName.setTextColor(Color.parseColor("#757575"));
+                                    holder.lastMessage.setTextColor(Color.parseColor("#757575"));
+                                    holder.userName.setTypeface(null, Typeface.NORMAL);
+                                    holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+                                }
+                            }
+
                         }
                     }
 
-                }
-            }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+                    }
+                });
 
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
@@ -137,11 +136,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
-                    if ("online".equals(StatusFromDB)){
+                    if ("online".equals(StatusFromDB)) {
                         holder.blackCircle.setVisibility(View.VISIBLE);
                         holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
                         holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
-                    }else {
+                    } else {
                         holder.blackCircle.setVisibility(View.GONE);
                         holder.image.setBorderColor(Color.GRAY);
                     }
@@ -162,16 +161,16 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
         checkStatus1.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                        String presence=snapshot.child(users.getUserId()).child("Typing").getValue(String.class);
-                        if ("Typing...".equals(presence)){
-                            holder.lastMessage.setText("Typing...");
-                            holder.lastMessage.setTypeface(null, Typeface.ITALIC);
-                        }else {
-                            holder.lastMessage.setText(lastMsg);
-                            Typeface typeface = ResourcesCompat.getFont(context, R.font.alice);
-                            holder.lastMessage.setTypeface(typeface);
-                        }
+                if (snapshot.exists()) {
+                    String presence = snapshot.child(users.getUserId()).child("Typing").getValue(String.class);
+                    if ("Typing...".equals(presence)) {
+                        holder.lastMessage.setText("Typing...");
+                        holder.lastMessage.setTypeface(null, Typeface.ITALIC);
+                    } else {
+                        holder.lastMessage.setText(lastMsg);
+                        Typeface typeface = ResourcesCompat.getFont(context, R.font.alice);
+                        holder.lastMessage.setTypeface(typeface);
+                    }
                 }
             }
 
@@ -180,7 +179,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
             }
         });
-
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -198,9 +196,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                             intent.putExtra("UserId", users.getUserId());
                             intent.putExtra("ProfilePic", users.getProfilePic());
                             intent.putExtra("UserName", users.getUserName());
-                            intent.putExtra("userEmail",users.getMail());
+                            intent.putExtra("userEmail", users.getMail());
                             intent.putExtra("Status", StatusFromDB);
-                            intent.putExtra("UserStatus",status);
+                            intent.putExtra("UserStatus", status);
                             context.startActivity(intent);
                         }
                     }
@@ -234,7 +232,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
             image = itemView.findViewById(R.id.profile_image);
             userName = itemView.findViewById(R.id.userName);
             lastMessage = itemView.findViewById(R.id.lastMessage);
-            blackCircle=itemView.findViewById(R.id.black_circle);
+            blackCircle = itemView.findViewById(R.id.black_circle);
 
         }
     }

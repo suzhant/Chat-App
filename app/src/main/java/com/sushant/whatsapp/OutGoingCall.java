@@ -21,6 +21,7 @@ public class OutGoingCall extends JitsiMeetActivity {
     FirebaseDatabase database;
     FirebaseAuth auth;
     String receiverId, receiverName, receiverPP, key;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +61,7 @@ public class OutGoingCall extends JitsiMeetActivity {
 
         }
     }
+
     private void sendResponse() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("onCall", "true");

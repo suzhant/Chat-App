@@ -39,16 +39,16 @@ public class FriendRequestActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityFriendRequestBinding.inflate(getLayoutInflater());
+        binding = ActivityFriendRequestBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
 //        toolbar = findViewById(R.id.topAppBar);
 //        setSupportActionBar(toolbar);
 //        ActionBar ab= getSupportActionBar();
 //        ab.setDisplayHomeAsUpEnabled(true);
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.colorPurple));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.mainNavColor));
-        Notification=getIntent().getStringExtra("Notification");
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.mainNavColor));
+        Notification = getIntent().getStringExtra("Notification");
 
         database = FirebaseDatabase.getInstance();
 
@@ -60,10 +60,10 @@ public class FriendRequestActivity extends AppCompatActivity {
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if ("true".equals(Notification)){
-                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
-                startActivity(intent);
-                }else {
+                if ("true".equals(Notification)) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                } else {
                     finish();
                 }
             }
@@ -107,9 +107,10 @@ public class FriendRequestActivity extends AppCompatActivity {
 //        return true;
 //    }
 
-    FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
     private void getAllUsers() {
-        valueEventListener1= new ValueEventListener() {
+        valueEventListener1 = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -119,7 +120,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                     assert users != null;
                     users.setUserId(dataSnapshot.getKey());
                     if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                        if(users.getRequest()!=null && users.getRequest().equals("Req_Pending")){
+                        if (users.getRequest() != null && users.getRequest().equals("Req_Pending")) {
                             list.add(users);
                         }
                     }
@@ -132,7 +133,7 @@ public class FriendRequestActivity extends AppCompatActivity {
 
             }
         };
-        ref =FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("Friends");
+        ref = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid()).child("Friends");
         ref.addValueEventListener(valueEventListener1);
     }
 
@@ -146,9 +147,9 @@ public class FriendRequestActivity extends AppCompatActivity {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
-                    if (!users.getUserId().equals(user.getUid()) && users.getRequest()!=null){
-                        if (users.getRequest().equals("Req_Pending")){
-                            if (users.getUserName().equalsIgnoreCase(query.toLowerCase())|| users.getMail().equalsIgnoreCase(query.toLowerCase())){
+                    if (!users.getUserId().equals(user.getUid()) && users.getRequest() != null) {
+                        if (users.getRequest().equals("Req_Pending")) {
+                            if (users.getUserName().equalsIgnoreCase(query.toLowerCase()) || users.getMail().equalsIgnoreCase(query.toLowerCase())) {
                                 list.add(users);
                             }
                         }

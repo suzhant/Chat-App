@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.sushant.whatsapp.Interface.isClicked;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
@@ -38,9 +36,9 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
     Context context;
     String Gid;
 
-    public MemberAdapter(ArrayList<Users> list,String Gid, Context context) {
+    public MemberAdapter(ArrayList<Users> list, String Gid, Context context) {
         this.list = list;
-        this.Gid=Gid;
+        this.Gid = Gid;
         this.context = context;
     }
 
@@ -60,17 +58,16 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
         holder.userName.setText(users.getUserName());
 
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())){
-                    Intent intent= new Intent(context, ProfileActivity.class);
-                    intent.putExtra("UserIdPA",users.getUserId());
-                    intent.putExtra("EmailPA",users.getMail());
-                    intent.putExtra("UserNamePA",users.getUserName());
-                    intent.putExtra("ProfilePicPA",users.getProfilePic());
-                    intent.putExtra("StatusPA",users.getStatus());
+                if (!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                    Intent intent = new Intent(context, ProfileActivity.class);
+                    intent.putExtra("UserIdPA", users.getUserId());
+                    intent.putExtra("EmailPA", users.getMail());
+                    intent.putExtra("UserNamePA", users.getUserName());
+                    intent.putExtra("ProfilePicPA", users.getProfilePic());
+                    intent.putExtra("StatusPA", users.getStatus());
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
                 }
@@ -81,10 +78,10 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
             @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    String role=snapshot.child("role").getValue(String.class);
-                    if ("Admin".equals(role)){
-                        holder.memberIndicator.setText(role);
-                    }
+                String role = snapshot.child("role").getValue(String.class);
+                if ("Admin".equals(role)) {
+                    holder.memberIndicator.setText(role);
+                }
             }
 
             @Override
@@ -101,12 +98,12 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
                 if (snapshot.exists()) {
                     String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
                     assert StatusFromDB != null;
-                    if ("online".equals(StatusFromDB)){
+                    if ("online".equals(StatusFromDB)) {
                         holder.image.setBorderWidth(4);
                         holder.blackCircle.setVisibility(View.VISIBLE);
                         holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
                         holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
-                    }else {
+                    } else {
                         holder.blackCircle.setVisibility(View.GONE);
                         holder.image.setBorderWidth(0);
                     }
@@ -135,7 +132,7 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
     public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
-        public ImageView blackCircle,checkbox;
+        public ImageView blackCircle, checkbox;
         public TextView userName, lastMessage, memberIndicator;
 
 
@@ -144,9 +141,9 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.viewHolder
             image = itemView.findViewById(R.id.profile_image);
             userName = itemView.findViewById(R.id.userName);
             lastMessage = itemView.findViewById(R.id.lastMessage);
-            blackCircle=itemView.findViewById(R.id.black_circle);
-            checkbox=itemView.findViewById(R.id.checkbox);
-            memberIndicator=itemView.findViewById(R.id.txtMemberIndicator);
+            blackCircle = itemView.findViewById(R.id.black_circle);
+            checkbox = itemView.findViewById(R.id.checkbox);
+            memberIndicator = itemView.findViewById(R.id.txtMemberIndicator);
 
         }
     }

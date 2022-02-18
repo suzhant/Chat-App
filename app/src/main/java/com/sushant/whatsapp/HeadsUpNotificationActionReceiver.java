@@ -22,7 +22,7 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
     FirebaseDatabase database;
     FirebaseAuth auth;
     Ringtone r;
-    String senderRoom,receiverRoom;
+    String senderRoom, receiverRoom;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -40,8 +40,8 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
             String path = "android.resource://" + context.getPackageName() + "/" + R.raw.google_notification;
             r = RingtoneManager.getRingtone(context, Uri.parse(path));
 
-            senderRoom=auth.getUid()+senderId;
-            receiverRoom=senderId+auth.getUid();
+            senderRoom = auth.getUid() + senderId;
+            receiverRoom = senderId + auth.getUid();
 
             if (action != null) {
                 performClickAction(context, action);
@@ -100,7 +100,7 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
     }
 
     private void sendMessage() {
-        String message="You missed a Video Call.";
+        String message = "You missed a Video Call.";
         final Messages model = new Messages(senderId, message, profilePic);
         Date date = new Date();
         model.setTimestamp(date.getTime());

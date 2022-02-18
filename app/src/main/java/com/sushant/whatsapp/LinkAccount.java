@@ -1,32 +1,26 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.sushant.whatsapp.Models.Users;
 
 import java.util.Objects;
 
@@ -40,8 +34,8 @@ public class LinkAccount extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_link_account);
-        auth=FirebaseAuth.getInstance();
-        button=findViewById(R.id.btnGoogle);
+        auth = FirebaseAuth.getInstance();
+        button = findViewById(R.id.btnGoogle);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,8 +45,8 @@ public class LinkAccount extends AppCompatActivity {
         });
 
 
-
     }
+
     //Google Authentication
     int RC_SIGN_IN = 65;
 
@@ -62,7 +56,7 @@ public class LinkAccount extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
@@ -116,12 +110,13 @@ public class LinkAccount extends AppCompatActivity {
                             if (exception instanceof FirebaseAuthUserCollisionException) {
                                 signInWithFirebase(credential);
                             } else {
-                                Toast.makeText(getApplicationContext(), "Failed"+task.getException(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Failed" + task.getException(), Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
                 });
     }
+
     private void signInWithFirebase(AuthCredential credential) {
         auth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -130,7 +125,7 @@ public class LinkAccount extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Toast.makeText(getApplicationContext(), "Successful", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(getApplicationContext(), "Failed"+task.getException(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Failed" + task.getException(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

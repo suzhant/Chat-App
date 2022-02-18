@@ -1,8 +1,5 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -13,6 +10,9 @@ import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -29,7 +29,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityChangeEmailBinding;
@@ -69,11 +68,10 @@ public class ChangeEmail extends AppCompatActivity {
                 }
 
                 FirebaseUser user = auth.getCurrentUser();
-                if (user == null)
-                {
+                if (user == null) {
                     sendUserToLoginActivity();
-                }else{
-                    uid=user.getUid();
+                } else {
+                    uid = user.getUid();
                 }
 
                 assert user != null;
@@ -96,7 +94,7 @@ public class ChangeEmail extends AppCompatActivity {
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful()) {
                                                                 Toast.makeText(getApplicationContext(), "Email updated", Toast.LENGTH_SHORT).show();
-                                                                updateEmailInFriend(user.getUid(),user.getEmail());
+                                                                updateEmailInFriend(user.getUid(), user.getEmail());
                                                                 updateEmail(user.getEmail());
                                                                 hideSoftKeyboard();
                                                                 binding.editEmail.getEditText().getText().clear();
@@ -118,7 +116,7 @@ public class ChangeEmail extends AppCompatActivity {
                                                                     }
                                                                 });
 //                                                                FirebaseDatabase.getInstance().goOffline();
-                                                                    sendUserToLoginActivity();
+                                                                sendUserToLoginActivity();
                                                             } else {
                                                                 Toast.makeText(getApplicationContext(), "Email couldn't be changed", Toast.LENGTH_SHORT).show();
                                                             }
@@ -205,28 +203,28 @@ public class ChangeEmail extends AppCompatActivity {
         }
     }
 
-    void updateStatus(){
-        HashMap<String,Object> obj= new HashMap<>();
+    void updateStatus() {
+        HashMap<String, Object> obj = new HashMap<>();
         obj.put("Status", "offline");
         FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("Connection").updateChildren(obj);
     }
 
-    void updateEmail(String email){
-        HashMap<String,Object> map= new HashMap<>();
-        map.put("mail",email);
+    void updateEmail(String email) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("mail", email);
         FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
     }
 
-    void updateEmailInFriend(String userid,String email){
-        DatabaseReference reference1=FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
+    void updateEmailInFriend(String userid, String email) {
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
         reference1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snapshot1:snapshot.getChildren()){
-                    Users users= snapshot1.getValue(Users.class);
-                    HashMap<String,Object> map= new HashMap<>();
-                    map.put("mail",email);
-                    DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
+                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                    Users users = snapshot1.getValue(Users.class);
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("mail", email);
+                    DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
                     reference2.child(userid).updateChildren(map);
                 }
             }

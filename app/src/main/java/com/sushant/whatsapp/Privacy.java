@@ -1,12 +1,12 @@
 package com.sushant.whatsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.sushant.whatsapp.databinding.ActivityPrivacyBinding;
 
@@ -17,7 +17,7 @@ public class Privacy extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityPrivacyBinding.inflate(getLayoutInflater());
+        binding = ActivityPrivacyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().setTitle("Privacy");
         ColorDrawable colorDrawable
@@ -27,7 +27,7 @@ public class Privacy extends AppCompatActivity {
         binding.btnUpdatePass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent= new Intent(Privacy.this,ChangePassword.class);
+                Intent intent = new Intent(Privacy.this, ChangePassword.class);
                 startActivity(intent);
             }
         });
@@ -35,7 +35,7 @@ public class Privacy extends AppCompatActivity {
         binding.btnUpdateEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent= new Intent(Privacy.this,ChangeEmail.class);
+                Intent intent = new Intent(Privacy.this, ChangeEmail.class);
                 startActivity(intent);
             }
         });
@@ -43,8 +43,8 @@ public class Privacy extends AppCompatActivity {
         binding.btnDeleteAcc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    Intent intent= new Intent(Privacy.this, DeleteAccount.class);
-                    startActivity(intent);
+                Intent intent = new Intent(Privacy.this, DeleteAccount.class);
+                startActivity(intent);
             }
         });
     }

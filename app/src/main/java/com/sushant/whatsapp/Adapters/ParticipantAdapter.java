@@ -27,10 +27,10 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     Context context;
     isClicked clicked;
 
-    public ParticipantAdapter(ArrayList<Users> list, Context context,isClicked clicked) {
+    public ParticipantAdapter(ArrayList<Users> list, Context context, isClicked clicked) {
         this.list = list;
         this.context = context;
-        this.clicked=clicked;
+        this.clicked = clicked;
     }
 
 
@@ -49,16 +49,15 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         holder.userName.setText(users.getUserName());
 
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (holder.checkbox.getVisibility()==View.VISIBLE){
+                if (holder.checkbox.getVisibility() == View.VISIBLE) {
                     holder.checkbox.setVisibility(View.INVISIBLE);
-                    clicked.isClicked(false,position);
-                }else {
+                    clicked.isClicked(false, position);
+                } else {
                     holder.checkbox.setVisibility(View.VISIBLE);
-                    clicked.isClicked(true,position);
+                    clicked.isClicked(true, position);
                 }
             }
         });
@@ -79,7 +78,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     public class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
-        public ImageView blackCircle,checkbox;
+        public ImageView blackCircle, checkbox;
         public TextView userName, lastMessage;
 
 
@@ -88,8 +87,8 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
             image = itemView.findViewById(R.id.profile_image);
             userName = itemView.findViewById(R.id.userName);
             lastMessage = itemView.findViewById(R.id.lastMessage);
-            blackCircle=itemView.findViewById(R.id.black_circle);
-            checkbox=itemView.findViewById(R.id.checkbox);
+            blackCircle = itemView.findViewById(R.id.black_circle);
+            checkbox = itemView.findViewById(R.id.checkbox);
 
         }
     }

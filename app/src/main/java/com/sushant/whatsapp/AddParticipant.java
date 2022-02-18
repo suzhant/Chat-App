@@ -40,47 +40,47 @@ public class AddParticipant extends AppCompatActivity {
     AddMemberAdapter adapter;
     DatabaseReference ref;
     ValueEventListener valueEventListener1;
-    ArrayList<Users> participant= new ArrayList<>();
-    int size=0;
+    ArrayList<Users> participant = new ArrayList<>();
+    int size = 0;
     isClicked clicked;
-    String Gid,Gname,GPP,CreatedOn,CreatedBy;
+    String Gid, Gname, GPP, CreatedOn, CreatedBy;
     DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding= ActivityAddParticipantBinding.inflate(getLayoutInflater());
+        binding = ActivityAddParticipantBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
         database = FirebaseDatabase.getInstance();
 
-        Gid= getIntent().getStringExtra("GId1");
-        Gname=getIntent().getStringExtra("GName1");
-        GPP=getIntent().getStringExtra("GPic1");
-        CreatedOn=getIntent().getStringExtra("CreatedOn1");
-        CreatedBy=getIntent().getStringExtra("CreatedBy1");
+        Gid = getIntent().getStringExtra("GId1");
+        Gname = getIntent().getStringExtra("GName1");
+        GPP = getIntent().getStringExtra("GPic1");
+        CreatedOn = getIntent().getStringExtra("CreatedOn1");
+        CreatedBy = getIntent().getStringExtra("CreatedBy1");
 
-        databaseReference= FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid())
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid())
                 .child(Gid)
                 .child("participant");
 
 
-        clicked= new isClicked() {
+        clicked = new isClicked() {
             @Override
             public void isClicked(Boolean b, int position) {
-                Users users=list.get(position);
-                if (b){
+                Users users = list.get(position);
+                if (b) {
                     participant.add(users);
                     size++;
-                }else {
+                } else {
                     participant.remove(users);
                     size--;
                 }
             }
         };
 
-        adapter = new AddMemberAdapter(list, this,clicked,Gid);
+        adapter = new AddMemberAdapter(list, this, clicked, Gid);
         binding.participantRecycler.setItemAnimator(new DefaultItemAnimator());
         binding.participantRecycler.setAdapter(adapter);
         binding.participantRecycler.addItemDecoration(new DividerItemDecoration(binding.participantRecycler.getContext(), DividerItemDecoration.VERTICAL));
@@ -88,7 +88,6 @@ public class AddParticipant extends AppCompatActivity {
         binding.participantRecycler.setLayoutManager(layoutManager);
         database = FirebaseDatabase.getInstance();
         getAllUsers();
-
 
 
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
@@ -102,19 +101,19 @@ public class AddParticipant extends AppCompatActivity {
         binding.txtAddParticipant.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (size>0){
+                if (size > 0) {
                     String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date());
                     addNewMember(timeStamp);
                     database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).child(Gid).child("participant").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            for (DataSnapshot snapshot1:snapshot.getChildren()){
-                                Users users= snapshot1.getValue(Users.class);
-                                for (int i=0;i<participant.size();i++){
-                                    Users newMember=participant.get(i);
+                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                                Users users = snapshot1.getValue(Users.class);
+                                for (int i = 0; i < participant.size(); i++) {
+                                    Users newMember = participant.get(i);
                                     newMember.setRole("normal");
                                     newMember.setJoinedGroupOn(timeStamp);
-                                    addGroupInfo(Gid,users.getUserId());
+                                    addGroupInfo(Gid, users.getUserId());
                                     database.getReference().child("Groups").child(users.getUserId()).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
                                     database.getReference().child("Groups").child(newMember.getUserId()).child(Gid).child("participant").child(users.getUserId()).setValue(users);
                                 }
@@ -127,12 +126,12 @@ public class AddParticipant extends AppCompatActivity {
                         }
                     });
 
-                    Intent intent= new Intent(AddParticipant.this, MainActivity.class);
+                    Intent intent = new Intent(AddParticipant.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     finish();
                     Toast.makeText(getApplicationContext(), "Member Added Successfully", Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
                     Toast.makeText(getApplicationContext(), "Please select participant", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -158,19 +157,19 @@ public class AddParticipant extends AppCompatActivity {
 
     }
 
-    void addGroupInfo(String groupId,String userId){
-        HashMap<String,Object> map= new HashMap<>();
-        map.put("createdBy",CreatedBy);
-        map.put("createdOn",CreatedOn);
-        map.put("groupId",Gid);
-        map.put("groupName",Gname);
-        map.put("groupPP",GPP);
+    void addGroupInfo(String groupId, String userId) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("createdBy", CreatedBy);
+        map.put("createdOn", CreatedOn);
+        map.put("groupId", Gid);
+        map.put("groupName", Gname);
+        map.put("groupPP", GPP);
         database.getReference().child("Groups").child(userId).child(groupId).updateChildren(map);
     }
 
-    void addNewMember(String date){
-        for (int i=0;i<participant.size();i++){
-            Users newMember=participant.get(i);
+    void addNewMember(String date) {
+        for (int i = 0; i < participant.size(); i++) {
+            Users newMember = participant.get(i);
             newMember.setRole("normal");
             newMember.setJoinedGroupOn(date);
             database.getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(Gid).child("participant").child(newMember.getUserId()).setValue(newMember);
@@ -178,26 +177,26 @@ public class AddParticipant extends AppCompatActivity {
     }
 
     private void getAllUsers() {
-        valueEventListener1= new ValueEventListener() {
+        valueEventListener1 = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
+                if (snapshot.exists()) {
                     list.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Users users = dataSnapshot.getValue(Users.class);
                         assert users != null;
-                        if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                            if ("Accepted".equals(users.getRequest())){
+                        if (users.getUserId() != null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                            if ("Accepted".equals(users.getRequest())) {
                                 list.add(users);
                             }
                         }
                     }
                     adapter.notifyDataSetChanged();
                 }
-                if (list.isEmpty()){
+                if (list.isEmpty()) {
                     binding.txtNoFriend.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     binding.txtNoFriend.setVisibility(View.GONE);
                 }
             }
@@ -207,7 +206,7 @@ public class AddParticipant extends AppCompatActivity {
 
             }
         };
-        ref =FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
+        ref = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         ref.addValueEventListener(valueEventListener1);
     }
 
@@ -217,14 +216,14 @@ public class AddParticipant extends AppCompatActivity {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
+                if (snapshot.exists()) {
                     list.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Users users = dataSnapshot.getValue(Users.class);
                         assert users != null;
-                        if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                            if ("Accepted".equals(users.getRequest())){
-                                if (users.getUserName().contains(query.toLowerCase())|| users.getMail().contains(query.toLowerCase())){
+                        if (users.getUserId() != null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                            if ("Accepted".equals(users.getRequest())) {
+                                if (users.getUserName().contains(query.toLowerCase()) || users.getMail().contains(query.toLowerCase())) {
                                     list.add(users);
                                 }
                             }
@@ -233,6 +232,7 @@ public class AddParticipant extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -244,7 +244,7 @@ public class AddParticipant extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (ref!=null){
+        if (ref != null) {
             ref.removeEventListener(valueEventListener1);
         }
     }

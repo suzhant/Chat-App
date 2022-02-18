@@ -1,5 +1,6 @@
 package com.sushant.whatsapp.Fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -49,6 +53,7 @@ public class GroupPicFragment extends Fragment {
     FirebaseDatabase database;
     DatabaseReference reference1;
     ValueEventListener eventListener;
+    ActivityResultLauncher<Intent> someActivityResultLauncher;
 
     public GroupPicFragment() {
         // Required empty public constructor
@@ -78,7 +83,7 @@ public class GroupPicFragment extends Fragment {
                 Intent intent=new Intent();
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
-                startActivityForResult(intent,22);
+                someActivityResultLauncher.launch(intent);
             }
         });
 
@@ -88,6 +93,49 @@ public class GroupPicFragment extends Fragment {
                 uploadToFirebase();
             }
         });
+
+        someActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // There are no request codes
+                            Uri sFile = result.getData().getData();
+                            Bitmap bitmap=null;
+                            try{
+                                bitmap = handleSamplingAndRotationBitmap(requireContext(),sFile);
+                            }
+                            catch(Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            assert bitmap != null;
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+                            byte[] img = baos.toByteArray();
+                            binding.imgProfile.setImageBitmap(bitmap);
+                            binding.btnSaveGp.setEnabled(true);
+
+                            final StorageReference reference = storage.getReference().child("Group Pictures").child(id);
+                            dialog.show();
+
+                            reference.putBytes(img).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            dialog.dismiss();
+                                            image=uri.toString();
+                                            Toast.makeText(getContext(), "Pic Uploaded", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
         return binding.getRoot();
     }
 
@@ -121,46 +169,6 @@ public class GroupPicFragment extends Fragment {
         Toast.makeText(getContext(), "Group Pic Saved", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (data!=null){
-            if (data.getData()!=null) {
-                Uri sFile = data.getData();
-                Bitmap bitmap=null;
-                try{
-                    bitmap = handleSamplingAndRotationBitmap(requireContext(),sFile);
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                assert bitmap != null;
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos);
-                byte[] img = baos.toByteArray();
-                binding.imgProfile.setImageBitmap(bitmap);
-                binding.btnSaveGp.setEnabled(true);
-
-                final StorageReference reference = storage.getReference().child("Group Pictures").child(id);
-                dialog.show();
-
-                reference.putBytes(img).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                dialog.dismiss();
-                                image=uri.toString();
-                                Toast.makeText(getContext(), "Pic Uploaded", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                });
-            }
-        }
-    }
 
     @Override
     public void onDestroy() {

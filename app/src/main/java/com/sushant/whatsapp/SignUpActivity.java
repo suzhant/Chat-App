@@ -44,11 +44,11 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.grayBackground));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.grayBackground));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.grayBackground));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.grayBackground));
 
         mAuth = FirebaseAuth.getInstance();
-        database=FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance();
 
         dialog = new ProgressDialog(this);
         dialog.setTitle("Creating an account");
@@ -58,8 +58,8 @@ public class SignUpActivity extends AppCompatActivity {
         binding.btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CheckConnection checkConnection= new CheckConnection();
-                if (checkConnection.isConnected(getApplicationContext())){
+                CheckConnection checkConnection = new CheckConnection();
+                if (checkConnection.isConnected(getApplicationContext())) {
                     showCustomDialog();
                     return;
                 }
@@ -84,11 +84,11 @@ public class SignUpActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 dialog.dismiss();
                                 if (task.isSuccessful()) {
-                                    FirebaseUser users= mAuth.getCurrentUser();
+                                    FirebaseUser users = mAuth.getCurrentUser();
                                     users.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            Toast.makeText(getApplicationContext(), "Verification link sent to "+ users.getEmail(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), "Verification link sent to " + users.getEmail(), Toast.LENGTH_SHORT).show();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -118,8 +118,8 @@ public class SignUpActivity extends AppCompatActivity {
         binding.txtSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseUser user= mAuth.getCurrentUser();
-                if (user!=null){
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
                     mAuth.signOut();
                 }
                 Intent intent = new Intent(getApplicationContext(), SignInActivity.class);
@@ -140,7 +140,7 @@ public class SignUpActivity extends AppCompatActivity {
             binding.editEmail.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error)));
             binding.editEmail.requestFocus();
             return false;
-        }else {
+        } else {
             binding.editEmail.setErrorEnabled(false);
             return true;
         }
@@ -155,11 +155,11 @@ public class SignUpActivity extends AppCompatActivity {
             binding.editPass.setErrorEnabled(true);
             binding.editPass.setError("Field cannot be empty");
             return false;
-        } else if (!m.matches()){
+        } else if (!m.matches()) {
             binding.editPass.setErrorEnabled(true);
             binding.editPass.setError("Password should contain minimum 8 character,at least 1 letter and 1 number ");
             return false;
-        }else {
+        } else {
             binding.editPass.setErrorEnabled(false);
             return true;
         }
@@ -178,7 +178,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void showCustomDialog() {
-        AlertDialog.Builder builder= new AlertDialog.Builder(SignUpActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
         builder.setMessage("Please connect to the internet to proceed forward")
                 .setTitle("No Connection")
                 .setCancelable(false)

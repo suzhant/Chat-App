@@ -22,7 +22,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.sushant.whatsapp.GroupChatActivity;
 import com.sushant.whatsapp.Models.Groups;
 import com.sushant.whatsapp.R;
@@ -32,7 +31,7 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
+public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder> {
 
     ArrayList<Groups> list;
     Context context;
@@ -60,33 +59,33 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent= new Intent(context,GroupChatActivity.class);
+                Intent intent = new Intent(context, GroupChatActivity.class);
                 intent.putExtra("GId", groups.getGroupId());
                 intent.putExtra("GPic", groups.getGroupPP());
                 intent.putExtra("GName", groups.getGroupName());
-                intent.putExtra("CreatedOn",groups.getCreatedOn());
-                intent.putExtra("CreatedBy",groups.getCreatedBy());
+                intent.putExtra("CreatedOn", groups.getCreatedOn());
+                intent.putExtra("CreatedBy", groups.getCreatedBy());
                 context.startActivity(intent);
             }
         });
 
 
-        if (groups.getGroupId()!=null){
+        if (groups.getGroupId() != null) {
             FirebaseDatabase.getInstance().getReference().child("Group Chat").child("Last Messages").child(groups.getGroupId())
                     .addValueEventListener(new ValueEventListener() {
                         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            lastMsg=snapshot.child("lastMessage").getValue(String.class);
-                            String senderName=snapshot.child("senderName").getValue(String.class);
-                            String senderId=snapshot.child("senderId").getValue(String.class);
+                            lastMsg = snapshot.child("lastMessage").getValue(String.class);
+                            String senderName = snapshot.child("senderName").getValue(String.class);
+                            String senderId = snapshot.child("senderId").getValue(String.class);
                             holder.lastMessage.setText(lastMsg);
-                            if (Objects.equals(FirebaseAuth.getInstance().getUid(), senderId)){
-                                holder.lastMessage.setText("You: "+ lastMsg);
-                            }else if ("Say Hi!!".equals(lastMsg)){
+                            if (Objects.equals(FirebaseAuth.getInstance().getUid(), senderId)) {
+                                holder.lastMessage.setText("You: " + lastMsg);
+                            } else if ("Say Hi!!".equals(lastMsg)) {
                                 holder.lastMessage.setText(lastMsg);
-                            }else {
-                                holder.lastMessage.setText(senderName +": "+ lastMsg);
+                            } else {
+                                holder.lastMessage.setText(senderName + ": " + lastMsg);
                             }
                         }
 
@@ -97,26 +96,26 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
                     });
         }
 
-        if (groups.getGroupId()!=null){
+        if (groups.getGroupId() != null) {
             FirebaseDatabase.getInstance().getReference().child("Groups").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(groups.getGroupId())
                     .addValueEventListener(new ValueEventListener() {
                         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()){
-                                Groups groups1 =snapshot.getValue(Groups.class);
+                            if (snapshot.exists()) {
+                                Groups groups1 = snapshot.getValue(Groups.class);
                                 assert groups1 != null;
-                                if (groups1.getSeen()!=null){
-                                    if (groups1.getSeen().equals("false")){
+                                if (groups1.getSeen() != null) {
+                                    if (groups1.getSeen().equals("false")) {
                                         holder.groupName.setTextColor(Color.BLACK);
                                         holder.groupName.setTypeface(null, Typeface.BOLD);
-                                        holder.lastMessage.setTypeface(null,Typeface.BOLD);
+                                        holder.lastMessage.setTypeface(null, Typeface.BOLD);
                                         holder.lastMessage.setTextColor(Color.BLACK);
-                                    }else {
+                                    } else {
                                         holder.groupName.setTextColor(Color.parseColor("#757575"));
                                         holder.lastMessage.setTextColor(Color.parseColor("#757575"));
-                                        holder.groupName.setTypeface(null,Typeface.NORMAL);
-                                        holder.lastMessage.setTypeface(null,Typeface.NORMAL);
+                                        holder.groupName.setTypeface(null, Typeface.NORMAL);
+                                        holder.lastMessage.setTypeface(null, Typeface.NORMAL);
                                     }
                                 }
 
@@ -141,7 +140,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
     public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
-        public TextView groupName,lastMessage;
+        public TextView groupName, lastMessage;
         public ImageView blackCircle;
 
 
@@ -149,8 +148,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.viewHolder>{
             super(itemView);
             image = itemView.findViewById(R.id.profile_image);
             groupName = itemView.findViewById(R.id.groupName);
-            lastMessage=itemView.findViewById(R.id.lastMessage);
-            blackCircle=itemView.findViewById(R.id.black_circle);
+            lastMessage = itemView.findViewById(R.id.lastMessage);
+            blackCircle = itemView.findViewById(R.id.black_circle);
 
         }
     }

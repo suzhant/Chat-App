@@ -1,9 +1,5 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,6 +14,10 @@ import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -41,7 +41,7 @@ public class ForgotPassword extends AppCompatActivity {
         binding.getRoot().setFocusable(true);
         binding.getRoot().setFocusableInTouchMode(true);
 
-        broadcastReceiver=new InternetCheckServices();
+        broadcastReceiver = new InternetCheckServices();
         registerBroadcastReceiver();
 
         binding.getRoot().setOnClickListener(new View.OnClickListener() {
@@ -54,8 +54,8 @@ public class ForgotPassword extends AppCompatActivity {
         binding.btnResetPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CheckConnection checkConnection= new CheckConnection();
-                if (checkConnection.isConnected(getApplicationContext())){
+                CheckConnection checkConnection = new CheckConnection();
+                if (checkConnection.isConnected(getApplicationContext())) {
                     showCustomDialog();
                     return;
                 }
@@ -101,7 +101,7 @@ public class ForgotPassword extends AppCompatActivity {
     }
 
     private void showCustomDialog() {
-        AlertDialog.Builder builder= new AlertDialog.Builder(ForgotPassword.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(ForgotPassword.this);
         builder.setMessage("Please connect to the internet to proceed forward")
                 .setTitle("No Connection")
                 .setCancelable(false)
@@ -118,38 +118,38 @@ public class ForgotPassword extends AppCompatActivity {
         }).show();
     }
 
-    public void hideSoftKeyboard(){
+    public void hideSoftKeyboard() {
         View view = this.getCurrentFocus();
-        if (view !=null){
-            InputMethodManager imm =(InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    public void showSoftKeyboard(){
+    public void showSoftKeyboard() {
         View view = this.getCurrentFocus();
-        if(view.requestFocus()){
+        if (view.requestFocus()) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT);
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 
-    private void registerBroadcastReceiver(){
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    private void registerBroadcastReceiver() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
 
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
 
     }
 
-    private void unregisterNetwork(){
+    private void unregisterNetwork() {
         try {
             unregisterReceiver(broadcastReceiver);
 
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
     }

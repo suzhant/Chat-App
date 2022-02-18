@@ -1,40 +1,30 @@
 package com.sushant.whatsapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityChangePasswordBinding;
 
 import java.util.HashMap;
@@ -73,7 +63,7 @@ public class ChangePassword extends AppCompatActivity {
                 String nPass = binding.editNewPass.getEditText().getText().toString().trim();
                 boolean oldPass = passValidation(binding.editOldPass);
                 boolean newPass = passValidation(binding.editNewPass);
-                if (oPass.isEmpty() && nPass.isEmpty()){
+                if (oPass.isEmpty() && nPass.isEmpty()) {
                     emptyError(binding.editOldPass);
                     emptyError(binding.editNewPass);
                 }
@@ -129,11 +119,10 @@ public class ChangePassword extends AppCompatActivity {
 //                    });
 
                 FirebaseUser user = auth.getCurrentUser();
-                if (user == null)
-                {
+                if (user == null) {
                     sendUserToLoginActivity();
-                }else{
-                     uid=user.getUid();
+                } else {
+                    uid = user.getUid();
                 }
 
                 assert user != null;
@@ -150,32 +139,33 @@ public class ChangePassword extends AppCompatActivity {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                            Toast.makeText(getApplicationContext(), "Password Changed", Toast.LENGTH_SHORT).show();
-                                            HashMap<String,Object> map= new HashMap<>();
-                                            map.put("password",nPass);
-                                            FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
-                                            hideSoftKeyboard();
-                                            binding.editNewPass.getEditText().getText().clear();
-                                            binding.editOldPass.getEditText().getText().clear();
-                                            binding.editOldPass.clearFocus();
-                                            binding.editNewPass.clearFocus();
-                                            updateStatus();
-                                            auth.signOut();
-                                            GoogleSignIn.getClient(getApplicationContext(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build())
-                                                    .signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    Toast.makeText(getApplicationContext(), "SignOut success", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Toast.makeText(getApplicationContext(), "SignOut failed", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                                Toast.makeText(getApplicationContext(), "Password Changed", Toast.LENGTH_SHORT).show();
+                                                HashMap<String, Object> map = new HashMap<>();
+                                                map.put("password", nPass);
+                                                FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
+                                                hideSoftKeyboard();
+                                                binding.editNewPass.getEditText().getText().clear();
+                                                binding.editOldPass.getEditText().getText().clear();
+                                                binding.editOldPass.clearFocus();
+                                                binding.editNewPass.clearFocus();
+                                                updateStatus();
+                                                auth.signOut();
+                                                GoogleSignIn.getClient(getApplicationContext(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build())
+                                                        .signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Toast.makeText(getApplicationContext(), "SignOut success", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getApplicationContext(), "SignOut failed", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
 //                                            FirebaseDatabase.getInstance().goOffline();
                                                 sendUserToLoginActivity();
-                                            } else { Toast.makeText(getApplicationContext(), "Password Couldn't be changed", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(getApplicationContext(), "Password Couldn't be changed", Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -215,11 +205,11 @@ public class ChangePassword extends AppCompatActivity {
         if (pass.isEmpty()) {
             emptyError(password);
             return false;
-        } else if (!m.matches()){
+        } else if (!m.matches()) {
             password.setErrorEnabled(true);
             password.setError("Password should contain minimum 8 character,at least 1 letter and 1 number ");
             return false;
-        }else {
+        } else {
             password.setErrorEnabled(false);
             password.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
             password.clearFocus();
@@ -227,20 +217,21 @@ public class ChangePassword extends AppCompatActivity {
         }
     }
 
-    public void emptyError(TextInputLayout password){
+    public void emptyError(TextInputLayout password) {
         password.setErrorEnabled(true);
         password.setError("Field cannot be empty");
         password.setStartIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error)));
         password.requestFocus();
     }
-    void updateStatus(){
-        HashMap<String,Object> obj= new HashMap<>();
+
+    void updateStatus() {
+        HashMap<String, Object> obj = new HashMap<>();
         obj.put("Status", "offline");
         FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("Connection").updateChildren(obj);
     }
 
-    void sendUserToLoginActivity(){
-        Intent intent= new Intent(ChangePassword.this,SignInActivity.class);
+    void sendUserToLoginActivity() {
+        Intent intent = new Intent(ChangePassword.this, SignInActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

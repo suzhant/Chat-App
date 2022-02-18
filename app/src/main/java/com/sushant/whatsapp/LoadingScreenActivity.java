@@ -1,7 +1,5 @@
 package com.sushant.whatsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,20 +11,21 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Objects;
 
 public class LoadingScreenActivity extends AppCompatActivity {
 
     TextView textView;
-    ImageView imageView,img_toolbar;
+    ImageView imageView, img_toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading_screen);
-        textView=findViewById(R.id.textView);
-        imageView=findViewById(R.id.img);
-
+        textView = findViewById(R.id.textView);
+        imageView = findViewById(R.id.img);
 
 
         Objects.requireNonNull(getSupportActionBar()).hide();
@@ -53,17 +52,18 @@ public class LoadingScreenActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent= new Intent(LoadingScreenActivity.this,SignInActivity.class);
-                Pair[] pairs= new Pair[1];
-                pairs[0]= new Pair<View,String>(imageView,"login_whatsapp");
+                Intent intent = new Intent(LoadingScreenActivity.this, SignInActivity.class);
+                Pair[] pairs = new Pair[1];
+                pairs[0] = new Pair<View, String>(imageView, "login_whatsapp");
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    ActivityOptions options= ActivityOptions.makeSceneTransitionAnimation(LoadingScreenActivity.this,pairs);
-                    startActivity(intent,options.toBundle());
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(LoadingScreenActivity.this, pairs);
+                    startActivity(intent, options.toBundle());
                 }
                 finish();//splash screen will not show up when using back button. This screen will be popped out from the stack
             }
-        },2000);
+        }, 2000);
     }
+
     private void setUpFadeAnimation(final TextView textView) {
         // Start from 0.1f if you desire 90% fade animation
         final Animation fadeIn = new AlphaAnimation(0.0f, 1.0f);
@@ -74,7 +74,7 @@ public class LoadingScreenActivity extends AppCompatActivity {
         fadeOut.setDuration(500);
         fadeOut.setStartOffset(500);
 
-        fadeIn.setAnimationListener(new Animation.AnimationListener(){
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationEnd(Animation arg0) {
                 // start fadeOut when fadeIn ends (continue)
@@ -90,7 +90,7 @@ public class LoadingScreenActivity extends AppCompatActivity {
             }
         });
 
-        fadeOut.setAnimationListener(new Animation.AnimationListener(){
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationEnd(Animation arg0) {
                 // start fadeIn when fadeOut ends (repeat)

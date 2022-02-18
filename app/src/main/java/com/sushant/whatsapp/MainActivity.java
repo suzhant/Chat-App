@@ -1,9 +1,7 @@
-
 package com.sushant.whatsapp;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -28,8 +26,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -56,7 +52,6 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.sushant.whatsapp.Adapters.FragmentsAdapter;
-import com.sushant.whatsapp.Fragments.GroupChatFragment;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityMainBinding;
 
@@ -76,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NavigationView navigationView;
     TabLayout tabLayout;
     ViewPager viewPager;
-    TextView nav_username, nav_email,nav_verify,txtUserName;
+    TextView nav_username, nav_email, nav_verify, txtUserName;
     CircleImageView nav_profile;
     FirebaseAuth auth;
     FirebaseDatabase database;
@@ -99,21 +94,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-        txtConnection=findViewById(R.id.txtNoConnection);
+        txtConnection = findViewById(R.id.txtNoConnection);
 
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.colorPurple));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.mainNavColor));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.mainNavColor));
 
-        database= FirebaseDatabase.getInstance();
-        reference=database.getReference().child("Users");
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference().child("Users");
         auth = FirebaseAuth.getInstance();
         manageConnection();
 
-        broadcastReceiver= new InternetCheckServices();
+        broadcastReceiver = new InternetCheckServices();
         registerBroadcastReceiver();
-        CheckConnection checkConnection= new CheckConnection();
-        conn= !checkConnection.isConnected(getApplicationContext());
-        if (!conn){
+        CheckConnection checkConnection = new CheckConnection();
+        conn = !checkConnection.isConnected(getApplicationContext());
+        if (!conn) {
             txtConnection.setVisibility(View.VISIBLE);
         }
 
@@ -124,15 +119,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
                 @Override
                 public void onComplete(@NonNull Task<String> task) {
-                    if (!task.isSuccessful()){
+                    if (!task.isSuccessful()) {
                         return;
                     }
-                    String token=task.getResult();
-                    FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+                    String token = task.getResult();
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     assert user != null;
-                    String uid=user.getUid();
-                    HashMap<String,Object> obj= new HashMap<>();
-                    obj.put("Token",token);
+                    String uid = user.getUid();
+                    HashMap<String, Object> obj = new HashMap<>();
+                    obj.put("Token", token);
                     reference.child(uid).updateChildren(obj);
                 }
             });
@@ -147,12 +142,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                   Users users= snapshot.getValue(Users.class);
+                    Users users = snapshot.getValue(Users.class);
                     assert users != null;
-                    if (!users.getMail().equals(email)){
-                        updateEmailInFriend(uid,email);
-                        updateEmail(email,uid);
-                   }
+                    if (!users.getMail().equals(email)) {
+                        updateEmailInFriend(uid, email);
+                        updateEmail(email, uid);
+                    }
                 }
 
                 @Override
@@ -168,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
         navigationView.setNavigationItemSelectedListener(this);
-        txtUserName=findViewById(R.id.txtUserName);
+        txtUserName = findViewById(R.id.txtUserName);
 
 
         viewPager.setAdapter(new FragmentsAdapter(getSupportFragmentManager()));
@@ -183,33 +178,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         nav_email = header.findViewById(R.id.nav_email);
         nav_username = header.findViewById(R.id.nav_username);
         nav_profile = header.findViewById(R.id.nav_profilePic);
-        nav_verify=header.findViewById(R.id.nav_verify);
+        nav_verify = header.findViewById(R.id.nav_verify);
 
 
         //retrieving logged in user data from real time database into the nav header views
-       eventListener1=new ValueEventListener() {
-           @Override
-           public void onDataChange(@NonNull DataSnapshot snapshot) {
-               Users user = snapshot.getValue(Users.class);
-               assert user != null;
-               Glide.with(getApplicationContext()).load(user.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
-                       .into(nav_profile);
-               nav_email.setText(user.getMail());
-               nav_username.setText(user.getUserName());
-               txtUserName.setText(user.getUserName().toUpperCase(Locale.ROOT));
-           }
+        eventListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Users user = snapshot.getValue(Users.class);
+                assert user != null;
+                Glide.with(getApplicationContext()).load(user.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(nav_profile);
+                nav_email.setText(user.getMail());
+                nav_username.setText(user.getUserName());
+                txtUserName.setText(user.getUserName().toUpperCase(Locale.ROOT));
+            }
 
-           @Override
-           public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-           }
-       };
-       NavDrawer=reference.child(Objects.requireNonNull(auth.getUid()));
-       NavDrawer.addValueEventListener(eventListener1);
+            }
+        };
+        NavDrawer = reference.child(Objects.requireNonNull(auth.getUid()));
+        NavDrawer.addValueEventListener(eventListener1);
 
         //check email verification
         assert user != null;
-        if (!user.isEmailVerified()){
+        if (!user.isEmailVerified()) {
             //checking users presence
             showErrorDialog();
             nav_verify.setVisibility(View.VISIBLE);
@@ -221,9 +216,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     user.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            Toast.makeText(getApplicationContext(), "Verification link sent to your email " +user.getEmail(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Verification link sent to your email " + user.getEmail(), Toast.LENGTH_SHORT).show();
                             auth.signOut();
-                            Intent intent= new Intent(getApplicationContext(),SignInActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), SignInActivity.class);
                             startActivity(intent);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -234,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     });
                 }
             });
-        }else {
+        } else {
             nav_verify.setVisibility(View.GONE);
 //            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
 //                @Override
@@ -260,17 +255,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onMoveToForeground() {
         // app moved to foreground
-        CheckConnection checkConnection= new CheckConnection();
-        if (checkConnection.isConnected(getApplicationContext())){
+        CheckConnection checkConnection = new CheckConnection();
+        if (checkConnection.isConnected(getApplicationContext())) {
             txtConnection.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             txtConnection.setVisibility(View.GONE);
         }
-        if (auth.getCurrentUser()!=null){
+        if (auth.getCurrentUser() != null) {
             NavDrawer.addValueEventListener(eventListener1);
 //            database.goOnline();
             updateStatus("online");
-            if (!auth.getCurrentUser().isEmailVerified()){
+            if (!auth.getCurrentUser().isEmailVerified()) {
                 showErrorDialog();
             }
         }
@@ -279,11 +274,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onMoveToBackground() {
         // app moved to background
-        if (auth.getCurrentUser()!=null){
+        if (auth.getCurrentUser() != null) {
             NavDrawer.removeEventListener(eventListener1);
 //            database.goOffline();
             updateStatus("offline");
-            if (!auth.getCurrentUser().isEmailVerified()){
+            if (!auth.getCurrentUser().isEmailVerified()) {
                 showErrorDialog();
             }
         }
@@ -338,17 +333,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                break;
 
             case R.id.nav_findFriend:
-                Intent intent2= new Intent(MainActivity.this,FindFriendActivity.class);
+                Intent intent2 = new Intent(MainActivity.this, FindFriendActivity.class);
                 startActivity(intent2);
                 break;
 
             case R.id.nav_friendRequest:
-                Intent intent3= new Intent(MainActivity.this,FriendRequestActivity.class);
+                Intent intent3 = new Intent(MainActivity.this, FriendRequestActivity.class);
                 startActivity(intent3);
                 break;
 
             case R.id.nav_link:
-                Intent intent1 = new Intent(MainActivity.this,LinkAccount.class);
+                Intent intent1 = new Intent(MainActivity.this, LinkAccount.class);
                 startActivity(intent1);
                 break;
 
@@ -360,8 +355,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("TAG", "onSuccess: logout started");
                 Log.d("TAG", "onNavigationItemSelected: destroyed");
                 updateStatus("offline");
-                CheckConnection checkConnection= new CheckConnection();
-                if (checkConnection.isConnected(getApplicationContext())){
+                CheckConnection checkConnection = new CheckConnection();
+                if (checkConnection.isConnected(getApplicationContext())) {
                     showCustomDialog();
                     return false;
                 }
@@ -370,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 auth.signOut();
 
                 Intent intentLogout = new Intent(getApplicationContext(), SignInActivity.class);
-                intentLogout.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                intentLogout.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intentLogout);
                 GoogleSignIn.getClient(this, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()).signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -380,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d("SingOut",e.getMessage());
+                        Log.d("SingOut", e.getMessage());
                         Toast.makeText(MainActivity.this, "SignOut failed", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -401,31 +396,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void deleteToken(){
-        FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+    private void deleteToken() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         assert user != null;
-        String uid=user.getUid();
-        HashMap<String,Object> obj= new HashMap<>();
-        obj.put("Token",null);
+        String uid = user.getUid();
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("Token", null);
         reference.child(uid).updateChildren(obj);
     }
 
     //check connection
-    private void registerBroadcastReceiver(){
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    private void registerBroadcastReceiver() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
 
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            registerReceiver(broadcastReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
     }
 
-    private void unregisterNetwork(){
+    private void unregisterNetwork() {
         try {
             unregisterReceiver(broadcastReceiver);
 
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -444,14 +439,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final DatabaseReference lastOnlineRef = database.getReference().child("Users").child(auth.getUid()).child("Connection").child("lastOnline");
         infoConnected = database.getReference(".info/connected");
 
-        eventListener=infoConnected.addValueEventListener(new ValueEventListener() {
+        eventListener = infoConnected.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 boolean connected = snapshot.getValue(Boolean.class);
                 if (connected) {
                     status.setValue("online");
                     lastOnlineRef.setValue(ServerValue.TIMESTAMP);
-                }else{
+                } else {
                     status.onDisconnect().setValue("offline");
                     lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
                 }
@@ -465,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void showCustomDialog() {
-        AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage("Please connect to the internet to proceed forward")
                 .setTitle("No Connection")
                 .setCancelable(false)
@@ -483,9 +478,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void showErrorDialog() {
-        FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
-        AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Please verify your account in your email "+user.getEmail())
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Please verify your account in your email " + user.getEmail())
                 .setTitle("Verify your account")
                 .setCancelable(false)
                 .setPositiveButton("Verify", new DialogInterface.OnClickListener() {
@@ -494,11 +489,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()){
+                                if (task.isSuccessful()) {
                                     Toast.makeText(getApplicationContext(), "Verification mail sent to your mail", Toast.LENGTH_SHORT).show();
                                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"));
                                     startActivity(browserIntent);
-                                }else {
+                                } else {
                                     Toast.makeText(getApplicationContext(), "Something went wrong.Try again", Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -511,33 +506,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 deleteToken();
                 updateStatus("offline");
                 auth.signOut();
-                startActivity(new Intent(MainActivity.this,SignInActivity.class));
+                startActivity(new Intent(MainActivity.this, SignInActivity.class));
                 finish();
             }
         }).show();
     }
 
-    void updateStatus(String status){
-        HashMap<String,Object> obj= new HashMap<>();
-        obj.put("Status",status);
+    void updateStatus(String status) {
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("Status", status);
         reference.child(auth.getUid()).child("Connection").updateChildren(obj);
     }
-    void updateEmail(String email,String uid){
-        HashMap<String,Object> map= new HashMap<>();
-        map.put("mail",email);
+
+    void updateEmail(String email, String uid) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("mail", email);
         FirebaseDatabase.getInstance().getReference().child("Users").child(uid).updateChildren(map);
     }
 
-    void updateEmailInFriend(String userid,String email){
-        DatabaseReference reference1=FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
+    void updateEmailInFriend(String userid, String email) {
+        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference().child("Users").child(userid).child("Friends");
         reference1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot snapshot1:snapshot.getChildren()){
-                    Users users= snapshot1.getValue(Users.class);
-                    DatabaseReference reference2= FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
-                    HashMap<String,Object> map= new HashMap<>();
-                    map.put("mail",email);
+                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                    Users users = snapshot1.getValue(Users.class);
+                    DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("Users").child(users.getUserId()).child("Friends");
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("mail", email);
                     reference2.child(userid).updateChildren(map);
                 }
             }
