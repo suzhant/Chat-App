@@ -3,9 +3,13 @@ package com.sushant.whatsapp;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +21,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 public class FinalCreateGroup extends AppCompatActivity{
@@ -59,6 +66,10 @@ public class FinalCreateGroup extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         binding= ActivityFinalCreateGroupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        ColorDrawable colorDrawable
+                = new ColorDrawable(Color.parseColor("#7C4DFF"));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
 
         database= FirebaseDatabase.getInstance();
         storage=FirebaseStorage.getInstance();
@@ -181,7 +192,10 @@ public class FinalCreateGroup extends AppCompatActivity{
                                 assert users != null;
                                 DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Groups").child(users.getUserId()).child(id);
                                 HashMap<String, Object> map = new HashMap<>();
-                                map.put("groupPP", image);
+                                Drawable d =ResourcesCompat.getDrawable(getResources(), R.drawable.avatar, null);
+                                if (image!=null){
+                                    map.put("groupPP", image);
+                                }
                                 reference.updateChildren(map);
                             }
                         }

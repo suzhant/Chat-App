@@ -11,6 +11,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +27,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -50,6 +53,7 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -106,7 +110,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     boolean notify = false, recording;
     FirebaseStorage storage;
     ProgressDialog dialog;
-    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true";
+    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true",stateLayout;
     long lastOnline;
     ValueEventListener eventListener1, eventListener2, chatListener, senderListener, tokenListener, eventListener;
     Query checkStatus, checkStatus1;
@@ -114,19 +118,22 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     TextView txtTimer, txtRecording;
     long recordedTime;
     Dialog memberDialog;
-
+    LinearLayoutManager layoutManager;
     private static String fileName = null;
     private MediaRecorder recorder = null;
     private static final String LOG_TAG = "AudioRecordTest";
     CountDownTimer timer;
+    int lastPos;
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "ResourceType"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityChatDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().hide();
+//        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.chatStatusColor));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.colorPurple));
 
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/recorded_audio.3gp";
@@ -157,17 +164,19 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         profilePic = getIntent().getStringExtra("ProfilePic");
         email = getIntent().getStringExtra("userEmail");
         Status = getIntent().getStringExtra("UserStatus");
+        stateLayout=getIntent().getStringExtra("state");
 
         binding.userName.setText(receiverName);
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
         checkConn();
 
         final ArrayList<Messages> messageModel = new ArrayList<>();
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         binding.chatRecyclerView.setLayoutManager(layoutManager);
-        layoutManager.setStackFromEnd(true);
         binding.chatRecyclerView.setHasFixedSize(true);
+        layoutManager.setStackFromEnd(true);
         final ChatAdapter chatAdapter = new ChatAdapter(messageModel, this, receiverId);
+        chatAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
 //        binding.icSetting.setOnClickListener(new View.OnClickListener() {
@@ -198,6 +207,19 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();//Method finish() will destroy your activity and show the one that started it.
+            }
+        });
+
+        binding.profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChatDetailsActivity.this, ProfileActivity.class);
+                intent.putExtra("UserIdPA", receiverId);
+                intent.putExtra("UserNamePA", receiverName);
+                intent.putExtra("ProfilePicPA", profilePic);
+                intent.putExtra("EmailPA", email);
+                intent.putExtra("StatusPA",Status);
+                startActivity(intent);
             }
         });
 
@@ -622,6 +644,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     private void uploadToFirebase(byte[] uri, int requestCode, int length) {
         Calendar calendar = Calendar.getInstance();
         final StorageReference reference = storage.getReference().child("Chats Images").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
+        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dialog.setProgress(0);
+        dialog.setMessage("Uploading Image");
         dialog.show();
         UploadTask uploadTask = reference.putBytes(uri);
         uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -694,7 +719,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 if (length > 256) {
                     double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
                     int currentProgress = (int) progress;
-                    dialog.setMessage("Uploading Image: " + currentProgress + "%");
+                    dialog.setProgress(currentProgress);
                 } else {
                     dialog.setMessage("Uploading Image...");
                 }
@@ -1156,6 +1181,4 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         img.recycle();
         return rotatedImg;
     }
-
-
 }

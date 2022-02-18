@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -52,6 +54,9 @@ public class ChangePassword extends AppCompatActivity {
         binding = ActivityChangePasswordBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().setTitle("Change Password");
+        ColorDrawable colorDrawable
+                = new ColorDrawable(Color.parseColor("#7C4DFF"));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
 
         auth = FirebaseAuth.getInstance();
         binding.getRoot().setOnClickListener(new View.OnClickListener() {

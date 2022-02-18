@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,7 +42,11 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         getSupportActionBar().hide();
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.grayBackground));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.grayBackground));
+
         mAuth = FirebaseAuth.getInstance();
         database=FirebaseDatabase.getInstance();
 

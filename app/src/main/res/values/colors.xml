@@ -22,4 +22,9 @@
     <color name="chatbackground">#AAAAAA</color>
     <color name="colorPurple">#7C4DFF</color>
     <color name="green">#00FF00</color>
+    <color name="navColor">#2B2B2B</color>
+    <color name="chatStatusColor">#8252C2</color>
+    <color name="chatNavColor">#C5C4FF</color>
+    <color name="mainNavColor">#1B1B1B</color>
+    <color name="black_95">#121212</color>
 </resources>

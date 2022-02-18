@@ -7,6 +7,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -45,6 +46,8 @@ public class FriendRequestActivity extends AppCompatActivity {
 //        setSupportActionBar(toolbar);
 //        ActionBar ab= getSupportActionBar();
 //        ab.setDisplayHomeAsUpEnabled(true);
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.mainNavColor));
         Notification=getIntent().getStringExtra("Notification");
 
         database = FirebaseDatabase.getInstance();

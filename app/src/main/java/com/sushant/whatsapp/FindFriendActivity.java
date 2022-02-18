@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -46,6 +47,8 @@ public class FindFriendActivity extends AppCompatActivity{
         ActionBar ab= getSupportActionBar();
         assert ab != null;
         ab.setDisplayHomeAsUpEnabled(true);
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.mainNavColor));
 
         database = FirebaseDatabase.getInstance();
 

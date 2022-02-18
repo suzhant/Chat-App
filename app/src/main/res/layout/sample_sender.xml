@@ -16,6 +16,48 @@
         android:maxHeight="400dp"
         android:minHeight="30dp"
         android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/layoutVideoCall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_et_message"
+            android:padding="10dp"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            android:backgroundTint="@color/mainNavColor">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/bg_et_message"
+                    android:padding="3dp"
+                    android:backgroundTint="@color/gray"
+                    android:src="@drawable/ic_missed_video_call"
+                    app:tint="@color/white" />
+                <TextView
+                    android:id="@+id/txtVideoCall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:text="You missed a call"/>
+            </LinearLayout>
+            <Button
+            android:id="@+id/btnCall"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/gray"
+            android:textSize="11sp"
+            android:text="call back"/>
+
+        </LinearLayout>
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardViewSender"
             android:layout_width="wrap_content"

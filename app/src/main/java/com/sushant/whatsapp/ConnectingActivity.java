@@ -1,11 +1,14 @@
 package com.sushant.whatsapp;
 
+import static com.sushant.whatsapp.R.color.red;
+
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,9 +26,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityConnetingBinding;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -40,7 +46,8 @@ public class ConnectingActivity extends AppCompatActivity {
     DatabaseReference databaseReference;
     ValueEventListener eventListener;
     Ringtone r;
-    String key;
+    String key,seen = "true",senderRoom,receiverRoom;
+    CountDownTimer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +72,8 @@ public class ConnectingActivity extends AppCompatActivity {
         email = getIntent().getStringExtra("userEmail");
 //        lastOnline=getIntent().getStringExtra("LastOnline");
 //        StatusFromDB=getIntent().getStringExtra("Status");
+        senderRoom = auth.getUid() + receiverId;
+        receiverRoom = receiverId + auth.getUid();
 
 
         Glide.with(this).load(profilePic).placeholder(R.drawable.placeholder).into(binding.imgPP);
@@ -85,6 +94,7 @@ public class ConnectingActivity extends AppCompatActivity {
             }
         });
 
+        startCountDownTimer();
         sendCallInvitation();
         checkResponse();
 
@@ -102,19 +112,12 @@ public class ConnectingActivity extends AppCompatActivity {
                 r.stop();
                 sendRejectNotification();
                 sendcancelNotification();
+                updateDb();
+                sendMessage();
                 finish();
             }
         });
 
-        videoHandler = new Handler();
-        videoRunnable = new Runnable() {
-            @Override
-            public void run() {
-                updateDb();
-                sendRejectNotification();
-            }
-        };
-        videoHandler.postDelayed(videoRunnable, 62000);
     }
 
     private void sendcancelNotification() {
@@ -256,20 +259,94 @@ public class ConnectingActivity extends AppCompatActivity {
             public void onSuccess(Void unused) {
                 database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("VideoCall").removeValue();
                 database.getReference().child("Users").child(receiverId).child("VideoCall").removeValue();
+//                videoHandler = new Handler();
+//                videoRunnable = new Runnable() {
+//                    @Override
+//                    public void run() {
+//                    }
+//                };
+//                videoHandler.postDelayed(videoRunnable, 1000);
             }
         });
+    }
+
+    private void startCountDownTimer() {
+        timer = new CountDownTimer(62000, 1000) {
+            @Override
+            public void onTick(long l) {
+            }
+
+            @Override
+            public void onFinish() {
+                updateDb();
+                sendRejectNotification();
+                sendMessage();
+            }
+        };
+        timer.start();
+    }
+
+    private void sendMessage() {
+        String message="You missed a Video Call.";
+        final Messages model = new Messages(auth.getUid(), message, profilePic);
+        Date date = new Date();
+        model.setTimestamp(date.getTime());
+        model.setType("videoCall");
+        model.setSenderName(sendername);
+        updateLastMessage(message);
+
+        database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                                r.play();
+                            }
+                        });
+                    }
+                });
+
+        seen = "false";
+        updateSeen(seen, receiverId, auth.getUid());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (videoHandler.hasCallbacks(videoRunnable)) {
-                videoHandler.removeCallbacks(videoRunnable);
-            }
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//            if (videoHandler.hasCallbacks(videoRunnable)) {
+//                videoHandler.removeCallbacks(videoRunnable);
+//            }
+//        }
         if (databaseReference != null) {
             databaseReference.removeEventListener(eventListener);
         }
+        timer.cancel();
+    }
+
+    private void updateLastMessage(String message) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("lastMessage", message);
+        database.getReference().child("Users").child(auth.getUid()).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                database.getReference().child("Users").child(receiverId).child("Friends").child(auth.getUid()).updateChildren(map);
+            }
+        });
+    }
+
+    private void updateSeen(String seen, String ID1, String ID2) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("seen", seen);
+        database.getReference().child("Users").child(ID1).child("Friends").child(ID2).updateChildren(map);
     }
 }

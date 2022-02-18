@@ -11,8 +11,11 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -27,6 +30,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.klinker.android.link_builder.Link;
 import com.klinker.android.link_builder.LinkBuilder;
+import com.sushant.whatsapp.ChatDetailsActivity;
+import com.sushant.whatsapp.ConnectingActivity;
 import com.sushant.whatsapp.FullScreenImage;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
@@ -36,6 +41,7 @@ import com.sushant.whatsapp.R;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
@@ -120,7 +126,20 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             .addLink(link)
                             .build(); // create the clicka
                 }
-            }else {
+            }
+            else if ("videoCall".equals(message.getType())){
+                ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
+                ((SenderViewHolder) holder).layoutVideoCall.setVisibility(View.VISIBLE);
+                ((SenderViewHolder) holder).txtVideoCall.setText("The video chat ended");
+
+                ((SenderViewHolder) holder).btnCall.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        checkResponse();
+                    }
+                });
+            }
+            else {
                 if (message.getAudioFile()!=null){
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                     ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
@@ -135,7 +154,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
             }
             SimpleDateFormat dateFormat= new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
-        } else {
+        }
+        else {
             if ("photo".equals(message.getType())){
                 if (message.getImageUrl()!=null){
                     ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
@@ -177,7 +197,20 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             .addLink(link)
                             .build(); // create the clicka
                 }
-            }else {
+            }
+            else if ("videoCall".equals(message.getType())){
+                ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                ((ReceiverViewHolder) holder).layoutVideoCall.setVisibility(View.VISIBLE);
+                ((ReceiverViewHolder) holder).txtVideoCall.setText("You missed a call.");
+
+                ((ReceiverViewHolder) holder).btnCall.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        checkResponse();
+                    }
+                });
+            }
+            else {
                 if (message.getAudioFile()!=null){
                         ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                         ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
@@ -281,10 +314,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
     public static class ReceiverViewHolder extends RecyclerView.ViewHolder {
         private final TextView txtReceiver;
-        private final TextView txtReceiverTime;
+        private final TextView txtReceiverTime,txtVideoCall;
         private final CircleImageView profilepic;
         private final ImageView imgReceiver;
         private final VoicePlayerView voicePlayerView;
+        private final LinearLayout layoutVideoCall;
+        private final Button btnCall;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -293,14 +328,19 @@ public class ChatAdapter extends RecyclerView.Adapter {
             profilepic=itemView.findViewById(R.id.group_profile_image);
             imgReceiver=itemView.findViewById(R.id.imgReceiver);
             voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
+            txtVideoCall=itemView.findViewById(R.id.txtReceiverVideoCall);
+            layoutVideoCall=itemView.findViewById(R.id.receiverLayoutVideoCall);
+            btnCall=itemView.findViewById(R.id.btnReceiverCall);
         }
     }
 
     public static class SenderViewHolder extends RecyclerView.ViewHolder{
         private final TextView txtSender;
-        private final TextView txtSenderTime;
+        private final TextView txtSenderTime,txtVideoCall;
         private final ImageView imgSender;
         private final VoicePlayerView voicePlayerView;
+        private final LinearLayout layoutVideoCall;
+        private final Button btnCall;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -308,7 +348,43 @@ public class ChatAdapter extends RecyclerView.Adapter {
             txtSenderTime = itemView.findViewById(R.id.txtSenderTime);
             imgSender=itemView.findViewById(R.id.imgSender);
             voicePlayerView=itemView.findViewById(R.id.voicePlayerView);
+            layoutVideoCall=itemView.findViewById(R.id.layoutVideoCall);
+            txtVideoCall=itemView.findViewById(R.id.txtVideoCall);
+            btnCall=itemView.findViewById(R.id.btnCall);
         }
+    }
+
+    private void checkResponse(){
+        FirebaseDatabase.getInstance().getReference().child("Users").child(recId).child("VideoCall").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String onCall = snapshot.child("onCall").getValue(String.class);
+                    if ("false".equals(onCall)) {
+                        Intent intent = new Intent(context, ConnectingActivity.class);
+                        intent.putExtra("ProfilePic", profilePic);
+                        intent.putExtra("UserName", receiverName);
+                        intent.putExtra("UserId", recId);
+                        intent.putExtra("userEmail", email);
+                        intent.putExtra("type", "video");
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, "Users is on Another Call", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("onCall", "false");
+                    map.put("response", "idle");
+                    map.put("key", FirebaseAuth.getInstance().getUid() + recId);
+                    FirebaseDatabase.getInstance().getReference().child("Users").child(recId).child("VideoCall").updateChildren(map);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 }

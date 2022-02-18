@@ -3,6 +3,8 @@ package com.sushant.whatsapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 
@@ -18,6 +20,9 @@ public class Privacy extends AppCompatActivity {
         binding=ActivityPrivacyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().setTitle("Privacy");
+        ColorDrawable colorDrawable
+                = new ColorDrawable(Color.parseColor("#7C4DFF"));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
 
         binding.btnUpdatePass.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -73,7 +73,6 @@
             android:layout_below="@+id/editName"
             android:layout_centerHorizontal="true"
             android:padding="13dp"
-            android:enabled="false"
             android:text="Create"
             android:textSize="12sp"
             app:cornerRadius="4dp" />

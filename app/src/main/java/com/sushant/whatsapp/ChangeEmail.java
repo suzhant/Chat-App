@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -47,6 +49,9 @@ public class ChangeEmail extends AppCompatActivity {
         binding = ActivityChangeEmailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().setTitle("Change Email");
+        ColorDrawable colorDrawable
+                = new ColorDrawable(Color.parseColor("#7C4DFF"));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
 
         auth = FirebaseAuth.getInstance();
 

@@ -29,6 +29,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.dsphotoeditor.sdk.activity.DsPhotoEditorActivity;
@@ -82,6 +83,7 @@ public class FullScreenImage extends AppCompatActivity {
     String data;
     ValueEventListener senderDetailsListener, TokenListener;
     DatabaseReference senderRef, TokenRef;
+    int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +91,11 @@ public class FullScreenImage extends AppCompatActivity {
         binding = ActivityFullScreenImageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().hide();
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.black_95));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.black_95));
 
         storage = FirebaseStorage.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -161,15 +168,29 @@ public class FullScreenImage extends AppCompatActivity {
             public void onClick(View view) {
                 if (!isVisible) {
                     binding.btmLayout.setVisibility(View.VISIBLE);
-//                    binding.imgEdit.setVisibility(View.VISIBLE);
+                    binding.layoutback.setVisibility(View.VISIBLE);
 //                    binding.imgDownload.setVisibility(View.VISIBLE);
                     isVisible = true;
                 } else {
                     binding.btmLayout.setVisibility(View.GONE);
-//                    binding.imgEdit.setVisibility(View.GONE);
+                    binding.layoutback.setVisibility(View.GONE);
 //                    binding.imgDownload.setVisibility(View.GONE);
                     isVisible = false;
                 }
+            }
+        });
+
+        binding.imgBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent= new Intent(FullScreenImage.this,ChatDetailsActivity.class);
+                intent.putExtra("UserId", receiverId);
+                intent.putExtra("ProfilePic", profilePic);
+                intent.putExtra("UserName",receiverName);
+                intent.putExtra("userEmail",email);
+                intent.putExtra("pos",pos);
+                intent.putExtra("state","fromFull");
+                startActivity(intent);
             }
         });
 
@@ -235,6 +256,22 @@ public class FullScreenImage extends AppCompatActivity {
                                 public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
                             }).check();
                 }
+            }
+        });
+
+        FirebaseDatabase.getInstance().getReference().child("Users").child(receiverId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Users users= snapshot.getValue(Users.class);
+                assert users != null;
+                receiverName=users.getUserName();
+                profilePic=users.getProfilePic();
+                email=users.getMail();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }

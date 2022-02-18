@@ -3,6 +3,8 @@ package com.sushant.whatsapp;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -44,6 +46,9 @@ public class DeleteAccount extends AppCompatActivity {
         binding=ActivityDeleteAcccountBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().setTitle("Delete Account");
+        ColorDrawable colorDrawable
+                = new ColorDrawable(Color.parseColor("#7C4DFF"));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
         
         auth = FirebaseAuth.getInstance();
         database= FirebaseDatabase.getInstance();

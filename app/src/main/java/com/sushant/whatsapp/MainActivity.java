@@ -3,6 +3,7 @@ package com.sushant.whatsapp;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -24,6 +25,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -99,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         txtConnection=findViewById(R.id.txtNoConnection);
 
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.colorPurple));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.mainNavColor));
 
         database= FirebaseDatabase.getInstance();
         reference=database.getReference().child("Users");

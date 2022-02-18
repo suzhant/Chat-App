@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
@@ -78,6 +79,7 @@ public class GroupChatActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.colorPurple));
         database = FirebaseDatabase.getInstance();
         auth=FirebaseAuth.getInstance();
         storage=FirebaseStorage.getInstance();
