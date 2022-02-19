@@ -183,14 +183,15 @@ public class FullScreenImage extends AppCompatActivity {
         binding.imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(FullScreenImage.this, ChatDetailsActivity.class);
-                intent.putExtra("UserId", receiverId);
-                intent.putExtra("ProfilePic", profilePic);
-                intent.putExtra("UserName", receiverName);
-                intent.putExtra("userEmail", email);
-                intent.putExtra("pos", pos);
-                intent.putExtra("state", "fromFull");
-                startActivity(intent);
+//                Intent intent = new Intent(FullScreenImage.this, ChatDetailsActivity.class);
+//                intent.putExtra("UserId", receiverId);
+//                intent.putExtra("ProfilePic", profilePic);
+//                intent.putExtra("UserName", receiverName);
+//                intent.putExtra("userEmail", email);
+//                intent.putExtra("pos", pos);
+//                intent.putExtra("state", "fromFull");
+//                startActivity(intent);
+                onBackPressed();
             }
         });
 

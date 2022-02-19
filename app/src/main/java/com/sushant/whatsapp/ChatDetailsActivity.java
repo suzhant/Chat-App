@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -120,7 +121,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     private MediaRecorder recorder = null;
     private static final String LOG_TAG = "AudioRecordTest";
     CountDownTimer timer;
-    int lastPos;
+    Boolean isScrolling = false;
 
     @SuppressLint({"ClickableViewAccessibility", "ResourceType"})
     @Override
@@ -189,6 +190,30 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 //            }
 //        });
 
+
+        binding.chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy != 0){
+                    binding.fabChat.setVisibility(View.VISIBLE);
+                }
+                int pos = layoutManager.findLastCompletelyVisibleItemPosition();
+                int numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
+                if (pos>=numItems-3){
+                    binding.fabChat.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
+        binding.fabChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                layoutManager.scrollToPosition(messageModel.size()-1);
+            }
+        });
+
         binding.backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -234,18 +259,17 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 messageModel.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Messages model = dataSnapshot.getValue(Messages.class);
+                    assert model != null;
                     model.setMessageId(dataSnapshot.getKey());
                     model.setProfilePic(profilePic);
-                    messageModel.add(model);
-
+                    messageModel.add(model);;
                 }
                 chatAdapter.notifyDataSetChanged();
-//                        Collections.sort(messageModel, (obj1, obj2) -> obj1.getTimestamp().compareTo(obj2.getTimestamp()));
                 if (count == 0) {
-                    chatAdapter.notifyDataSetChanged();
+                    chatAdapter.notifyDataSetChanged();;
                 } else {
                     chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
-                    binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
+                 //   binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
                 }
             }
 
@@ -317,6 +341,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onClick(View view) {
                 sendMessage();
+                binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
             }
         });
 
