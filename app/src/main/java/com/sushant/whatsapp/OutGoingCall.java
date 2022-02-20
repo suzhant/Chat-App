@@ -56,6 +56,7 @@ public class OutGoingCall extends JitsiMeetActivity {
                     .setConfigOverride("requireDisplayName", true)
                     .build();
             JitsiMeetActivity.launch(OutGoingCall.this, options);
+            finish();
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 

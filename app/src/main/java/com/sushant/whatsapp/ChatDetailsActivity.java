@@ -8,6 +8,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,6 +41,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -120,9 +125,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     private MediaRecorder recorder = null;
     private static final String LOG_TAG = "AudioRecordTest";
     CountDownTimer timer;
-    Boolean isScrolling = false;
     int pos,numItems;
     ArrayList<Messages> messageModel;
+    ActivityResultLauncher<Intent> someActivityResultLauncher;
 
     @SuppressLint({"ClickableViewAccessibility", "ResourceType"})
     @Override
@@ -353,12 +358,36 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.imgGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ImagePicker.with(ChatDetailsActivity.this)
-                        .galleryOnly()
-                        .crop()
-                        .start(PICK_IMAGE);
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                someActivityResultLauncher.launch(intent);
+
             }
         });
+        someActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // There are no request codes
+                            if (result.getData().getClipData() != null) {
+                                ClipData clipData=result.getData().getClipData();
+                                int count = clipData.getItemCount();
+                                for (int i = 0; i < count; i++) {
+                                    Uri imageUrl = clipData.getItemAt(i).getUri();
+                                    createImageBitmap(imageUrl);
+                                }
+
+                            } else if (result.getData().getData()!=null){
+                                Uri selectedImage = result.getData().getData();
+                                createImageBitmap(selectedImage);
+                            }
+                        }
+                    }
+                });
 
         binding.imgCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -451,6 +480,21 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
+    private void createImageBitmap(Uri imageUrl) {
+        Bitmap bitmap = null;
+        try {
+            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this, imageUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        assert bitmap != null;
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] bytes = baos.toByteArray();
+        int length = bytes.length / 1024;
+        uploadImageToFirebase(bytes, length);
+    }
+
     private void checkAudioPermission() {
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.RECORD_AUDIO)
@@ -504,9 +548,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                         intent.putExtra("UserId", receiverId);
                         intent.putExtra("userEmail", email);
                         intent.putExtra("type", type);
-//                            intent.putExtra("Status",StatusFromDB);
-//                            String online= String.valueOf(lastOnline);
-//                            intent.putExtra("LastOnline",online);
                         startActivity(intent);
                         finish();
                     } else {
@@ -570,6 +611,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                                                     String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
                                                     Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
                                                     r.play();
+                                                    binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
                                                 }
                                             });
                                         }
@@ -593,10 +635,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
 
             @Override
             public void onFinish() {
-//                binding.stopRecording.setImageResource(R.drawable.ic_delete);
-//                binding.txtRecording.setText("Recording stopped..");
-//                binding.audioLayout.setVisibility(View.VISIBLE);
-//                binding.btnSend.setVisibility(View.VISIBLE);
                 stopRecording.setImageResource(R.drawable.ic_delete);
                 stopRecording.setColorFilter(ContextCompat.getColor(ChatDetailsActivity.this, red));
                 txtRecording.setText("Recorded :");
@@ -613,62 +651,19 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE) {
-            if (resultCode == Activity.RESULT_OK) {
-                if (data != null) {
-                    if (data.getData() != null) {
-                        Uri selectedImage = data.getData();
-                        Bitmap bitmap = null;
-                        try {
-                            //convert uri to bitmap
-                            //bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                            //convert uri to bitmap and handle rotation
-                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this, selectedImage);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-//                        File dir = getCacheDir();
-//                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
-//                        Uri uri = Uri.parse(file);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        assert bitmap != null;
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        byte[] bytes = baos.toByteArray();
-                        int length = bytes.length / 1024;
-                        uploadToFirebase(bytes, PICK_IMAGE, length);
-                    }
-                }
-            }
-        }
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
                     if (data.getData() != null) {
                         Uri selectedImage = data.getData();
-                        Bitmap bitmap = null;
-                        try {
-                            // bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                            bitmap = handleSamplingAndRotationBitmap(ChatDetailsActivity.this, selectedImage);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        assert bitmap != null;
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        byte[] bytes = baos.toByteArray();
-//                        File dir = getCacheDir();
-//                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
-//                        Uri uri = Uri.parse(file);
-                        int length = bytes.length / 1024;
-                        uploadToFirebase(bytes, REQUEST_IMAGE_CAPTURE, length);
+                        createImageBitmap(selectedImage);
                     }
                 }
             }
         }
     }
 
-    private void uploadToFirebase(byte[] uri, int requestCode, int length) {
+    private void uploadImageToFirebase(byte[] uri, int length) {
         Calendar calendar = Calendar.getInstance();
         final StorageReference reference = storage.getReference().child("Chats Images").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
         dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -683,16 +678,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 // Uri fdelete = Uri.fromFile(new File(uri.toString()));
                 // File fdelete= new File(uri.toString());
                 //File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
-
-//                if (requestCode==PICK_IMAGE){
-//                    if (file.exists()) {
-//                        if (file.delete()) {
-//                            System.out.println("file Deleted :");
-//                        } else {
-//                            System.out.println("file not Deleted :");
-//                        }
-//                    }
-//                }
 
                 if (task.isSuccessful()) {
                     dialog.dismiss();
@@ -725,6 +710,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                                                     String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
                                                     Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
                                                     r.play();
+                                                    binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
                                                 }
                                             });
                                         }
