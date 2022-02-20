@@ -60,6 +60,42 @@
                 android:text="call back"/>
         </LinearLayout>
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/receiverCardLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:visibility="gone">
+            <LinearLayout
+                android:id="@+id/layoutLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/purple_700"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/receiverTxtLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:maxWidth="250dp"
+                    android:minWidth="50dp"
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
+                    android:textColor="@color/white" />
+
+                <ImageView
+                    android:id="@+id/receiverImgThumbnail"
+                    android:layout_width="250dp"
+                    android:layout_height="150dp"
+                    android:background="@drawable/ic_call_green"
+                    android:backgroundTint="@color/black"
+                    android:layout_gravity="center"
+                    android:src="@drawable/placeholder" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardViewReceiver"

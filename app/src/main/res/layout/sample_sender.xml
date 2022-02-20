@@ -16,52 +16,59 @@
         android:maxHeight="400dp"
         android:minHeight="30dp"
         android:orientation="vertical">
+
         <LinearLayout
             android:id="@+id/layoutVideoCall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_et_message"
-            android:padding="10dp"
             android:layout_gravity="end"
-            android:visibility="gone"
-            android:backgroundTint="@color/white">
+            android:background="@drawable/bg_et_message"
+            android:backgroundTint="@color/white"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:visibility="gone">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/bg_et_message"
-                    android:padding="3dp"
                     android:backgroundTint="@color/gray"
+                    android:padding="3dp"
                     android:src="@drawable/ic_missed_video_call"
                     app:tint="@color/white" />
+
                 <TextView
                     android:id="@+id/txtVideoCall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:textSize="16sp"
+                    android:text="You missed a call"
                     android:textColor="@color/black"
-                    android:text="You missed a call"/>
+                    android:textSize="16sp" />
             </LinearLayout>
+
             <Button
-            android:id="@+id/btnCall"
-            android:layout_width="200dp"
-            android:layout_height="40dp"
-            android:textSize="11sp"
-            android:layout_gravity="center"
-            android:backgroundTint="@color/gray"
-            android:text="call back"/>
+                android:id="@+id/btnCall"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/gray"
+                android:text="call back"
+                android:textSize="11sp" />
 
         </LinearLayout>
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardViewSender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
             <ImageView
                 android:id="@+id/imgSender"
                 android:layout_width="300dp"
@@ -74,6 +81,7 @@
             android:id="@+id/voicePlayerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:playPauseBackgroundColor="@color/colorPurple"
             app:playPauseCornerRadius="100"
             app:playProgressbarColor="#ff7700"
@@ -86,14 +94,49 @@
             app:showShareButton="false"
             app:showTiming="true"
             app:timingBackgroundColor="@color/colorPurple"
-            app:viewCornerRadius="100"
-            android:visibility="gone"/>
+            app:viewCornerRadius="100" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:visibility="gone">
+            <LinearLayout
+                android:id="@+id/layoutLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/purple_700"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:maxWidth="250dp"
+                    android:minWidth="50dp"
+                    android:padding="10dp"
+                    android:singleLine="true"
+                    android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
+                    android:textColor="@color/white" />
+
+                <ImageView
+                    android:id="@+id/imgThumbnail"
+                    android:layout_width="250dp"
+                    android:layout_height="150dp"
+                    android:background="@drawable/ic_call_green"
+                    android:backgroundTint="@color/black"
+                    android:layout_gravity="center"
+                    android:src="@drawable/placeholder" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <FrameLayout
-            android:background="@drawable/bg_et_message"
-            android:backgroundTint="@color/purple_700"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_et_message"
+            android:backgroundTint="@color/purple_700">
 
             <TextView
                 android:id="@+id/txtSender"
@@ -107,6 +150,7 @@
                 android:textColor="@color/white" />
 
         </FrameLayout>
+
         <TextView
             android:id="@+id/txtSenderTime"
             android:layout_width="wrap_content"

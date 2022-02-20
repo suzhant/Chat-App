@@ -23,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,6 +43,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
@@ -97,7 +101,11 @@ public class ChatAdapter extends RecyclerView.Adapter {
             } else if ("text".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
                 if (message.getMessage().contains("https://")) {
-                    ((SenderViewHolder) holder).txtSender.setSingleLine();
+                 //   ((SenderViewHolder) holder).txtSender.setSingleLine();
+                    ((SenderViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
+                    ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
+                    ((SenderViewHolder) holder).txtLink.setText(message.getMessage());
+
                     Link link = new Link(message.getMessage())
                             .setTextColor(Color.parseColor("#FFFFFF"))                  // optional, defaults to holo blue
                             .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
@@ -121,9 +129,22 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
 
                     // create the link builder object add the link rule
-                    LinkBuilder.on(((SenderViewHolder) holder).txtSender)
+                    LinkBuilder.on(((SenderViewHolder) holder).txtLink)
                             .addLink(link)
-                            .build(); // create the clicka
+                            .build(); //
+
+                    if (message.getMessage().contains("tiktok")){
+                        Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
+                                into(((SenderViewHolder) holder).imgLink);
+                    }else if (message.getMessage().contains("youtu.be")){
+                        String thumbnail="https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
+                        RequestOptions options= new RequestOptions();
+                        Glide.with(context).load(thumbnail)
+                                .thumbnail(Glide.with(context).load(thumbnail))
+                                .apply(options)
+                                .placeholder(R.drawable.placeholder).
+                                into(((SenderViewHolder) holder).imgLink);
+                    }
                 }
             } else if ("videoCall".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
@@ -164,7 +185,10 @@ public class ChatAdapter extends RecyclerView.Adapter {
             } else if ("text".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
                 if (message.getMessage().contains("https://")) {
-                    ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
+                   // ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
+                    ((ReceiverViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
+                    ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                    ((ReceiverViewHolder) holder).txtLink.setText(message.getMessage());
                     Link link = new Link(message.getMessage())
                             .setTextColor(Color.parseColor("#259B24"))                  // optional, defaults to holo blue
                             .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
@@ -189,9 +213,22 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
 
                     // create the link builder object add the link rule
-                    LinkBuilder.on(((ReceiverViewHolder) holder).txtReceiver)
+                    LinkBuilder.on(((ReceiverViewHolder) holder).txtLink)
                             .addLink(link)
                             .build(); // create the clicka
+
+                    if (message.getMessage().contains("tiktok")){
+                        Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
+                                into(((ReceiverViewHolder) holder).imgLink);
+                    }else if (message.getMessage().contains("youtu.be")){
+                        String thumbnail="https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
+                        RequestOptions options= new RequestOptions();
+                        Glide.with(context).load(thumbnail)
+                                .thumbnail(Glide.with(context).load(thumbnail))
+                                .apply(options)
+                                .placeholder(R.drawable.placeholder).
+                                into(((ReceiverViewHolder) holder).imgLink);
+                    }
                 }
             } else if ("videoCall".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
@@ -307,13 +344,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
     }
 
     public static class ReceiverViewHolder extends RecyclerView.ViewHolder {
-        private final TextView txtReceiver;
+        private final TextView txtReceiver,txtLink;
         private final TextView txtReceiverTime, txtVideoCall;
         private final CircleImageView profilepic;
-        private final ImageView imgReceiver;
+        private final ImageView imgReceiver,imgLink;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
+        private final MaterialCardView cardLink;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -325,16 +363,20 @@ public class ChatAdapter extends RecyclerView.Adapter {
             txtVideoCall = itemView.findViewById(R.id.txtReceiverVideoCall);
             layoutVideoCall = itemView.findViewById(R.id.receiverLayoutVideoCall);
             btnCall = itemView.findViewById(R.id.btnReceiverCall);
+            cardLink=itemView.findViewById(R.id.receiverCardLink);
+            txtLink=itemView.findViewById(R.id.receiverTxtLink);
+            imgLink=itemView.findViewById(R.id.receiverImgThumbnail);
         }
     }
 
     public static class SenderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView txtSender;
+        private final TextView txtSender,txtLink;
         private final TextView txtSenderTime, txtVideoCall;
-        private final ImageView imgSender;
+        private final ImageView imgSender,imgLink;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
+        private final MaterialCardView cardLink;
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -345,6 +387,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
             layoutVideoCall = itemView.findViewById(R.id.layoutVideoCall);
             txtVideoCall = itemView.findViewById(R.id.txtVideoCall);
             btnCall = itemView.findViewById(R.id.btnCall);
+            txtLink=itemView.findViewById(R.id.txtLink);
+            imgLink=itemView.findViewById(R.id.imgThumbnail);
+            cardLink=itemView.findViewById(R.id.cardLink);
         }
     }
 
@@ -380,5 +425,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
             }
         });
     }
+    private String getYouTubeId (String youTubeUrl) {
+        String pattern = "(?<=youtu.be/|watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(youTubeUrl);
+        if(matcher.find()){
+            return matcher.group();
+        } else {
+            return "error";
+        }
+    }
+
 
 }
