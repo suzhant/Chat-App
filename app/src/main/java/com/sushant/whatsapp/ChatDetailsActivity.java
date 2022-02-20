@@ -36,7 +36,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -122,6 +121,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     private static final String LOG_TAG = "AudioRecordTest";
     CountDownTimer timer;
     Boolean isScrolling = false;
+    int pos,numItems;
+    ArrayList<Messages> messageModel;
 
     @SuppressLint({"ClickableViewAccessibility", "ResourceType"})
     @Override
@@ -168,7 +169,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
         checkConn();
 
-        final ArrayList<Messages> messageModel = new ArrayList<>();
+        messageModel = new ArrayList<>();
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         binding.chatRecyclerView.setLayoutManager(layoutManager);
         binding.chatRecyclerView.setHasFixedSize(true);
@@ -195,12 +196,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy != 0){
+                if (dy != 0) {
                     binding.fabChat.setVisibility(View.VISIBLE);
                 }
-                int pos = layoutManager.findLastCompletelyVisibleItemPosition();
-                int numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
-                if (pos>=numItems-3){
+                 pos = layoutManager.findLastCompletelyVisibleItemPosition();
+                 numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
+                if (pos >= numItems - 5) {
                     binding.fabChat.setVisibility(View.GONE);
                 }
             }
@@ -210,7 +211,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.fabChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                layoutManager.scrollToPosition(messageModel.size()-1);
+                layoutManager.scrollToPosition(messageModel.size() - 1);
             }
         });
 
@@ -262,14 +263,19 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                     assert model != null;
                     model.setMessageId(dataSnapshot.getKey());
                     model.setProfilePic(profilePic);
-                    messageModel.add(model);;
+                    messageModel.add(model);
                 }
                 chatAdapter.notifyDataSetChanged();
                 if (count == 0) {
-                    chatAdapter.notifyDataSetChanged();;
+                    chatAdapter.notifyDataSetChanged();
                 } else {
-                    chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
-                 //   binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
+                    //binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
+                    pos = layoutManager.findLastCompletelyVisibleItemPosition();
+                    numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
+                    if (pos >= numItems - 2) {
+                        chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
+                        binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
+                    }
                 }
             }
 
@@ -341,7 +347,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             @Override
             public void onClick(View view) {
                 sendMessage();
-                binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
             }
         });
 
@@ -802,6 +807,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.icSend.startAnimation(scale_up);
         final String message = binding.editMessage.getText().toString();
         if (!message.isEmpty()) {
+            binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
             final Messages model = new Messages(senderId, message, profilePic);
             Date date = new Date();
             model.setTimestamp(date.getTime());

@@ -25,7 +25,7 @@
             android:padding="10dp"
             android:layout_gravity="end"
             android:visibility="gone"
-            android:backgroundTint="@color/black">
+            android:backgroundTint="@color/white">
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:textSize="16sp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/black"
                     android:text="You missed a call"/>
             </LinearLayout>
             <Button

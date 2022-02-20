@@ -18,8 +18,7 @@
         android:layout_margin="10dp"
         app:fabSize="mini"
         android:elevation="4dp"
-        android:visibility="gone"
-        android:layout_gravity="bottom|end"/>
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatRecyclerView"
@@ -171,6 +170,9 @@
             android:layout_marginBottom="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_et_message"
+            android:textSize="15sp"
+            android:textColorHint="@color/navColor"
+            android:backgroundTint="@color/chatNavColor"
             android:ems="10"
             android:hint="Enter your message"
             android:imeOptions="actionSend"
