@@ -8,10 +8,14 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -68,6 +72,7 @@ public class ShareActivity extends AppCompatActivity {
     Runnable runnable;
     String userToken,sendername,senderPP,email,stringContainingYoutubeLink;
     int i=0;
+    BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +99,8 @@ public class ShareActivity extends AppCompatActivity {
         dialog.setCancelable(true);
 
         senderId=auth.getUid();
+        broadcastReceiver = new InternetCheckServices();
+        registerBroadcastReceiver();
 
         clicked = new isClicked() {
             @Override
@@ -123,30 +130,34 @@ public class ShareActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (size>0){
-                    if (intent.getType().contains("image/")){
-                        for (int i=0;i<receiver.size();i++){
-                            dialog.setMessage("Sending Image");
-                            dialog.show();
-                            Users users= receiver.get(i);
-                            String receiverId=users.getUserId();
-                            String senderRoom=senderId+receiverId;
-                            String receiverRoom=receiverId+senderId;
-                            String profilePic=users.getProfilePic();
-                            uploadImageToFirebase(Uri.parse(image.toString()),senderRoom,receiverRoom,receiverId,profilePic);
-                        }
-                    }else if (intent.getType().contains("text/plain")){
-                        for (int i=0;i<receiver.size();i++){
-                            dialog.setMessage("Sending link");
-                            dialog.show();
-                            Users users= receiver.get(i);
-                            String receiverId=users.getUserId();
-                            String senderRoom=senderId+receiverId;
-                            String receiverRoom=receiverId+senderId;
-                            String profilePic=users.getProfilePic();
-                            sendMessage(stringContainingYoutubeLink,profilePic,receiverId,senderRoom,receiverRoom);
-                        }
+                    CheckConnection checkConnection = new CheckConnection();
+                    if (checkConnection.isConnected(getApplicationContext())) {
+                        Toast.makeText(ShareActivity.this, "Please connect to the internet", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-
+                        if (intent.getType().contains("image/")){
+                            for (int i=0;i<receiver.size();i++){
+                                dialog.setMessage("Sending Image");
+                                dialog.show();
+                                Users users= receiver.get(i);
+                                String receiverId=users.getUserId();
+                                String senderRoom=senderId+receiverId;
+                                String receiverRoom=receiverId+senderId;
+                                String profilePic=users.getProfilePic();
+                                uploadImageToFirebase(Uri.parse(image.toString()),senderRoom,receiverRoom,receiverId,profilePic);
+                            }
+                        }else if (intent.getType().contains("text/plain")){
+                            for (int i=0;i<receiver.size();i++){
+                                dialog.setMessage("Sending link");
+                                dialog.show();
+                                Users users= receiver.get(i);
+                                String receiverId=users.getUserId();
+                                String senderRoom=senderId+receiverId;
+                                String receiverRoom=receiverId+senderId;
+                                String profilePic=users.getProfilePic();
+                                sendMessage(stringContainingYoutubeLink,profilePic,receiverId,senderRoom,receiverRoom);
+                            }
+                    }
                 }else {
                     Toast.makeText(ShareActivity.this, "Please Select User", Toast.LENGTH_SHORT).show();
                 }
@@ -269,6 +280,7 @@ public class ShareActivity extends AppCompatActivity {
                     i=0;
                     size=0;
                     dialog.dismiss();
+                    Toast.makeText(ShareActivity.this, "sent successfully", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -309,6 +321,7 @@ public class ShareActivity extends AppCompatActivity {
                         i=0;
                         size=0;
                         dialog.dismiss();
+                        Toast.makeText(ShareActivity.this, "sent successfully", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -354,6 +367,21 @@ public class ShareActivity extends AppCompatActivity {
         handler.postDelayed(runnable, 2000);
     }
 
+    private void registerBroadcastReceiver() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
+    }
+
+    private void unregisterNetwork() {
+        try {
+            unregisterReceiver(broadcastReceiver);
+
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -366,5 +394,6 @@ public class ShareActivity extends AppCompatActivity {
         if (ref != null) {
             ref.removeEventListener(valueEventListener1);
         }
+        unregisterNetwork();
     }
 }

@@ -1,11 +1,14 @@
 package com.sushant.whatsapp.Adapters;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -14,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,12 +36,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.klinker.android.link_builder.Link;
 import com.klinker.android.link_builder.LinkBuilder;
+import com.sushant.whatsapp.CheckConnection;
 import com.sushant.whatsapp.ConnectingActivity;
 import com.sushant.whatsapp.FullScreenImage;
+import com.sushant.whatsapp.InternetCheckServices;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
+import com.sushant.whatsapp.ShareActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,6 +53,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import a.a.b.b.e;
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
 
@@ -59,6 +67,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
     private final MediaPlayer player = null;
     boolean isPlaying = false;
     String receiverName, profilePic, email, Status;
+    BroadcastReceiver broadcastReceiver;
 
     public ChatAdapter(ArrayList<Messages> messageModel, Context context) {
         this.messageModel = messageModel;
@@ -144,6 +153,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                 .apply(options)
                                 .placeholder(R.drawable.placeholder).
                                 into(((SenderViewHolder) holder).imgLink);
+                    }else if (message.getMessage().contains("instagram")){
+                        Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
+                                into(((SenderViewHolder) holder).imgLink);
                     }
                 }
             } else if ("videoCall".equals(message.getType())) {
@@ -159,15 +171,29 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 });
             } else {
                 if (message.getAudioFile() != null) {
+
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                     ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
                     ((SenderViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            broadcastReceiver = new InternetCheckServices();
+                            registerBroadcastReceiver();
+                            CheckConnection checkConnection = new CheckConnection();
+                            if (checkConnection.isConnected(context)) {
+                                return;
+                            }
                             ((SenderViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
                             ((SenderViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
+                            ((SenderViewHolder) holder).voicePlayerView.getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                @Override
+                                public void onCompletion(MediaPlayer mediaPlayer) {
+                                    unregisterNetwork();
+                                }
+                            });
                         }
                     });
+
                 }
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
@@ -215,7 +241,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     // create the link builder object add the link rule
                     LinkBuilder.on(((ReceiverViewHolder) holder).txtLink)
                             .addLink(link)
-                            .build(); // create the clicka
+                            .build();
 
                     if (message.getMessage().contains("tiktok")){
                         Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
@@ -227,6 +253,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                 .thumbnail(Glide.with(context).load(thumbnail))
                                 .apply(options)
                                 .placeholder(R.drawable.placeholder).
+                                into(((ReceiverViewHolder) holder).imgLink);
+                    }else if (message.getMessage().contains("instagram")){
+                        Glide.with(context).load(R.drawable.instagram_logo).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
                     }
                 }
@@ -243,6 +272,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 });
             } else {
                 if (message.getAudioFile() != null) {
+                    broadcastReceiver = new InternetCheckServices();
+                    registerBroadcastReceiver();
+                    CheckConnection checkConnection = new CheckConnection();
+                    if (checkConnection.isConnected(context)) {
+                        return;
+                    }
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                     ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
                     ((ReceiverViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
@@ -250,6 +285,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         public void onClick(View view) {
                             ((ReceiverViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
                             ((ReceiverViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
+                        }
+                    });
+                    ((ReceiverViewHolder) holder).voicePlayerView.getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            unregisterNetwork();
                         }
                     });
                 }
@@ -436,5 +477,27 @@ public class ChatAdapter extends RecyclerView.Adapter {
         }
     }
 
+    private void registerBroadcastReceiver() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            IntentFilter intentFilter= new IntentFilter();
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+           context.registerReceiver(broadcastReceiver, intentFilter);
+        }
+    }
+
+    private void unregisterNetwork() {
+        try {
+            context.unregisterReceiver(broadcastReceiver);
+
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        unregisterNetwork();
+    }
 
 }

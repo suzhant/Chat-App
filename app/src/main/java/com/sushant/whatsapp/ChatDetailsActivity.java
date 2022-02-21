@@ -1045,6 +1045,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             recorder.release();
             recorder = null;
         }
+        binding.chatRecyclerView.setAdapter(null);
         super.onDestroy();
     }
 
