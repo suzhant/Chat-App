@@ -125,7 +125,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     private MediaRecorder recorder = null;
     private static final String LOG_TAG = "AudioRecordTest";
     CountDownTimer timer;
-    int pos,numItems;
+    int pos, numItems;
     ArrayList<Messages> messageModel;
     ActivityResultLauncher<Intent> someActivityResultLauncher;
 
@@ -183,18 +183,18 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         chatAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
-//        binding.icSetting.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-//                intent.putExtra("UserIdPA", receiverId);
-//                intent.putExtra("UserNamePA", receiverName);
-//                intent.putExtra("ProfilePicPA", profilePic);
-//                intent.putExtra("EmailPA", email);
-//                intent.putExtra("StatusPA",Status);
-//                startActivity(intent);
-//            }
-//        });
+        binding.icSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), ChatSettings.class);
+                intent.putExtra("UserId", receiverId);
+                intent.putExtra("UserName", receiverName);
+                intent.putExtra("ProfilePic", profilePic);
+                intent.putExtra("Email", email);
+                intent.putExtra("Status", Status);
+                startActivity(intent);
+            }
+        });
 
 
         binding.chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -204,8 +204,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 if (dy != 0) {
                     binding.fabChat.setVisibility(View.VISIBLE);
                 }
-                 pos = layoutManager.findLastCompletelyVisibleItemPosition();
-                 numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
+                pos = layoutManager.findLastCompletelyVisibleItemPosition();
+                numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
                 if (pos >= numItems - 5) {
                     binding.fabChat.setVisibility(View.GONE);
                 }
@@ -374,14 +374,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                             // There are no request codes
                             if (result.getData().getClipData() != null) {
-                                ClipData clipData=result.getData().getClipData();
+                                ClipData clipData = result.getData().getClipData();
                                 int count = clipData.getItemCount();
                                 for (int i = 0; i < count; i++) {
                                     Uri imageUrl = clipData.getItemAt(i).getUri();
                                     createImageBitmap(imageUrl);
                                 }
 
-                            } else if (result.getData().getData()!=null){
+                            } else if (result.getData().getData() != null) {
                                 Uri selectedImage = result.getData().getData();
                                 createImageBitmap(selectedImage);
                             }

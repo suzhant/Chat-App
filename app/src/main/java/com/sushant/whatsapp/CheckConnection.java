@@ -12,22 +12,6 @@ public class CheckConnection {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return (networkInfo == null || !networkInfo.isConnectedOrConnecting());
-
-//        if (connectivityManager != null) {
-//            NetworkInfo[] infos = connectivityManager.getAllNetworkInfo();
-//            if (infos != null) {
-//                for (NetworkInfo info : infos) {
-//                    if (info.getState() == NetworkInfo.State.CONNECTED) {
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
-//        return false;
-//        NetworkInfo wifiCon=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-//        NetworkInfo mobileCon=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-//
-//        return (wifiCon != null && wifiCon.isConnected()) || (mobileCon != null && mobileCon.isConnected());
     }
 
     public boolean isInternet() {

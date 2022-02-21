@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +43,6 @@ import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
-import com.sushant.whatsapp.ShareActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,7 +51,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import a.a.b.b.e;
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
 
@@ -110,7 +107,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             } else if ("text".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
                 if (message.getMessage().contains("https://")) {
-                 //   ((SenderViewHolder) holder).txtSender.setSingleLine();
+                    //   ((SenderViewHolder) holder).txtSender.setSingleLine();
                     ((SenderViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                     ((SenderViewHolder) holder).txtLink.setText(message.getMessage());
@@ -142,18 +139,18 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             .addLink(link)
                             .build(); //
 
-                    if (message.getMessage().contains("tiktok")){
+                    if (message.getMessage().contains("tiktok")) {
                         Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
                                 into(((SenderViewHolder) holder).imgLink);
-                    }else if (message.getMessage().contains("youtu.be")){
-                        String thumbnail="https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
-                        RequestOptions options= new RequestOptions();
+                    } else if (message.getMessage().contains("youtu.be")) {
+                        String thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
+                        RequestOptions options = new RequestOptions();
                         Glide.with(context).load(thumbnail)
                                 .thumbnail(Glide.with(context).load(thumbnail))
                                 .apply(options)
                                 .placeholder(R.drawable.placeholder).
                                 into(((SenderViewHolder) holder).imgLink);
-                    }else if (message.getMessage().contains("instagram")){
+                    } else if (message.getMessage().contains("instagram")) {
                         Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
                                 into(((SenderViewHolder) holder).imgLink);
                     }
@@ -211,7 +208,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             } else if ("text".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
                 if (message.getMessage().contains("https://")) {
-                   // ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
+                    // ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
                     ((ReceiverViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                     ((ReceiverViewHolder) holder).txtLink.setText(message.getMessage());
@@ -243,19 +240,19 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             .addLink(link)
                             .build();
 
-                    if (message.getMessage().contains("tiktok")){
+                    if (message.getMessage().contains("tiktok")) {
                         Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
-                    }else if (message.getMessage().contains("youtu.be")){
-                        String thumbnail="https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
-                        RequestOptions options= new RequestOptions();
+                    } else if (message.getMessage().contains("youtu.be")) {
+                        String thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
+                        RequestOptions options = new RequestOptions();
                         Glide.with(context).load(thumbnail)
                                 .thumbnail(Glide.with(context).load(thumbnail))
                                 .apply(options)
                                 .placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
-                    }else if (message.getMessage().contains("instagram")){
-                        Glide.with(context).load(R.drawable.instagram_logo).placeholder(R.drawable.placeholder).
+                    } else if (message.getMessage().contains("instagram")) {
+                        Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
                     }
                 }
@@ -385,10 +382,10 @@ public class ChatAdapter extends RecyclerView.Adapter {
     }
 
     public static class ReceiverViewHolder extends RecyclerView.ViewHolder {
-        private final TextView txtReceiver,txtLink;
+        private final TextView txtReceiver, txtLink;
         private final TextView txtReceiverTime, txtVideoCall;
         private final CircleImageView profilepic;
-        private final ImageView imgReceiver,imgLink;
+        private final ImageView imgReceiver, imgLink;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
@@ -404,16 +401,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
             txtVideoCall = itemView.findViewById(R.id.txtReceiverVideoCall);
             layoutVideoCall = itemView.findViewById(R.id.receiverLayoutVideoCall);
             btnCall = itemView.findViewById(R.id.btnReceiverCall);
-            cardLink=itemView.findViewById(R.id.receiverCardLink);
-            txtLink=itemView.findViewById(R.id.receiverTxtLink);
-            imgLink=itemView.findViewById(R.id.receiverImgThumbnail);
+            cardLink = itemView.findViewById(R.id.receiverCardLink);
+            txtLink = itemView.findViewById(R.id.receiverTxtLink);
+            imgLink = itemView.findViewById(R.id.receiverImgThumbnail);
         }
     }
 
     public static class SenderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView txtSender,txtLink;
+        private final TextView txtSender, txtLink;
         private final TextView txtSenderTime, txtVideoCall;
-        private final ImageView imgSender,imgLink;
+        private final ImageView imgSender, imgLink;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
@@ -428,9 +425,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
             layoutVideoCall = itemView.findViewById(R.id.layoutVideoCall);
             txtVideoCall = itemView.findViewById(R.id.txtVideoCall);
             btnCall = itemView.findViewById(R.id.btnCall);
-            txtLink=itemView.findViewById(R.id.txtLink);
-            imgLink=itemView.findViewById(R.id.imgThumbnail);
-            cardLink=itemView.findViewById(R.id.cardLink);
+            txtLink = itemView.findViewById(R.id.txtLink);
+            imgLink = itemView.findViewById(R.id.imgThumbnail);
+            cardLink = itemView.findViewById(R.id.cardLink);
         }
     }
 
@@ -466,11 +463,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
             }
         });
     }
-    private String getYouTubeId (String youTubeUrl) {
+
+    private String getYouTubeId(String youTubeUrl) {
         String pattern = "(?<=youtu.be/|watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
         Pattern compiledPattern = Pattern.compile(pattern);
         Matcher matcher = compiledPattern.matcher(youTubeUrl);
-        if(matcher.find()){
+        if (matcher.find()) {
             return matcher.group();
         } else {
             return "error";
@@ -479,9 +477,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
     private void registerBroadcastReceiver() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            IntentFilter intentFilter= new IntentFilter();
+            IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-           context.registerReceiver(broadcastReceiver, intentFilter);
+            context.registerReceiver(broadcastReceiver, intentFilter);
         }
     }
 

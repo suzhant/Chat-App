@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -41,10 +40,10 @@ public class InternetCheckServices extends BroadcastReceiver {
         try {
             CheckConnection checkConnection = new CheckConnection();
             isOnline = !checkConnection.isConnected(context) || checkConnection.isInternet();
-                if (!isOnline) {
-                    AlertDialog dialog1 = builder.create();
-                    dialog1.show();
-                }
+            if (!isOnline) {
+                AlertDialog dialog1 = builder.create();
+                dialog1.show();
+            }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
