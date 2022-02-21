@@ -5,11 +5,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
@@ -25,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -48,6 +53,9 @@ import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 import com.sushant.whatsapp.ShareActivity;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -341,8 +349,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 Dialog shareDialog = new Dialog(context);
                 shareDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 shareDialog.setContentView(R.layout.fragment_bottom_sheet);
-                TextView txtShare = shareDialog.findViewById(R.id.txtShare);
+                TextView txtShareInside = shareDialog.findViewById(R.id.txtShare);
                 TextView txtRemove = shareDialog.findViewById(R.id.txtRemove);
+                TextView txtShareOutside = shareDialog.findViewById(R.id.txtShareOutSide);
 
                 shareDialog.show();
                 shareDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -351,26 +360,75 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 shareDialog.getWindow().setGravity(Gravity.BOTTOM);
                 shareDialog.getWindow().getAttributes().windowAnimations = R.style.NoAnimation;
 
-                txtShare.setOnClickListener(new View.OnClickListener() {
+                txtShareInside.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (message.getType().equals("text")) {
-                            if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")) {
+                        switch (message.getType()) {
+                            case "text":
+                                if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")) {
+                                    Intent intent = new Intent(context, ShareActivity.class);
+                                    intent.putExtra("link", message.getMessage());
+                                    intent.setAction("SEND_TEXT");
+                                    intent.setType("chat_txt");
+                                    context.startActivity(intent);
+                                } else {
+                                    Toast.makeText(context, "select link or image only", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case "photo": {
                                 Intent intent = new Intent(context, ShareActivity.class);
-                                intent.putExtra("link", message.getMessage());
-                                intent.setAction("SEND_TEXT");
-                                intent.setType("chat_txt");
+                                intent.putExtra("image", message.getImageUrl());
+                                intent.setAction("SEND_IMAGE");
+                                intent.setType("chat_img");
                                 context.startActivity(intent);
-                            } else {
-                                Toast.makeText(context, "select link or image only", Toast.LENGTH_SHORT).show();
+                                break;
                             }
-                        } else if (message.getType().equals("photo")) {
-                            Intent intent = new Intent(context, ShareActivity.class);
-                            intent.putExtra("image", message.getImageUrl());
-                            intent.setAction("SEND_IMAGE");
-                            intent.setType("chat_img");
-                            context.startActivity(intent);
+                            case "audio": {
+                                Intent intent = new Intent(context, ShareActivity.class);
+                                intent.putExtra("audio", message.getAudioFile());
+                                intent.setAction("SEND_AUDIO");
+                                intent.setType("chat_audio");
+                                context.startActivity(intent);
+                                break;
+                            }
                         }
+                    }
+                });
+
+                txtShareOutside.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        switch (message.getType()) {
+                            case "text":
+                                if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")) {
+                                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                                    shareIntent.setType("text/plain");
+                                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, message.getMessage());
+                                    context.startActivity(Intent.createChooser(shareIntent, "Share via"));
+                                } else {
+                                    Toast.makeText(context, "select link or image only", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case "photo": {
+                                ImageView imageView;
+                                if (holder.getClass() == SenderViewHolder.class) {
+                                    imageView = ((SenderViewHolder) holder).imgSender;
+                                } else {
+                                    imageView = ((ReceiverViewHolder) holder).imgReceiver;
+                                }
+                                Uri bmpUri = getLocalBitmapUri(imageView);
+                                if (bmpUri != null) {
+                                    Intent shareIntent = new Intent();
+                                    shareIntent.setAction(Intent.ACTION_SEND);
+                                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                                    shareIntent.setType("image/*");
+                                    context.startActivity(Intent.createChooser(shareIntent, "Share via"));
+                                }
+                                break;
+                            }
+                        }
+
                     }
                 });
 
@@ -545,6 +603,31 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         unregisterNetwork();
+    }
+
+    public Uri getLocalBitmapUri(ImageView imageView) {
+        // Extract Bitmap from ImageView drawable
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp = null;
+        if (drawable instanceof BitmapDrawable) {
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        // Store image to default external storage directory
+        Uri bmpUri = null;
+        try {
+            // This way, you don't need to request external read/write permission.
+            File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = FileProvider.getUriForFile(context, "com.sushant.whatsapp.fileprovider", file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
     }
 
 }

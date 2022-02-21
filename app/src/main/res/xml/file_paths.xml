@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-        <external-path name="external" path="." />
-        <external-path name="my_images" path="Android/data/com.sushant.whatsapp/files/Pictures" />
-        <cache-path name="cache" path="." />
-        <external-cache-path name="external_cache" path="." />
-        <files-path name="files" path="." />
+        <external-path
+            name="external"
+            path="." />
+        <external-path
+            name="my_images"
+            path="Android/data/com.sushant.whatsapp/files/Pictures" />
+        <cache-path
+            name="cache"
+            path="." />
+        <external-cache-path
+            name="external_cache"
+            path="." />
+        <files-path
+            name="files"
+            path="." />
+        <external-files-path
+            name="images"
+            path="Pictures" />
 </paths>

@@ -58,7 +58,6 @@ public class ShareActivity extends AppCompatActivity {
     ArrayList<Users> receiver = new ArrayList<>();
     int size = 0;
     isClicked clicked;
-    ;
     FirebaseStorage storage;
     String senderId;
     FirebaseAuth auth;
@@ -69,7 +68,7 @@ public class ShareActivity extends AppCompatActivity {
     String userToken, sendername, senderPP, email, stringContainingYoutubeLink;
     int i = 0;
     BroadcastReceiver broadcastReceiver;
-    String img, txt;
+    String img, txt, audio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,10 +87,16 @@ public class ShareActivity extends AppCompatActivity {
             stringContainingYoutubeLink = extras.getString(Intent.EXTRA_TEXT);
         }
 
-        if (intent.getAction().equals("SEND_IMAGE")) {
-            img = getIntent().getStringExtra("image");
-        } else if (intent.getAction().equals("SEND_TEXT")) {
-            txt = getIntent().getStringExtra("link");
+        switch (intent.getAction()) {
+            case "SEND_IMAGE":
+                img = getIntent().getStringExtra("image");
+                break;
+            case "SEND_TEXT":
+                txt = getIntent().getStringExtra("link");
+                break;
+            case "SEND_AUDIO":
+                audio = getIntent().getStringExtra("audio");
+                break;
         }
 
 
@@ -159,7 +164,7 @@ public class ShareActivity extends AppCompatActivity {
                             String senderRoom = senderId + receiverId;
                             String receiverRoom = receiverId + senderId;
                             String profilePic = users.getProfilePic();
-                            sendMessage(stringContainingYoutubeLink, profilePic, receiverId, senderRoom, receiverRoom);
+                            sendMessage(stringContainingYoutubeLink, profilePic, receiverId, senderRoom, receiverRoom, "text", "sent a link");
                         }
                     } else if (intent.getType().equals("chat_img")) {
                         dialog.setMessage("Sending Image");
@@ -179,7 +184,18 @@ public class ShareActivity extends AppCompatActivity {
                             String senderRoom = senderId + receiverId;
                             String receiverRoom = receiverId + senderId;
                             String profilePic = users.getProfilePic();
-                            sendMessage(txt, profilePic, receiverId, senderRoom, receiverRoom);
+                            sendMessage(txt, profilePic, receiverId, senderRoom, receiverRoom, "text", "sent a link");
+                        }
+                    } else if (intent.getType().equals("chat_audio")) {
+                        for (int i = 0; i < receiver.size(); i++) {
+                            dialog.setMessage("Sending Audio");
+                            dialog.show();
+                            Users users = receiver.get(i);
+                            String receiverId = users.getUserId();
+                            String senderRoom = senderId + receiverId;
+                            String receiverRoom = receiverId + senderId;
+                            String profilePic = users.getProfilePic();
+                            sendMessage(audio, profilePic, receiverId, senderRoom, receiverRoom, "audio", "sent an audio");
                         }
                     }
                 } else {
@@ -340,16 +356,16 @@ public class ShareActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void sendMessage(String message, String profilePic, String receiverId, String senderRoom, String receiverRoom) {
+    private void sendMessage(String message, String profilePic, String receiverId, String senderRoom, String receiverRoom, String type, String lastmessage) {
         if (!message.isEmpty()) {
             i++;
             final Messages model = new Messages(senderId, message, profilePic);
             Date date = new Date();
             model.setTimestamp(date.getTime());
-            model.setType("text");
-            updateLastMessage(receiverId, "sent a link");
+            model.setType(type);
+            updateLastMessage(receiverId, lastmessage);
 
-            sendNotification(receiverId, sendername, message, senderPP, email, senderId, "text");
+            sendNotification(receiverId, sendername, message, senderPP, email, senderId, type);
 
             database.getReference().child("Chats").child(senderRoom).push().setValue(model)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
