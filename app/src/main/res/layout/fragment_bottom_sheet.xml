@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_bg"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txtShare"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:layout_marginStart="@dimen/dp_16"
+        android:backgroundTint="@android:color/white"
+        android:drawablePadding="@dimen/dp_32"
+        android:drawableStart="@drawable/ic_share_white_24dp"
+        android:drawableTint="@color/colorPurple"
+        android:gravity="start|center_vertical"
+        android:text="Share"
+        android:textStyle="bold"
+        android:textColor="@color/gray"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="@dimen/dp_8"
+        android:layout_marginTop="@dimen/md_bottom_sheet_separator_top_margin"
+        android:background="@color/gray" />
+
+    <TextView
+        android:id="@+id/txtRemove"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:layout_marginStart="@dimen/dp_16"
+        android:backgroundTint="@android:color/white"
+        android:drawablePadding="@dimen/dp_32"
+        android:drawableStart="@drawable/ic_delete"
+        android:drawableTint="@color/colorPurple"
+        android:gravity="start|center_vertical"
+        android:text="Remove"
+        android:textStyle="bold"
+        android:textColor="@color/gray"
+        android:textSize="16sp" />
+
+</LinearLayout>

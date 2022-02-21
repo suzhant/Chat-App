@@ -58,17 +58,18 @@ public class ShareActivity extends AppCompatActivity {
     ArrayList<Users> receiver = new ArrayList<>();
     int size = 0;
     isClicked clicked;
-    DatabaseReference databaseReference;
+    ;
     FirebaseStorage storage;
     String senderId;
     FirebaseAuth auth;
-    Parcelable image, text;
+    Parcelable image;
     ProgressDialog dialog;
     Handler handler;
     Runnable runnable;
     String userToken, sendername, senderPP, email, stringContainingYoutubeLink;
     int i = 0;
     BroadcastReceiver broadcastReceiver;
+    String img, txt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,16 +84,23 @@ public class ShareActivity extends AppCompatActivity {
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             image = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            text = intent.getParcelableExtra(Intent.EXTRA_TEXT);
             Bundle extras = getIntent().getExtras();
             stringContainingYoutubeLink = extras.getString(Intent.EXTRA_TEXT);
         }
+
+        if (intent.getAction().equals("SEND_IMAGE")) {
+            img = getIntent().getStringExtra("image");
+        } else if (intent.getAction().equals("SEND_TEXT")) {
+            txt = getIntent().getStringExtra("link");
+        }
+
 
         storage = FirebaseStorage.getInstance();
         database = FirebaseDatabase.getInstance();
         auth = FirebaseAuth.getInstance();
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
+
 
         senderId = auth.getUid();
         broadcastReceiver = new InternetCheckServices();
@@ -152,6 +160,26 @@ public class ShareActivity extends AppCompatActivity {
                             String receiverRoom = receiverId + senderId;
                             String profilePic = users.getProfilePic();
                             sendMessage(stringContainingYoutubeLink, profilePic, receiverId, senderRoom, receiverRoom);
+                        }
+                    } else if (intent.getType().equals("chat_img")) {
+                        dialog.setMessage("Sending Image");
+                        dialog.show();
+                        Users users = receiver.get(i);
+                        String receiverId = users.getUserId();
+                        String senderRoom = senderId + receiverId;
+                        String receiverRoom = receiverId + senderId;
+                        String profilePic = users.getProfilePic();
+                        sendImageInsideApp(img, senderRoom, receiverRoom, receiverId, profilePic);
+                    } else if (intent.getType().equals("chat_txt")) {
+                        for (int i = 0; i < receiver.size(); i++) {
+                            dialog.setMessage("Sending link");
+                            dialog.show();
+                            Users users = receiver.get(i);
+                            String receiverId = users.getUserId();
+                            String senderRoom = senderId + receiverId;
+                            String receiverRoom = receiverId + senderId;
+                            String profilePic = users.getProfilePic();
+                            sendMessage(txt, profilePic, receiverId, senderRoom, receiverRoom);
                         }
                     }
                 } else {
@@ -227,6 +255,34 @@ public class ShareActivity extends AppCompatActivity {
         };
         ref = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
         ref.addValueEventListener(valueEventListener1);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private void sendImageInsideApp(String image, String senderRoom, String receiverRoom, String receiverId, String profilePic) {
+        i++;
+        Date date = new Date();
+        final Messages model = new Messages(senderId, profilePic, date.getTime());
+        model.setMessage("send you a photo");
+        model.setImageUrl(image);
+        model.setType("photo");
+        updateLastMessage(receiverId, "photo.jpg");
+
+        sendNotification(receiverId, sendername, image, senderPP, email, senderId, "photo");
+
+        database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                if (i == receiver.size()) {
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
+                    }
+                });
     }
 
     private void uploadImageToFirebase(Uri uri, String senderRoom, String receiverRoom, String receiverId, String profilePic) {

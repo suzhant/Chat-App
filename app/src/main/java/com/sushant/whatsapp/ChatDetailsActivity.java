@@ -270,7 +270,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }
-                chatAdapter.notifyDataSetChanged();
+             //   chatAdapter.notifyDataSetChanged();
                 if (count == 0) {
                     chatAdapter.notifyDataSetChanged();
                 } else {
@@ -278,6 +278,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                     pos = layoutManager.findLastCompletelyVisibleItemPosition();
                     numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
                     if (pos >= numItems - 2) {
+                        chatAdapter.notifyItemInserted(messageModel.size());
                         chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
                         binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
                     }

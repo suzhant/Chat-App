@@ -1,21 +1,22 @@
 package com.sushant.whatsapp.Adapters;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
-import android.media.MediaPlayer;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -45,6 +46,7 @@ import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
+import com.sushant.whatsapp.ShareActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,8 +65,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
     String recId;
     int SENDER_VIEW_TYPE = 1;
     int RECEIVER_VIEW_TYPE = 2;
-    private final MediaPlayer player = null;
-    boolean isPlaying = false;
     String receiverName, profilePic, email, Status;
     BroadcastReceiver broadcastReceiver;
 
@@ -160,7 +160,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                         into(((SenderViewHolder) holder).imgLink);
                             }
                         };
-                        handler.postDelayed(runnable, 1000);
+                        handler.postDelayed(runnable, 500);
 
                     } else if (message.getMessage().contains("instagram")) {
                         Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
@@ -263,7 +263,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                         into(((ReceiverViewHolder) holder).imgLink);
                             }
                         };
-                        handler.postDelayed(runnable, 1000);
+                        handler.postDelayed(runnable, 500);
                     } else if (message.getMessage().contains("instagram")) {
                         Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
@@ -338,21 +338,63 @@ public class ChatAdapter extends RecyclerView.Adapter {
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                new AlertDialog.Builder(context).setTitle("Delete")
-                        .setMessage("Do you want to delete this message?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                                String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
-                                database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).setValue(null);
-                            }
-                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                Dialog shareDialog = new Dialog(context);
+                shareDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                shareDialog.setContentView(R.layout.fragment_bottom_sheet);
+                TextView txtShare = shareDialog.findViewById(R.id.txtShare);
+                TextView txtRemove = shareDialog.findViewById(R.id.txtRemove);
+
+                shareDialog.show();
+                shareDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                shareDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                shareDialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                shareDialog.getWindow().setGravity(Gravity.BOTTOM);
+                shareDialog.getWindow().getAttributes().windowAnimations = R.style.NoAnimation;
+
+                txtShare.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
+                    public void onClick(View view) {
+                        if (message.getType().equals("text")) {
+                            if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")) {
+                                Intent intent = new Intent(context, ShareActivity.class);
+                                intent.putExtra("link", message.getMessage());
+                                intent.setAction("SEND_TEXT");
+                                intent.setType("chat_txt");
+                                context.startActivity(intent);
+                            } else {
+                                Toast.makeText(context, "select link or image only", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (message.getType().equals("photo")) {
+                            Intent intent = new Intent(context, ShareActivity.class);
+                            intent.putExtra("image", message.getImageUrl());
+                            intent.setAction("SEND_IMAGE");
+                            intent.setType("chat_img");
+                            context.startActivity(intent);
+                        }
                     }
-                }).show();
+                });
+
+                txtRemove.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(context, "remove", Toast.LENGTH_SHORT).show();
+                    }
+                });
+//                new AlertDialog.Builder(context).setTitle("Delete")
+//                        .setMessage("Do you want to delete this message?")
+//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+////                                FirebaseDatabase database = FirebaseDatabase.getInstance();
+////                                String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
+////                                database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).setValue(null);
+//                            }
+//                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        dialogInterface.dismiss();
+//                    }
+//                }).show();
                 return false;
             }
         });
