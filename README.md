@@ -7,6 +7,7 @@ First Android Project using Java.<br><br>
 <li>Real-time Chat</li>
 <li>Group Chat</li>
 <li>Video Chat</li> 
+<li>online Presence Capability</li> 
 <li>Share feature inside and outside app</li>  
 <li>Authentication</li>
 <li>Biometric login</ii>
