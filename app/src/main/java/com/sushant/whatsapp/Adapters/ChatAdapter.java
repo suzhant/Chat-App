@@ -14,8 +14,6 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,8 +58,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
@@ -152,23 +148,13 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     if (message.getMessage().contains("tiktok")) {
                         Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
                                 into(((SenderViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("youtu.be")) {
-
+                    } else if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
                         RequestOptions options = new RequestOptions();
-                        Handler handler = new Handler(Looper.getMainLooper());
-
-                        Runnable runnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                String thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
-                                Glide.with(context).load(thumbnail)
-                                        .thumbnail(Glide.with(context).load(thumbnail))
-                                        .apply(options)
-                                        .placeholder(R.drawable.placeholder).
-                                        into(((SenderViewHolder) holder).imgLink);
-                            }
-                        };
-                        handler.postDelayed(runnable, 500);
+                        Glide.with(context).load(message.getImageUrl())
+                                .thumbnail(Glide.with(context).load(message.getImageUrl()))
+                                .apply(options)
+                                .placeholder(R.drawable.placeholder).
+                                into(((SenderViewHolder) holder).imgLink);
 
                     } else if (message.getMessage().contains("instagram")) {
                         Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
@@ -257,21 +243,13 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     if (message.getMessage().contains("tiktok")) {
                         Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("youtu.be")) {
-                        Handler handler = new Handler(Looper.getMainLooper());
-                        Runnable runnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                String thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(message.getMessage()) + "/0.jpg";
-                                RequestOptions options = new RequestOptions();
-                                Glide.with(context).load(thumbnail)
-                                        .thumbnail(Glide.with(context).load(thumbnail))
-                                        .apply(options)
-                                        .placeholder(R.drawable.placeholder).
-                                        into(((ReceiverViewHolder) holder).imgLink);
-                            }
-                        };
-                        handler.postDelayed(runnable, 500);
+                    } else if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
+                        RequestOptions options = new RequestOptions();
+                        Glide.with(context).load(message.getImageUrl())
+                                .thumbnail(Glide.with(context).load(message.getImageUrl()))
+                                .apply(options)
+                                .placeholder(R.drawable.placeholder).
+                                into(((ReceiverViewHolder) holder).imgLink);
                     } else if (message.getMessage().contains("instagram")) {
                         Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
@@ -368,6 +346,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                 if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")) {
                                     Intent intent = new Intent(context, ShareActivity.class);
                                     intent.putExtra("link", message.getMessage());
+                                    if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
+                                        intent.putExtra("thumbnail", message.getImageUrl());
+                                    }
                                     intent.setAction("SEND_TEXT");
                                     intent.setType("chat_txt");
                                     context.startActivity(intent);
@@ -569,17 +550,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
             }
         });
-    }
-
-    private String getYouTubeId(String youTubeUrl) {
-        String pattern = "(?<=youtu.be/|watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
-        Pattern compiledPattern = Pattern.compile(pattern);
-        Matcher matcher = compiledPattern.matcher(youTubeUrl);
-        if (matcher.find()) {
-            return matcher.group();
-        } else {
-            return "error";
-        }
     }
 
     private void registerBroadcastReceiver() {

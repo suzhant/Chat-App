@@ -46,6 +46,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ShareActivity extends AppCompatActivity {
     ActivityShareBinding binding;
@@ -68,7 +70,7 @@ public class ShareActivity extends AppCompatActivity {
     String userToken, sendername, senderPP, email, stringContainingYoutubeLink;
     int i = 0;
     BroadcastReceiver broadcastReceiver;
-    String img, txt, audio;
+    String img, txt, audio, thumbnail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +87,9 @@ public class ShareActivity extends AppCompatActivity {
             image = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             Bundle extras = getIntent().getExtras();
             stringContainingYoutubeLink = extras.getString(Intent.EXTRA_TEXT);
+            if (stringContainingYoutubeLink.contains("youtu.be")) {
+                thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(stringContainingYoutubeLink) + "/0.jpg";
+            }
         }
 
         switch (intent.getAction()) {
@@ -93,6 +98,9 @@ public class ShareActivity extends AppCompatActivity {
                 break;
             case "SEND_TEXT":
                 txt = getIntent().getStringExtra("link");
+                if (txt.contains("youtu.be")) {
+                    thumbnail = getIntent().getStringExtra("thumbnail");
+                }
                 break;
             case "SEND_AUDIO":
                 audio = getIntent().getStringExtra("audio");
@@ -217,8 +225,6 @@ public class ShareActivity extends AppCompatActivity {
         binding.imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent1 = new Intent(ShareActivity.this, MainActivity.class);
-                startActivity(intent1);
                 finish();
             }
         });
@@ -363,6 +369,9 @@ public class ShareActivity extends AppCompatActivity {
             Date date = new Date();
             model.setTimestamp(date.getTime());
             model.setType(type);
+            if (message.contains("youtu.be")) {
+                model.setImageUrl(thumbnail);
+            }
             updateLastMessage(receiverId, lastmessage);
 
             sendNotification(receiverId, sendername, message, senderPP, email, senderId, type);
@@ -422,6 +431,18 @@ public class ShareActivity extends AppCompatActivity {
         };
         handler.postDelayed(runnable, 2000);
     }
+
+    private String getYouTubeId(String youTubeUrl) {
+        String pattern = "(?<=youtu.be/|watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(youTubeUrl);
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return "error";
+        }
+    }
+
 
     private void registerBroadcastReceiver() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
