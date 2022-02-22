@@ -4,13 +4,11 @@ import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -44,7 +42,6 @@ import com.klinker.android.link_builder.LinkBuilder;
 import com.sushant.whatsapp.CheckConnection;
 import com.sushant.whatsapp.ConnectingActivity;
 import com.sushant.whatsapp.FullScreenImage;
-import com.sushant.whatsapp.InternetCheckServices;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
@@ -180,10 +177,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     ((SenderViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            broadcastReceiver = new InternetCheckServices();
-                            registerBroadcastReceiver();
                             CheckConnection checkConnection = new CheckConnection();
-                            if (checkConnection.isConnected(context)) {
+                            if (checkConnection.isConnected(context) || !checkConnection.isInternet()) {
+                                Toast.makeText(context, "Please connect to the internet", Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             ((SenderViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
@@ -268,17 +264,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 });
             } else {
                 if (message.getAudioFile() != null) {
-                    broadcastReceiver = new InternetCheckServices();
-                    registerBroadcastReceiver();
-                    CheckConnection checkConnection = new CheckConnection();
-                    if (checkConnection.isConnected(context)) {
-                        return;
-                    }
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                     ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
                     ((ReceiverViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            CheckConnection checkConnection = new CheckConnection();
+                            if (checkConnection.isConnected(context) || !checkConnection.isInternet()) {
+                                Toast.makeText(context, "Please connect to the internet", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                             ((ReceiverViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
                             ((ReceiverViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
                         }
@@ -550,29 +545,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
             }
         });
-    }
-
-    private void registerBroadcastReceiver() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.registerReceiver(broadcastReceiver, intentFilter);
-        }
-    }
-
-    private void unregisterNetwork() {
-        try {
-            context.unregisterReceiver(broadcastReceiver);
-
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        unregisterNetwork();
     }
 
     public Uri getLocalBitmapUri(ImageView imageView) {
