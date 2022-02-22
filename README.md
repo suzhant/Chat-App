@@ -1,7 +1,7 @@
 # SusIna
 First Android Project using Java.<br><br>
 
-<i><b>A Realtime Chat App that includes features:</b></i><br> 
+<i><b>A Chat App that includes features:</b></i><br> 
 <ul>
   <i>
 <li>Real-time Chat</li>
