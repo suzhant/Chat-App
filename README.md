@@ -8,13 +8,11 @@ First Android Project using Java.<br><br>
 <li>Authentication</li>
 <li>Biometric login</ii>
 <li>Email verification </li>
-<li>Email and Password update</li>
-<li>Email and Password validation</li>
 <li>Password reset </li>
 <li>Account deletion</li>
-<li>Profile Settings</li>
-<li>Find friends</li>
 <li>Group Chat</li>
+<li>Video Chat</li> 
+<li>Share feature inside and outside app</li>  
  
   </i>
 </ul>
