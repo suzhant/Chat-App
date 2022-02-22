@@ -5,15 +5,15 @@ First Android Project using Java.<br><br>
 <ul>
   <i>
 <li>Real-time Chat</li>
+<li>Group Chat</li>
+<li>Video Chat</li> 
+<li>Share feature inside and outside app</li>  
 <li>Authentication</li>
 <li>Biometric login</ii>
 <li>Email verification </li>
 <li>Password reset </li>
 <li>Account deletion</li>
-<li>Group Chat</li>
-<li>Video Chat</li> 
-<li>Share feature inside and outside app</li>  
- 
+
   </i>
 </ul>
 
