@@ -112,7 +112,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     boolean notify = false, recording;
     FirebaseStorage storage;
     ProgressDialog dialog;
-    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true", stateLayout;
+    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true";
     long lastOnline;
     ValueEventListener eventListener1, eventListener2, chatListener, senderListener, tokenListener, eventListener;
     Query checkStatus, checkStatus1;
@@ -168,7 +168,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         profilePic = getIntent().getStringExtra("ProfilePic");
         email = getIntent().getStringExtra("userEmail");
         Status = getIntent().getStringExtra("UserStatus");
-        stateLayout = getIntent().getStringExtra("state");
 
         binding.userName.setText(receiverName);
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);

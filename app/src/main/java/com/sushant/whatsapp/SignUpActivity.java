@@ -44,8 +44,8 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.grayBackground));
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.grayBackground));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.chatNavColor));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.chatNavColor));
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();

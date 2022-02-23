@@ -5,7 +5,7 @@
     android:id="@+id/scrollView2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grayBackground"
+    android:background="@color/chatNavColor"
     tools:context=".SignInActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -137,6 +137,7 @@
             android:layout_marginTop="48dp"
             android:padding="13dp"
             android:text="Sign IN"
+            android:backgroundTint="@color/colorPurple"
             android:textSize="12sp"
             app:cornerRadius="4dp"
             app:layout_constraintEnd_toEndOf="@+id/editPass"
@@ -147,7 +148,7 @@
             android:id="@+id/btnGoogle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="4dp"
             android:drawableLeft="@drawable/ic_google"
             android:enabled="false"

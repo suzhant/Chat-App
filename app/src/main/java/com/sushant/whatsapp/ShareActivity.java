@@ -87,9 +87,6 @@ public class ShareActivity extends AppCompatActivity {
             image = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             Bundle extras = getIntent().getExtras();
             stringContainingYoutubeLink = extras.getString(Intent.EXTRA_TEXT);
-            if (stringContainingYoutubeLink.contains("youtu.be")) {
-                thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(stringContainingYoutubeLink) + "/0.jpg";
-            }
         }
 
         switch (intent.getAction()) {
@@ -172,6 +169,9 @@ public class ShareActivity extends AppCompatActivity {
                             String senderRoom = senderId + receiverId;
                             String receiverRoom = receiverId + senderId;
                             String profilePic = users.getProfilePic();
+                            if (stringContainingYoutubeLink.contains("youtu.be")) {
+                                thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(stringContainingYoutubeLink) + "/0.jpg";
+                            }
                             sendMessage(stringContainingYoutubeLink, profilePic, receiverId, senderRoom, receiverRoom, "text", "sent a link");
                         }
                     } else if (intent.getType().equals("chat_img")) {

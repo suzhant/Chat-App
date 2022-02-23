@@ -123,7 +123,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 email = data.get("userEmail");
                 receiverId = data.get("receiverId");
                 Bitmap bitmap2 = getBitmapFromUrl(String.valueOf(profilePic));
-                builder = new NotificationCompat.Builder(this, "CHANNEL_ID1");
+                builder = new NotificationCompat.Builder(this, "CHANNEL_ID4");
                 Intent receiveCallAction = new Intent(this, HeadsUpNotificationActionReceiver.class);
                 receiveCallAction.putExtra("UserId", senderId);
                 receiveCallAction.putExtra("ProfilePic", profilePic);
@@ -139,7 +139,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 cancelCallAction.putExtra("UserId", senderId);
                 cancelCallAction.setAction("CANCEL_CALL");
 
-                PendingIntent receiveCallPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 1200, receiveCallAction, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent receiveCallPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 1, receiveCallAction, PendingIntent.FLAG_ONE_SHOT);
                 PendingIntent cancelCallPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 1201, cancelCallAction, PendingIntent.FLAG_ONE_SHOT);
 
                 Intent resultIntent = new Intent(this, InComingCall.class);

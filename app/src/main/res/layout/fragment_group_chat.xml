@@ -36,6 +36,6 @@
     android:layout_margin="10dp"
     app:fabSize="mini"
     android:elevation="4dp"
-    android:layout_gravity="bottom|right"/>
+    android:layout_gravity="bottom|end" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
