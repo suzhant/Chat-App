@@ -108,7 +108,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         R.drawable.ic_fb_laugh,
                         R.drawable.ic_fb_wow,
                         R.drawable.ic_fb_sad,
-                        R.drawable.ic_fb_angry
+                        R.drawable.ic_fb_angry,
+                        R.drawable.ic_delete
                 })
                 .build();
 
@@ -211,16 +212,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
 
-            ((SenderViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    popup.onTouch(view, motionEvent);
-                    ;
-                    return false;
-                }
-            });
-
             if (message.getReaction() >= 0) {
+                ((SenderViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
                 switch (message.getReaction()) {
                     case 0:
                         ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_like);
@@ -241,11 +234,17 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_angry);
                         break;
                     default:
-                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_add_reaction_24);
+                        ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
                         break;
                 }
-
             }
+            ((SenderViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    popup.onTouch(view, motionEvent);
+                    return false;
+                }
+            });
 
         } else {
             if ("photo".equals(message.getType())) {
@@ -371,16 +370,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             });
 
-            ((ReceiverViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    popup.onTouch(view, motionEvent);
-                    ;
-                    return false;
-                }
-            });
-
             if (message.getReaction() >= 0) {
+                ((ReceiverViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
                 switch (message.getReaction()) {
                     case 0:
                         ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_like);
@@ -401,11 +392,18 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_angry);
                         break;
                     default:
-                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_add_reaction_24);
+                        ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);
                         break;
                 }
-
             }
+
+            ((ReceiverViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    popup.onTouch(view, motionEvent);
+                    return false;
+                }
+            });
         }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -417,6 +415,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 TextView txtShareInside = shareDialog.findViewById(R.id.txtShare);
                 TextView txtRemove = shareDialog.findViewById(R.id.txtRemove);
                 TextView txtShareOutside = shareDialog.findViewById(R.id.txtShareOutSide);
+                TextView txtReact = shareDialog.findViewById(R.id.txtReact);
 
                 shareDialog.show();
                 shareDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -500,12 +499,25 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     }
                 });
 
+                txtReact.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        shareDialog.dismiss();
+                        if (holder.getClass() == SenderViewHolder.class) {
+                            ((SenderViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
+                        } else {
+                            ((ReceiverViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+
                 txtRemove.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Toast.makeText(context, "remove", Toast.LENGTH_SHORT).show();
                     }
                 });
+
 //                new AlertDialog.Builder(context).setTitle("Delete")
 //                        .setMessage("Do you want to delete this message?")
 //                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -555,6 +567,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                 FirebaseDatabase.getInstance().getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(map);
                             }
                         });
+                ;
                 return null;
             }
         });

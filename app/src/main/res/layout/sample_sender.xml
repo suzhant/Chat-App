@@ -11,6 +11,7 @@
         android:layout_height="20dp"
         android:layout_centerVertical="true"
         android:layout_marginHorizontal="8dp"
+        android:visibility="gone"
         android:layout_toStartOf="@id/parent"
         android:src="@drawable/ic_add_reaction_24" />
 

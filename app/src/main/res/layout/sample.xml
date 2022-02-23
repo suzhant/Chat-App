@@ -181,6 +181,7 @@
         android:layout_centerVertical="true"
         android:layout_marginHorizontal="8dp"
         android:layout_toEndOf="@id/parent"
+        android:visibility="gone"
         android:src="@drawable/ic_add_reaction_24" />
 
 </RelativeLayout>
