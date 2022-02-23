@@ -5,6 +5,15 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
+    <ImageView
+        android:id="@+id/img_react"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_centerVertical="true"
+        android:layout_marginHorizontal="8dp"
+        android:layout_toStartOf="@id/parent"
+        android:src="@drawable/ic_add_reaction_24" />
+
     <LinearLayout
         android:id="@+id/parent"
         android:layout_width="wrap_content"
@@ -102,6 +111,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:visibility="gone">
+
             <LinearLayout
                 android:id="@+id/layoutLink"
                 android:layout_width="wrap_content"
@@ -118,16 +128,15 @@
                     android:minWidth="50dp"
                     android:padding="10dp"
                     android:singleLine="true"
-                    android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
-                    android:textColor="@color/white" />
+                    android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd" />
 
                 <ImageView
                     android:id="@+id/imgThumbnail"
                     android:layout_width="250dp"
                     android:layout_height="200dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/ic_call_green"
                     android:backgroundTint="@color/black"
-                    android:layout_gravity="center"
                     android:src="@drawable/placeholder" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -162,8 +171,6 @@
             android:text="12:00pm"
             android:textSize="11sp"
             app:layout_goneMarginBottom="4dp" />
-
     </LinearLayout>
-
 
 </RelativeLayout>

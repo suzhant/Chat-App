@@ -282,20 +282,24 @@ public class ShareActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.P)
     private void sendImageInsideApp(String image, String senderRoom, String receiverRoom, String receiverId, String profilePic) {
         i++;
+        String key = database.getReference().push().getKey();
+        assert key != null;
         Date date = new Date();
         final Messages model = new Messages(senderId, profilePic, date.getTime());
         model.setMessage("send you a photo");
         model.setImageUrl(image);
         model.setType("photo");
+        model.setMessageId(key);
         updateLastMessage(receiverId, "photo.jpg");
 
         sendNotification(receiverId, sendername, image, senderPP, email, senderId, "photo");
 
-        database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+
+        database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
                                 if (i == receiver.size()) {
@@ -327,19 +331,22 @@ public class ShareActivity extends AppCompatActivity {
                         public void onSuccess(Uri uri) {
                             String filePath = uri.toString();
                             Date date = new Date();
+                            String key = database.getReference().push().getKey();
+                            assert key != null;
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
                             model.setMessage("send you a photo");
                             model.setImageUrl(filePath);
                             model.setType("photo");
+                            model.setMessageId(key);
                             updateLastMessage(receiverId, "photo.jpg");
 
                             sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "photo");
 
-                            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                            database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     if (i == receiver.size()) {
@@ -365,10 +372,13 @@ public class ShareActivity extends AppCompatActivity {
     private void sendMessage(String message, String profilePic, String receiverId, String senderRoom, String receiverRoom, String type, String lastmessage) {
         if (!message.isEmpty()) {
             i++;
+            String key = database.getReference().push().getKey();
+            assert key != null;
             final Messages model = new Messages(senderId, message, profilePic);
             Date date = new Date();
             model.setTimestamp(date.getTime());
             model.setType(type);
+            model.setMessageId(key);
             if (message.contains("youtu.be")) {
                 model.setImageUrl(thumbnail);
             }
@@ -376,11 +386,11 @@ public class ShareActivity extends AppCompatActivity {
 
             sendNotification(receiverId, sendername, message, senderPP, email, senderId, type);
 
-            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+            database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
                                     if (i == receiver.size()) {

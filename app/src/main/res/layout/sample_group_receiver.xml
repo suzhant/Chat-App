@@ -10,7 +10,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="6dp"
         android:layout_toEndOf="@+id/group_profile_image"
         android:maxWidth="310dp"
         android:maxHeight="400dp"
@@ -21,42 +20,46 @@
             android:id="@+id/receiverLayoutVideoCall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_et_message"
-            android:padding="10dp"
             android:layout_gravity="start"
-            android:visibility="gone"
-            android:backgroundTint="@color/white">
+            android:background="@drawable/bg_et_message"
+            android:backgroundTint="@color/white"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:visibility="gone">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/bg_et_message"
-                    android:padding="3dp"
                     android:backgroundTint="@color/gray"
+                    android:padding="3dp"
                     android:src="@drawable/ic_missed_video_call"
                     app:tint="@color/white" />
+
                 <TextView
                     android:id="@+id/txtReceiverVideoCall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:textSize="16sp"
+                    android:text="You missed a call"
                     android:textColor="@color/black"
-                    android:text="You missed a call"/>
+                    android:textSize="16sp" />
             </LinearLayout>
+
             <Button
                 android:id="@+id/btnReceiverCall"
                 android:layout_width="200dp"
                 android:layout_height="40dp"
-                android:textSize="11sp"
                 android:layout_gravity="center"
                 android:backgroundTint="@color/gray"
-                android:text="call back"/>
+                android:text="call back"
+                android:textSize="11sp" />
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
@@ -65,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:visibility="gone">
+
             <LinearLayout
                 android:id="@+id/layoutLink"
                 android:layout_width="wrap_content"
@@ -88,9 +92,9 @@
                     android:id="@+id/receiverImgThumbnail"
                     android:layout_width="250dp"
                     android:layout_height="200dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/ic_call_green"
                     android:backgroundTint="@color/black"
-                    android:layout_gravity="center"
                     android:src="@drawable/placeholder" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -142,16 +146,31 @@
             android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
             android:textColor="@color/black" />
 
-        <TextView
-            android:id="@+id/txtGroupReceiverTime"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginStart="10dp"
-            android:layout_marginBottom="4dp"
-            android:text="12:00pm"
-            android:textSize="11sp"
-            app:layout_goneMarginBottom="4dp" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtGroupReceiverTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="4dp"
+                android:text="12:00pm"
+                android:textSize="11sp"
+                app:layout_goneMarginBottom="4dp" />
+
+            <ImageView
+                android:id="@+id/img_receiver_react"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_add_reaction_24" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

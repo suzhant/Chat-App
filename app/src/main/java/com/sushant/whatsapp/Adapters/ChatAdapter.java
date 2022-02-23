@@ -1,7 +1,6 @@
 package com.sushant.whatsapp.Adapters;
 
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +13,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -31,6 +31,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.github.pgreze.reactions.ReactionPopup;
+import com.github.pgreze.reactions.ReactionsConfig;
+import com.github.pgreze.reactions.ReactionsConfigBuilder;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -57,6 +61,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import kotlin.jvm.functions.Function1;
 import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
 
 public class ChatAdapter extends RecyclerView.Adapter {
@@ -67,7 +72,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
     int SENDER_VIEW_TYPE = 1;
     int RECEIVER_VIEW_TYPE = 2;
     String receiverName, profilePic, email, Status;
-    BroadcastReceiver broadcastReceiver;
 
     public ChatAdapter(ArrayList<Messages> messageModel, Context context) {
         this.messageModel = messageModel;
@@ -87,7 +91,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             View view = LayoutInflater.from(context).inflate(R.layout.sample_sender, parent, false);
             return new SenderViewHolder(view);
         } else {
-            View view = LayoutInflater.from(context).inflate(R.layout.sample_group_receiver, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.sample, parent, false);
             return new ReceiverViewHolder(view);
         }
     }
@@ -97,6 +101,22 @@ public class ChatAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Messages message = messageModel.get(position);
         holder.setIsRecyclable(false);
+        ReactionsConfig config = new ReactionsConfigBuilder(context)
+                .withReactions(new int[]{
+                        R.drawable.ic_fb_like,
+                        R.drawable.ic_fb_love,
+                        R.drawable.ic_fb_laugh,
+                        R.drawable.ic_fb_wow,
+                        R.drawable.ic_fb_sad,
+                        R.drawable.ic_fb_angry
+                })
+                .build();
+
+        ReactionPopup popup = new ReactionPopup(context, config, (pos) -> {
+            return true; // true is closing popup, false is requesting a new selection
+        });
+        String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
+        String receiverRoom = recId + FirebaseAuth.getInstance().getUid();
         if (holder.getClass() == SenderViewHolder.class) {
             if ("photo".equals(message.getType())) { //yoda condition solves unsafe null behaviour
                 if (message.getImageUrl() != null) {
@@ -116,7 +136,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     ((SenderViewHolder) holder).txtLink.setText(message.getMessage());
 
                     Link link = new Link(message.getMessage())
-                            .setTextColor(Color.parseColor("#FFFFFF"))                  // optional, defaults to holo blue
                             .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
                             .setHighlightAlpha(.4f)                                     // optional, defaults to .15f
                             .setUnderlined(true)                                       // optional, defaults to true
@@ -191,6 +210,43 @@ public class ChatAdapter extends RecyclerView.Adapter {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
+
+            ((SenderViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    popup.onTouch(view, motionEvent);
+                    ;
+                    return false;
+                }
+            });
+
+            if (message.getReaction() >= 0) {
+                switch (message.getReaction()) {
+                    case 0:
+                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_like);
+                        break;
+                    case 1:
+                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_love);
+                        break;
+                    case 2:
+                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_laugh);
+                        break;
+                    case 3:
+                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_wow);
+                        break;
+                    case 4:
+                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_sad);
+                        break;
+                    case 5:
+                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_angry);
+                        break;
+                    default:
+                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_add_reaction_24);
+                        break;
+                }
+
+            }
+
         } else {
             if ("photo".equals(message.getType())) {
                 if (message.getImageUrl() != null) {
@@ -314,6 +370,42 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     context.startActivity(intent);
                 }
             });
+
+            ((ReceiverViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    popup.onTouch(view, motionEvent);
+                    ;
+                    return false;
+                }
+            });
+
+            if (message.getReaction() >= 0) {
+                switch (message.getReaction()) {
+                    case 0:
+                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_like);
+                        break;
+                    case 1:
+                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_love);
+                        break;
+                    case 2:
+                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_laugh);
+                        break;
+                    case 3:
+                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_wow);
+                        break;
+                    case 4:
+                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_sad);
+                        break;
+                    case 5:
+                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_angry);
+                        break;
+                    default:
+                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_add_reaction_24);
+                        break;
+                }
+
+            }
         }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -431,6 +523,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
 //                }).show();
                 return false;
             }
+
+
         });
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -445,6 +539,23 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     fullScreenImage.putExtra("UserName", receiverName);
                     context.startActivity(fullScreenImage);
                 }
+            }
+        });
+
+        popup.setReactionSelectedListener(new Function1<Integer, Boolean>() {
+            @Override
+            public Boolean invoke(Integer integer) {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("reaction", integer);
+
+                FirebaseDatabase.getInstance().getReference().child("Chats").child(senderRoom).child(message.getMessageId()).updateChildren(map)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                FirebaseDatabase.getInstance().getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(map);
+                            }
+                        });
+                return null;
             }
         });
 
@@ -468,7 +579,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
         private final TextView txtReceiver, txtLink;
         private final TextView txtReceiverTime, txtVideoCall;
         private final CircleImageView profilepic;
-        private final ImageView imgReceiver, imgLink;
+        private final ImageView imgReceiver, imgLink, imgReact;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
@@ -487,13 +598,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
             cardLink = itemView.findViewById(R.id.receiverCardLink);
             txtLink = itemView.findViewById(R.id.receiverTxtLink);
             imgLink = itemView.findViewById(R.id.receiverImgThumbnail);
+            imgReact = itemView.findViewById(R.id.img_receiver_react);
         }
     }
 
     public static class SenderViewHolder extends RecyclerView.ViewHolder {
         private final TextView txtSender, txtLink;
         private final TextView txtSenderTime, txtVideoCall;
-        private final ImageView imgSender, imgLink;
+        private final ImageView imgSender, imgLink, imgReact;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
@@ -511,6 +623,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             txtLink = itemView.findViewById(R.id.txtLink);
             imgLink = itemView.findViewById(R.id.imgThumbnail);
             cardLink = itemView.findViewById(R.id.cardLink);
+            imgReact = itemView.findViewById(R.id.img_react);
         }
     }
 

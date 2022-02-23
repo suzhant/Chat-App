@@ -292,11 +292,14 @@ public class ConnectingActivity extends AppCompatActivity {
         model.setSenderName(sendername);
         updateLastMessage(message);
 
-        database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+        String key = database.getReference().push().getKey();
+
+        assert key != null;
+        database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
 

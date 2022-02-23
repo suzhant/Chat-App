@@ -3,6 +3,7 @@ package com.sushant.whatsapp.Models;
 public class Messages {
     private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName,type,imageUrl,audioFile;
     private Long timestamp;
+    private int Reaction = -1;
 
     public Messages(String uId, String profilePic, Long timestamp) {
         this.uId = uId;
@@ -95,5 +96,13 @@ public class Messages {
 
     public void setAudioFile(String audioFile) {
         this.audioFile = audioFile;
+    }
+
+    public int getReaction() {
+        return Reaction;
+    }
+
+    public void setReaction(int reaction) {
+        Reaction = reaction;
     }
 }

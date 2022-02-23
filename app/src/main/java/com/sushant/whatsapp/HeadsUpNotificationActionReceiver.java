@@ -100,6 +100,7 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
     }
 
     private void sendMessage() {
+        String key = database.getReference().push().getKey();
         String message = "You missed a Video Call.";
         final Messages model = new Messages(senderId, message, profilePic);
         Date date = new Date();
@@ -107,11 +108,12 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
         model.setType("videoCall");
         updateLastMessage(message);
 
-        database.getReference().child("Chats").child(receiverRoom).push().setValue(model)
+        assert key != null;
+        database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        database.getReference().child("Chats").child(senderRoom).push().setValue(model);
+                        database.getReference().child("Chats").child(senderRoom).child(key).setValue(model);
                     }
                 });
 

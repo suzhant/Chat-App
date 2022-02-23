@@ -265,11 +265,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Messages model = dataSnapshot.getValue(Messages.class);
                     assert model != null;
-                    model.setMessageId(dataSnapshot.getKey());
+               //     model.setMessageId(dataSnapshot.getKey());
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }
-             //   chatAdapter.notifyDataSetChanged();
+                chatAdapter.notifyDataSetChanged();
                 if (count == 0) {
                     chatAdapter.notifyDataSetChanged();
                 } else {
@@ -277,7 +277,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                     pos = layoutManager.findLastCompletelyVisibleItemPosition();
                     numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
                     if (pos >= numItems - 2) {
-                        chatAdapter.notifyItemInserted(messageModel.size());
                         chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
                         binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
                     }
@@ -588,11 +587,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                         public void onSuccess(Uri uri) {
                             String filePath = uri.toString();
                             notify = true;
+                            String key = database.getReference().push().getKey();
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
                             model.setMessage("Recorded Audio");
                             model.setAudioFile(filePath);
                             model.setType("audio");
+                            model.setMessageId(key);
                             binding.editMessage.getText().clear();
                             updateLastMessage("Recorded Audio");
 
@@ -601,11 +602,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                             }
                             notify = false;
 
-                            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                            assert key != null;
+                            database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
@@ -687,11 +689,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                         public void onSuccess(Uri uri) {
                             String filePath = uri.toString();
                             notify = true;
+                            String key = database.getReference().push().getKey();
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
                             model.setMessage("send you a photo");
                             model.setImageUrl(filePath);
                             model.setType("photo");
+                            model.setMessageId(key);
                             binding.editMessage.getText().clear();
                             updateLastMessage("photo.jpg");
 
@@ -700,11 +704,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                             }
                             notify = false;
 
-                            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+                            assert key != null;
+                            database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
@@ -792,12 +797,15 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         binding.icSend.startAnimation(scale_down);
         binding.icSend.startAnimation(scale_up);
         final String message = binding.editMessage.getText().toString();
+        String key = database.getReference().push().getKey();
+        assert key != null;
         if (!message.isEmpty()) {
             binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
             final Messages model = new Messages(senderId, message, profilePic);
             Date date = new Date();
             model.setTimestamp(date.getTime());
             model.setType("text");
+            model.setMessageId(key);
             binding.editMessage.getText().clear();
             updateLastMessage(message);
 
@@ -806,11 +814,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             }
             notify = false;
 
-            database.getReference().child("Chats").child(senderRoom).push().setValue(model)
+
+            database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
 
@@ -837,6 +846,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             model1.setType("text");
             Date date = new Date();
             model1.setTimestamp(date.getTime());
+            model1.setMessageId(key);
             updateLastMessage(heart);
 
             if (notify) {
@@ -844,11 +854,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
             }
             notify = false;
 
-            database.getReference().child("Chats").child(senderRoom).push().setValue(model1)
+            database.getReference().child("Chats").child(senderRoom).child(key).setValue(model1)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
-                            database.getReference().child("Chats").child(receiverRoom).push().setValue(model1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model1).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
 
