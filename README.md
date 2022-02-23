@@ -1,21 +1,20 @@
 # SusIna
 First Android Project using Java.<br><br>
 
-<i><b>A Realtime Chat App that includes features:</b></i><br> 
+<i><b>A Chat App that includes features:</b></i><br> 
 <ul>
   <i>
 <li>Real-time Chat</li>
+<li>Group Chat</li>
+<li>Video Chat</li> 
+<li>online Presence Capability</li> 
+<li>Share feature inside and outside app</li>  
 <li>Authentication</li>
 <li>Biometric login</ii>
 <li>Email verification </li>
-<li>Email and Password update</li>
-<li>Email and Password validation</li>
 <li>Password reset </li>
 <li>Account deletion</li>
-<li>Profile Settings</li>
-<li>Find friends</li>
-<li>Group Chat</li>
- 
+
   </i>
 </ul>
 
