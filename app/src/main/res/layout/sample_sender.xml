@@ -9,10 +9,11 @@
         android:id="@+id/img_react"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_centerVertical="true"
         android:layout_marginHorizontal="8dp"
-        android:visibility="gone"
+        android:layout_alignBottom="@+id/parent"
+        android:layout_marginBottom="15dp"
         android:layout_toStartOf="@id/parent"
+        android:visibility="gone"
         android:src="@drawable/ic_add_reaction_24" />
 
     <LinearLayout

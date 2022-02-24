@@ -265,7 +265,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Messages model = dataSnapshot.getValue(Messages.class);
                     assert model != null;
-               //     model.setMessageId(dataSnapshot.getKey());
+                  //  model.setMessageId(model.getMessageId());
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }
@@ -668,7 +668,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     private void uploadImageToFirebase(byte[] uri, int length) {
         Calendar calendar = Calendar.getInstance();
         final StorageReference reference = storage.getReference().child("Chats Images").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
-        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        if (length > 256) {
+            dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        }
         dialog.setProgress(0);
         dialog.setMessage("Uploading Image");
         dialog.show();
@@ -720,7 +722,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                                             });
                                         }
                                     });
-
                         }
                     });
                 }
@@ -738,8 +739,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                     double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
                     int currentProgress = (int) progress;
                     dialog.setProgress(currentProgress);
-                } else {
-                    dialog.setMessage("Uploading Image...");
                 }
             }
         });

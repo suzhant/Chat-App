@@ -72,6 +72,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
     int SENDER_VIEW_TYPE = 1;
     int RECEIVER_VIEW_TYPE = 2;
     String receiverName, profilePic, email, Status;
+    int reaction;
 
     public ChatAdapter(ArrayList<Messages> messageModel, Context context) {
         this.messageModel = messageModel;
@@ -212,31 +213,33 @@ public class ChatAdapter extends RecyclerView.Adapter {
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
 
-            if (message.getReaction() >= 0) {
+            if (message.getReaction() >= 0 && message.getReaction() <= 5) {
                 ((SenderViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
                 switch (message.getReaction()) {
                     case 0:
-                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_like);
+                        reaction = R.drawable.ic_fb_like;
                         break;
                     case 1:
-                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_love);
+                        reaction = R.drawable.ic_fb_love;
                         break;
                     case 2:
-                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_laugh);
+                        reaction = R.drawable.ic_fb_laugh;
                         break;
                     case 3:
-                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_wow);
+                        reaction = R.drawable.ic_fb_wow;
                         break;
                     case 4:
-                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_sad);
+                        reaction = R.drawable.ic_fb_sad;
                         break;
                     case 5:
-                        ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_angry);
+                        reaction = R.drawable.ic_fb_angry;
                         break;
                     default:
                         ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
                         break;
                 }
+                Glide.with(context).load(reaction)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgReact);
             }
             ((SenderViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -370,31 +373,34 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             });
 
-            if (message.getReaction() >= 0) {
+            if (message.getReaction() >= 0 && message.getReaction() <= 5) {
                 ((ReceiverViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
+
                 switch (message.getReaction()) {
                     case 0:
-                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_like);
+                        reaction = R.drawable.ic_fb_like;
                         break;
                     case 1:
-                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_love);
+                        reaction = R.drawable.ic_fb_love;
                         break;
                     case 2:
-                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_laugh);
+                        reaction = R.drawable.ic_fb_laugh;
                         break;
                     case 3:
-                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_wow);
+                        reaction = R.drawable.ic_fb_wow;
                         break;
                     case 4:
-                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_sad);
+                        reaction = R.drawable.ic_fb_sad;
                         break;
                     case 5:
-                        ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_fb_angry);
+                        reaction = R.drawable.ic_fb_angry;
                         break;
                     default:
                         ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);
                         break;
                 }
+                Glide.with(context).load(reaction).diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(((ReceiverViewHolder) holder).imgReact);
             }
 
             ((ReceiverViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
@@ -567,7 +573,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                 FirebaseDatabase.getInstance().getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(map);
                             }
                         });
-                ;
                 return null;
             }
         });

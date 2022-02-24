@@ -161,6 +161,9 @@ public class ShareActivity extends AppCompatActivity {
                             uploadImageToFirebase(Uri.parse(image.toString()), senderRoom, receiverRoom, receiverId, profilePic);
                         }
                     } else if (intent.getType().contains("text/plain")) {
+                        if (stringContainingYoutubeLink.contains("youtu.be")) {
+                            thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(stringContainingYoutubeLink) + "/0.jpg";
+                        }
                         for (int i = 0; i < receiver.size(); i++) {
                             dialog.setMessage("Sending link");
                             dialog.show();
@@ -169,9 +172,6 @@ public class ShareActivity extends AppCompatActivity {
                             String senderRoom = senderId + receiverId;
                             String receiverRoom = receiverId + senderId;
                             String profilePic = users.getProfilePic();
-                            if (stringContainingYoutubeLink.contains("youtu.be")) {
-                                thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(stringContainingYoutubeLink) + "/0.jpg";
-                            }
                             sendMessage(stringContainingYoutubeLink, profilePic, receiverId, senderRoom, receiverRoom, "text", "sent a link");
                         }
                     } else if (intent.getType().equals("chat_img")) {
