@@ -446,6 +446,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 TextView txtRemove = shareDialog.findViewById(R.id.txtRemove);
                 TextView txtShareOutside = shareDialog.findViewById(R.id.txtShareOutSide);
                 TextView txtReact = shareDialog.findViewById(R.id.txtReact);
+                TextView txtCopy = shareDialog.findViewById(R.id.txtCopy);
 
                 shareDialog.show();
                 shareDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -547,6 +548,22 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     @Override
                     public void onClick(View view) {
                         Toast.makeText(context, "remove", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                txtCopy.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clipData;
+                        if (holder.getClass() == SenderViewHolder.class) {
+                            clipData = ClipData.newPlainText("text", ((SenderViewHolder) holder).txtSender.getText());
+                        } else {
+                            clipData = ClipData.newPlainText("text", ((ReceiverViewHolder) holder).txtReceiver.getText());
+                        }
+                        manager.setPrimaryClip(clipData);
+                        Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show();
+                        shareDialog.dismiss();
                     }
                 });
 

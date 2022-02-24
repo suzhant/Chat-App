@@ -1,25 +1,49 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/dialog_bg"
     android:backgroundTint="@color/chatNavColor"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/txtShare"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_48"
-        android:layout_marginEnd="@dimen/dp_16"
-        android:layout_marginStart="@dimen/dp_16"
-        android:backgroundTint="@android:color/white"
-        android:drawablePadding="@dimen/dp_32"
-        android:drawableStart="@drawable/outline_reply_24"
-        android:drawableTint="@color/colorPurple"
-        android:gravity="start|center_vertical"
-        android:text="Share Inside App"
-        android:textStyle="bold"
-        android:textColor="@color/gray"
-        android:textSize="16sp" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtShare"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:layout_marginStart="@dimen/dp_16"
+            android:backgroundTint="@android:color/white"
+            android:drawablePadding="@dimen/dp_32"
+            android:gravity="start|center_vertical"
+            android:text="Share Inside"
+            android:textStyle="bold"
+            android:textColor="@color/gray"
+            android:textSize="16sp"
+            app:drawableTint="@color/colorPurple"
+            app:drawableStartCompat="@drawable/outline_reply_24" />
+
+        <TextView
+            android:id="@+id/txtShareOutSide"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:layout_marginStart="@dimen/dp_16"
+            android:backgroundTint="@android:color/white"
+            android:drawablePadding="@dimen/dp_32"
+            android:gravity="start|center_vertical"
+            android:text="Share Outside"
+            android:textStyle="bold"
+            android:textColor="@color/gray"
+            android:textSize="16sp"
+            app:drawableTint="@color/colorPurple"
+            app:drawableStartCompat="@drawable/ic_share_white_24dp" />
+
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -28,44 +52,44 @@
         android:layout_marginTop="@dimen/md_bottom_sheet_separator_top_margin"
         android:background="@color/gray" />
 
-    <TextView
-        android:id="@+id/txtShareOutSide"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_48"
-        android:layout_marginEnd="@dimen/dp_16"
-        android:layout_marginStart="@dimen/dp_16"
-        android:backgroundTint="@android:color/white"
-        android:drawablePadding="@dimen/dp_32"
-        android:drawableStart="@drawable/ic_share_white_24dp"
-        android:drawableTint="@color/colorPurple"
-        android:gravity="start|center_vertical"
-        android:text="Share Outside App"
-        android:textStyle="bold"
-        android:textColor="@color/gray"
-        android:textSize="16sp" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="@dimen/dp_8"
-        android:layout_marginTop="@dimen/md_bottom_sheet_separator_top_margin"
-        android:background="@color/gray" />
+        <TextView
+            android:id="@+id/txtReact"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:layout_marginStart="@dimen/dp_16"
+            android:backgroundTint="@android:color/white"
+            android:drawablePadding="@dimen/dp_32"
+            android:gravity="start|center_vertical"
+            android:text="React"
+            android:textStyle="bold"
+            android:textColor="@color/gray"
+            android:textSize="16sp"
+            app:drawableTint="@color/colorPurple"
+            app:drawableStartCompat="@drawable/ic_add_reaction_24" />
 
-    <TextView
-        android:id="@+id/txtReact"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_48"
-        android:layout_marginEnd="@dimen/dp_16"
-        android:layout_marginStart="@dimen/dp_16"
-        android:backgroundTint="@android:color/white"
-        android:drawablePadding="@dimen/dp_32"
-        android:drawableStart="@drawable/ic_add_reaction_24"
-        android:drawableTint="@color/colorPurple"
-        android:gravity="start|center_vertical"
-        android:text="React"
-        android:textStyle="bold"
-        android:textColor="@color/gray"
-        android:textSize="16sp" />
+        <TextView
+            android:id="@+id/txtCopy"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:layout_marginStart="70dp"
+            android:backgroundTint="@android:color/white"
+            android:drawablePadding="@dimen/dp_32"
+            android:gravity="start|center_vertical"
+            android:text="Copy"
+            android:textStyle="bold"
+            android:textColor="@color/gray"
+            android:textSize="16sp"
+            app:drawableTint="@color/colorPurple"
+            app:drawableStartCompat="@drawable/ic_content_copy_24" />
+
+    </LinearLayout>
 
 
     <View
@@ -83,12 +107,12 @@
         android:layout_marginStart="@dimen/dp_16"
         android:backgroundTint="@android:color/white"
         android:drawablePadding="@dimen/dp_32"
-        android:drawableStart="@drawable/ic_delete"
-        android:drawableTint="@color/colorPurple"
         android:gravity="start|center_vertical"
         android:text="Remove"
         android:textStyle="bold"
         android:textColor="@color/gray"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        app:drawableStartCompat="@drawable/ic_delete"
+        app:drawableTint="@color/colorPurple" />
 
 </LinearLayout>
