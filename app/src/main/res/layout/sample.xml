@@ -152,6 +152,7 @@
                 android:id="@+id/txtGroupReceiver"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textIsSelectable="true"
                 android:layout_marginEnd="5dp"
                 android:maxWidth="270dp"
                 android:minWidth="50dp"

@@ -265,7 +265,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Messages model = dataSnapshot.getValue(Messages.class);
                     assert model != null;
-                  //  model.setMessageId(model.getMessageId());
+                    //  model.setMessageId(model.getMessageId());
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }

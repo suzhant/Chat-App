@@ -1,6 +1,8 @@
 package com.sushant.whatsapp.Adapters;
 
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -177,8 +179,19 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     } else if (message.getMessage().contains("instagram")) {
                         Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
                                 into(((SenderViewHolder) holder).imgLink);
+                    } else if (message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
+                        Glide.with(context).load(R.drawable.fb_logo).placeholder(R.drawable.placeholder).
+                                into(((SenderViewHolder) holder).imgLink);
                     }
                 }
+                ((SenderViewHolder) holder).txtSender.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clipData = ClipData.newPlainText("text", ((SenderViewHolder) holder).txtSender.getText());
+                        manager.setPrimaryClip(clipData);
+                    }
+                });
             } else if ("videoCall".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                 ((SenderViewHolder) holder).layoutVideoCall.setVisibility(View.VISIBLE);
@@ -307,8 +320,19 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     } else if (message.getMessage().contains("instagram")) {
                         Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
+                    } else if (message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
+                        Glide.with(context).load(R.drawable.fb_logo).placeholder(R.drawable.placeholder).
+                                into(((ReceiverViewHolder) holder).imgLink);
                     }
                 }
+                ((ReceiverViewHolder) holder).txtReceiver.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clipData = ClipData.newPlainText("text", ((ReceiverViewHolder) holder).txtReceiver.getText());
+                        manager.setPrimaryClip(clipData);
+                    }
+                });
             } else if ("videoCall".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                 ((ReceiverViewHolder) holder).layoutVideoCall.setVisibility(View.VISIBLE);
@@ -435,7 +459,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     public void onClick(View view) {
                         switch (message.getType()) {
                             case "text":
-                                if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")) {
+                                if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")
+                                        || message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
                                     Intent intent = new Intent(context, ShareActivity.class);
                                     intent.putExtra("link", message.getMessage());
                                     if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
@@ -473,7 +498,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     public void onClick(View view) {
                         switch (message.getType()) {
                             case "text":
-                                if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")) {
+                                if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")
+                                        || message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
                                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                     shareIntent.setType("text/plain");
                                     shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, message.getMessage());

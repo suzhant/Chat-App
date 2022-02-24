@@ -185,7 +185,7 @@ public class ShareActivity extends AppCompatActivity {
                         sendImageInsideApp(img, senderRoom, receiverRoom, receiverId, profilePic);
                     } else if (intent.getType().equals("chat_txt")) {
                         for (int i = 0; i < receiver.size(); i++) {
-                            dialog.setMessage("Sending link");
+                            dialog.setMessage("Sharing...");
                             dialog.show();
                             Users users = receiver.get(i);
                             String receiverId = users.getUserId();
