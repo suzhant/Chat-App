@@ -65,6 +65,15 @@ public class ChatSettings extends AppCompatActivity {
                 dialog.show();
             }
         });
+
+        binding.txtImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChatSettings.this, ChatImages.class);
+                intent.putExtra("UserId", receiverId);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

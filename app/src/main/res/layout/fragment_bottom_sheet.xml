@@ -20,7 +20,7 @@
             android:backgroundTint="@android:color/white"
             android:drawablePadding="@dimen/dp_32"
             android:gravity="start|center_vertical"
-            android:text="Share Inside"
+            android:text="Forward"
             android:textStyle="bold"
             android:textColor="@color/gray"
             android:textSize="16sp"
@@ -32,11 +32,11 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_48"
             android:layout_marginEnd="@dimen/dp_16"
-            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginStart="60dp"
             android:backgroundTint="@android:color/white"
             android:drawablePadding="@dimen/dp_32"
             android:gravity="start|center_vertical"
-            android:text="Share Outside"
+            android:text="Share"
             android:textStyle="bold"
             android:textColor="@color/gray"
             android:textSize="16sp"
@@ -74,45 +74,22 @@
             app:drawableStartCompat="@drawable/ic_add_reaction_24" />
 
         <TextView
-            android:id="@+id/txtCopy"
+            android:id="@+id/txtRemove"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_48"
             android:layout_marginEnd="@dimen/dp_16"
-            android:layout_marginStart="70dp"
+            android:layout_marginStart="80dp"
             android:backgroundTint="@android:color/white"
             android:drawablePadding="@dimen/dp_32"
             android:gravity="start|center_vertical"
-            android:text="Copy"
+            android:text="Remove"
             android:textStyle="bold"
             android:textColor="@color/gray"
             android:textSize="16sp"
-            app:drawableTint="@color/colorPurple"
-            app:drawableStartCompat="@drawable/ic_content_copy_24" />
+            app:drawableStartCompat="@drawable/ic_delete"
+            app:drawableTint="@color/colorPurple" />
 
     </LinearLayout>
 
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="@dimen/dp_8"
-        android:layout_marginTop="@dimen/md_bottom_sheet_separator_top_margin"
-        android:background="@color/gray" />
-
-    <TextView
-        android:id="@+id/txtRemove"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_48"
-        android:layout_marginEnd="@dimen/dp_16"
-        android:layout_marginStart="@dimen/dp_16"
-        android:backgroundTint="@android:color/white"
-        android:drawablePadding="@dimen/dp_32"
-        android:gravity="start|center_vertical"
-        android:text="Remove"
-        android:textStyle="bold"
-        android:textColor="@color/gray"
-        android:textSize="16sp"
-        app:drawableStartCompat="@drawable/ic_delete"
-        app:drawableTint="@color/colorPurple" />
 
 </LinearLayout>

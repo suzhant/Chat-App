@@ -167,14 +167,16 @@ public class FullScreenImage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!isVisible) {
-                    binding.btmLayout.setVisibility(View.VISIBLE);
+//                    binding.btmLayout.setVisibility(View.VISIBLE);
                     binding.layoutback.setVisibility(View.VISIBLE);
-//                    binding.imgDownload.setVisibility(View.VISIBLE);
+                    binding.imgDownload.setVisibility(View.VISIBLE);
+                    binding.imgEdit.setVisibility(View.VISIBLE);
                     isVisible = true;
                 } else {
-                    binding.btmLayout.setVisibility(View.GONE);
+//                    binding.btmLayout.setVisibility(View.GONE);
                     binding.layoutback.setVisibility(View.GONE);
-//                    binding.imgDownload.setVisibility(View.GONE);
+                    binding.imgDownload.setVisibility(View.GONE);
+                    binding.imgEdit.setVisibility(View.GONE);
                     isVisible = false;
                 }
             }

@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -87,17 +89,27 @@ public class ShareActivity extends AppCompatActivity {
             image = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             Bundle extras = getIntent().getExtras();
             stringContainingYoutubeLink = extras.getString(Intent.EXTRA_TEXT);
+            if (image != null) {
+                Glide.with(ShareActivity.this).load(image.toString())
+                        .placeholder(R.drawable.placeholder)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
+            } else if (stringContainingYoutubeLink != null) {
+                setImagePreview(stringContainingYoutubeLink);
+            }
+
         }
 
         switch (intent.getAction()) {
             case "SEND_IMAGE":
                 img = getIntent().getStringExtra("image");
+                Glide.with(ShareActivity.this).load(img)
+                        .placeholder(R.drawable.placeholder)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
                 break;
             case "SEND_TEXT":
                 txt = getIntent().getStringExtra("link");
-                if (txt.contains("youtu.be")) {
-                    thumbnail = getIntent().getStringExtra("thumbnail");
-                }
+                setImagePreview(txt);
+
                 break;
             case "SEND_AUDIO":
                 audio = getIntent().getStringExtra("audio");
@@ -161,9 +173,6 @@ public class ShareActivity extends AppCompatActivity {
                             uploadImageToFirebase(Uri.parse(image.toString()), senderRoom, receiverRoom, receiverId, profilePic);
                         }
                     } else if (intent.getType().contains("text/plain")) {
-                        if (stringContainingYoutubeLink.contains("youtu.be")) {
-                            thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(stringContainingYoutubeLink) + "/0.jpg";
-                        }
                         for (int i = 0; i < receiver.size(); i++) {
                             dialog.setMessage("Sending link");
                             dialog.show();
@@ -175,7 +184,7 @@ public class ShareActivity extends AppCompatActivity {
                             sendMessage(stringContainingYoutubeLink, profilePic, receiverId, senderRoom, receiverRoom, "text", "sent a link");
                         }
                     } else if (intent.getType().equals("chat_img")) {
-                        dialog.setMessage("Sending Image");
+                        dialog.setMessage("Forwarding Image");
                         dialog.show();
                         Users users = receiver.get(i);
                         String receiverId = users.getUserId();
@@ -185,25 +194,25 @@ public class ShareActivity extends AppCompatActivity {
                         sendImageInsideApp(img, senderRoom, receiverRoom, receiverId, profilePic);
                     } else if (intent.getType().equals("chat_txt")) {
                         for (int i = 0; i < receiver.size(); i++) {
-                            dialog.setMessage("Sharing...");
+                            dialog.setMessage("Forwarding...");
                             dialog.show();
                             Users users = receiver.get(i);
                             String receiverId = users.getUserId();
                             String senderRoom = senderId + receiverId;
                             String receiverRoom = receiverId + senderId;
                             String profilePic = users.getProfilePic();
-                            sendMessage(txt, profilePic, receiverId, senderRoom, receiverRoom, "text", "sent a link");
+                            sendMessage(txt, profilePic, receiverId, senderRoom, receiverRoom, "text", "forwarded a link");
                         }
                     } else if (intent.getType().equals("chat_audio")) {
                         for (int i = 0; i < receiver.size(); i++) {
-                            dialog.setMessage("Sending Audio");
+                            dialog.setMessage("Forwarding Audio");
                             dialog.show();
                             Users users = receiver.get(i);
                             String receiverId = users.getUserId();
                             String senderRoom = senderId + receiverId;
                             String receiverRoom = receiverId + senderId;
                             String profilePic = users.getProfilePic();
-                            sendMessage(audio, profilePic, receiverId, senderRoom, receiverRoom, "audio", "sent an audio");
+                            sendMessage(audio, profilePic, receiverId, senderRoom, receiverRoom, "audio", "forwarded an audio");
                         }
                     }
                 } else {
@@ -249,6 +258,38 @@ public class ShareActivity extends AppCompatActivity {
 
     }
 
+    private void setImagePreview(String txt) {
+        if (txt.contains("youtu.be")) {
+            thumbnail = getIntent().getStringExtra("thumbnail");
+            if (thumbnail == null) {
+                thumbnail = "https://img.youtube.com/vi/" + getYouTubeId(txt) + "/0.jpg";
+            }
+            Glide.with(ShareActivity.this).load(thumbnail)
+                    .placeholder(R.drawable.placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
+        } else if (txt.contains("facebook") || txt.contains("fb")) {
+            Glide.with(ShareActivity.this).load(R.drawable.fb_logo)
+                    .placeholder(R.drawable.placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
+        } else if (txt.contains("instagram")) {
+            Glide.with(ShareActivity.this).load(R.drawable.instagram_round_logo)
+                    .placeholder(R.drawable.placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
+        } else if (txt.contains("youtube.com/shorts")) {
+            Glide.with(ShareActivity.this).load(R.drawable.yt_purple_shorts)
+                    .placeholder(R.drawable.placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
+        } else if (txt.contains("tiktok")) {
+            Glide.with(ShareActivity.this).load(R.drawable.tiktok4)
+                    .placeholder(R.drawable.placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
+        } else {
+            Glide.with(ShareActivity.this).load(txt)
+                    .placeholder(R.drawable.placeholder)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(binding.imgPreview);
+        }
+    }
+
 
     private void getAllUsers() {
         valueEventListener1 = new ValueEventListener() {
@@ -286,7 +327,7 @@ public class ShareActivity extends AppCompatActivity {
         assert key != null;
         Date date = new Date();
         final Messages model = new Messages(senderId, profilePic, date.getTime());
-        model.setMessage("send you a photo");
+        model.setMessage("forwarded a photo");
         model.setImageUrl(image);
         model.setType("photo");
         model.setMessageId(key);

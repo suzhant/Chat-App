@@ -133,6 +133,15 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             } else if ("text".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
+                ((SenderViewHolder) holder).txtSender.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clipData;
+                        clipData = ClipData.newPlainText("text", ((SenderViewHolder) holder).txtSender.getText());
+                        manager.setPrimaryClip(clipData);
+                    }
+                });
                 if (message.getMessage().contains("https://")) {
                     //   ((SenderViewHolder) holder).txtSender.setSingleLine();
                     ((SenderViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
@@ -181,6 +190,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                 into(((SenderViewHolder) holder).imgLink);
                     } else if (message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
                         Glide.with(context).load(R.drawable.fb_logo).placeholder(R.drawable.placeholder).
+                                into(((SenderViewHolder) holder).imgLink);
+                    } else if (message.getMessage().contains("youtube.com/shorts")) {
+                        Glide.with(context).load(R.drawable.yt_purple_shorts).placeholder(R.drawable.placeholder).
                                 into(((SenderViewHolder) holder).imgLink);
                     }
                 }
@@ -274,6 +286,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             } else if ("text".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
+                ((ReceiverViewHolder) holder).txtReceiver.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clipData;
+                        clipData = ClipData.newPlainText("text", ((ReceiverViewHolder) holder).txtReceiver.getText());
+                        manager.setPrimaryClip(clipData);
+                    }
+                });
+
                 if (message.getMessage().contains("https://")) {
                     // ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
                     ((ReceiverViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
@@ -322,6 +344,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                 into(((ReceiverViewHolder) holder).imgLink);
                     } else if (message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
                         Glide.with(context).load(R.drawable.fb_logo).placeholder(R.drawable.placeholder).
+                                into(((ReceiverViewHolder) holder).imgLink);
+                    } else if (message.getMessage().contains("youtube.com/shorts")) {
+                        Glide.with(context).load(R.drawable.yt_purple_shorts).placeholder(R.drawable.placeholder).
                                 into(((ReceiverViewHolder) holder).imgLink);
                     }
                 }
@@ -446,7 +471,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 TextView txtRemove = shareDialog.findViewById(R.id.txtRemove);
                 TextView txtShareOutside = shareDialog.findViewById(R.id.txtShareOutSide);
                 TextView txtReact = shareDialog.findViewById(R.id.txtReact);
-                TextView txtCopy = shareDialog.findViewById(R.id.txtCopy);
 
                 shareDialog.show();
                 shareDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -460,8 +484,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     public void onClick(View view) {
                         switch (message.getType()) {
                             case "text":
-                                if (message.getMessage().contains("instagram") || message.getMessage().contains("tiktok") || message.getMessage().contains("youtu.be")
-                                        || message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
+                                if (message.getMessage().contains("https://")) {
                                     Intent intent = new Intent(context, ShareActivity.class);
                                     intent.putExtra("link", message.getMessage());
                                     if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
@@ -551,21 +574,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     }
                 });
 
-                txtCopy.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ClipboardManager manager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clipData;
-                        if (holder.getClass() == SenderViewHolder.class) {
-                            clipData = ClipData.newPlainText("text", ((SenderViewHolder) holder).txtSender.getText());
-                        } else {
-                            clipData = ClipData.newPlainText("text", ((ReceiverViewHolder) holder).txtReceiver.getText());
-                        }
-                        manager.setPrimaryClip(clipData);
-                        Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show();
-                        shareDialog.dismiss();
-                    }
-                });
 
 //                new AlertDialog.Builder(context).setTitle("Delete")
 //                        .setMessage("Do you want to delete this message?")
