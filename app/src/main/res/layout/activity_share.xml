@@ -19,28 +19,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/txtSendTo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:text="Send to"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imgBack"
-        app:layout_constraintStart_toEndOf="@+id/imgBack"
-        app:layout_constraintTop_toTopOf="@+id/imgBack" />
-
-    <TextView
         android:id="@+id/txtSend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:text="Send"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/cardPreview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.032" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardPreview"
@@ -52,7 +42,7 @@
         android:layout_marginTop="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtSendTo">
+        app:layout_constraintTop_toBottomOf="@+id/imgBack">
 
         <ImageView
             android:id="@+id/imgPreview"
