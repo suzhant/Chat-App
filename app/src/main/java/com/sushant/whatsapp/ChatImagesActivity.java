@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,7 +21,7 @@ import com.sushant.whatsapp.databinding.ActivityChatImagesBinding;
 
 import java.util.ArrayList;
 
-public class ChatImages extends AppCompatActivity {
+public class ChatImagesActivity extends AppCompatActivity {
 
     ActivityChatImagesBinding binding;
     FirebaseDatabase database;
@@ -51,11 +50,10 @@ public class ChatImages extends AppCompatActivity {
         senderRoom = auth.getUid() + receiverId;
 
         final ArrayList<Messages> imageModel = new ArrayList<>();
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         binding.chatImageRecycler.setLayoutManager(staggeredGridLayoutManager);
         binding.chatImageRecycler.setHasFixedSize(true);
         final ChatImagePreviewAdapter imageAdapter = new ChatImagePreviewAdapter(imageModel, this, receiverId);
-        imageAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         binding.chatImageRecycler.setAdapter(imageAdapter);
 
         imgRef = database.getReference().child("Chats").child(senderRoom);
@@ -79,7 +77,7 @@ public class ChatImages extends AppCompatActivity {
 
             }
         };
-        imgRef.addValueEventListener(imgListener);
+        imgRef.addListenerForSingleValueEvent(imgListener);
 
     }
 

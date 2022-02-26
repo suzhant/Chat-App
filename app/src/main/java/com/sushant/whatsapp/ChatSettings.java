@@ -69,7 +69,7 @@ public class ChatSettings extends AppCompatActivity {
         binding.txtImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ChatSettings.this, ChatImages.class);
+                Intent intent = new Intent(ChatSettings.this, ChatImagesActivity.class);
                 intent.putExtra("UserId", receiverId);
                 startActivity(intent);
             }

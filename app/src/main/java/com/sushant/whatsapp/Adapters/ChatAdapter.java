@@ -108,10 +108,10 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 .withReactions(new int[]{
                         R.drawable.ic_fb_like,
                         R.drawable.ic_fb_love,
-                        R.drawable.ic_fb_laugh,
-                        R.drawable.ic_fb_wow,
-                        R.drawable.ic_fb_sad,
-                        R.drawable.ic_fb_angry,
+                        R.drawable.ic_haha,
+                        R.drawable.wow,
+                        R.drawable.sad,
+                        R.drawable.angry,
                         R.drawable.ic_delete
                 })
                 .build();
@@ -248,16 +248,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         reaction = R.drawable.ic_fb_love;
                         break;
                     case 2:
-                        reaction = R.drawable.ic_fb_laugh;
+                        reaction = R.drawable.ic_haha;
                         break;
                     case 3:
-                        reaction = R.drawable.ic_fb_wow;
+                        reaction = R.drawable.wow;
                         break;
                     case 4:
-                        reaction = R.drawable.ic_fb_sad;
+                        reaction = R.drawable.sad;
                         break;
                     case 5:
-                        reaction = R.drawable.ic_fb_angry;
+                        reaction = R.drawable.angry;
                         break;
                     default:
                         ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
@@ -433,16 +433,16 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         reaction = R.drawable.ic_fb_love;
                         break;
                     case 2:
-                        reaction = R.drawable.ic_fb_laugh;
+                        reaction = R.drawable.ic_haha;
                         break;
                     case 3:
-                        reaction = R.drawable.ic_fb_wow;
+                        reaction = R.drawable.wow;
                         break;
                     case 4:
-                        reaction = R.drawable.ic_fb_sad;
+                        reaction = R.drawable.sad;
                         break;
                     case 5:
-                        reaction = R.drawable.ic_fb_angry;
+                        reaction = R.drawable.angry;
                         break;
                     default:
                         ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);

@@ -34,7 +34,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsApp">
         <activity
-            android:name=".ChatImages"
+            android:name=".ChatImagesActivity"
             android:exported="false" />
         <activity
             android:name=".ChatSettings"

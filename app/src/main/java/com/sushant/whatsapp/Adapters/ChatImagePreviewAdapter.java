@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.sushant.whatsapp.FullScreenImage;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.R;
@@ -41,7 +40,7 @@ public class ChatImagePreviewAdapter extends RecyclerView.Adapter<ChatImagePrevi
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
         Messages image = listImages.get(position);
         Glide.with(context).load(image.getImageUrl())
-                .placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.placeholder)
                 .into(holder.image);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
