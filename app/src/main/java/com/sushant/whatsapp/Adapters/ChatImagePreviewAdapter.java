@@ -41,6 +41,7 @@ public class ChatImagePreviewAdapter extends RecyclerView.Adapter<ChatImagePrevi
         Messages image = listImages.get(position);
         Glide.with(context).load(image.getImageUrl())
                 .placeholder(R.drawable.placeholder)
+                .dontTransform()
                 .into(holder.image);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
