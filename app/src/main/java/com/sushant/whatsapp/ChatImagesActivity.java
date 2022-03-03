@@ -50,7 +50,7 @@ public class ChatImagesActivity extends AppCompatActivity {
         senderRoom = auth.getUid() + receiverId;
 
         final ArrayList<Messages> imageModel = new ArrayList<>();
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         binding.chatImageRecycler.setLayoutManager(staggeredGridLayoutManager);
         binding.chatImageRecycler.setHasFixedSize(true);

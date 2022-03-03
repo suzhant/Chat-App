@@ -37,6 +37,7 @@ public class ChatsFragment extends Fragment {
     UsersAdapter adapter;
     DatabaseReference d1;
     ValueEventListener eventListener;
+    ArrayList<Users> oldlist = new ArrayList<>();
 
 
     public ChatsFragment() {
@@ -49,7 +50,7 @@ public class ChatsFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentChatsBinding.inflate(inflater, container, false);
         database = FirebaseDatabase.getInstance();
-        adapter = new UsersAdapter(list, getContext());
+        adapter = new UsersAdapter(oldlist, getContext());
         binding.chatRecyclerView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(getContext());
         binding.chatRecyclerView.setLayoutManager(layoutManager);
@@ -86,13 +87,16 @@ public class ChatsFragment extends Fragment {
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
                     users.setUserId(dataSnapshot.getKey());
-                    if (users.getUserId()!=null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
-                        if ("Accepted".equals(users.getRequest())){
+                    if (users.getUserId() != null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                        if ("Accepted".equals(users.getRequest())) {
                             list.add(users);
                         }
                     }
                 }
-                adapter.notifyDataSetChanged();
+                //  adapter.notifyDataSetChanged();
+                adapter.updateUserList(list);
+                oldlist.clear();
+                oldlist.addAll(list);
 
             }
 

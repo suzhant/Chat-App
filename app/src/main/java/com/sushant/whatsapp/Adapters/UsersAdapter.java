@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,10 +27,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.ChatDetailsActivity;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.R;
+import com.sushant.whatsapp.Utils.ChatDiffCallback;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -108,50 +106,33 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 //
 //                    }
 //                });
-        FirebaseDatabase.getInstance().getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends")
-                .child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                lastMsg = snapshot.child("lastMessage").getValue(String.class);
-                holder.lastMessage.setText(lastMsg);
+//        FirebaseDatabase.getInstance().getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends")
+//                .child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                lastMsg = snapshot.child("lastMessage").getValue(String.class);
+//                holder.lastMessage.setText(lastMsg);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+
+        if (users.getSeen() != null) {
+            if (users.getSeen().equals("false")) {
+                holder.userName.setTextColor(Color.BLACK);
+                holder.userName.setTypeface(null, Typeface.BOLD);
+                holder.lastMessage.setTypeface(null, Typeface.BOLD);
+                holder.lastMessage.setTextColor(Color.BLACK);
+            } else {
+                holder.userName.setTextColor(Color.parseColor("#757575"));
+                holder.lastMessage.setTextColor(Color.parseColor("#757575"));
+                holder.userName.setTypeface(null, Typeface.NORMAL);
+                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("Friends").child(users.getUserId())
-                .addValueEventListener(new ValueEventListener() {
-                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            Users users1 = snapshot.getValue(Users.class);
-                            assert users1 != null;
-                            if (users1.getSeen() != null) {
-                                if (users1.getSeen().equals("false")) {
-                                    holder.userName.setTextColor(Color.BLACK);
-                                    holder.userName.setTypeface(null, Typeface.BOLD);
-                                    holder.lastMessage.setTypeface(null, Typeface.BOLD);
-                                    holder.lastMessage.setTextColor(Color.BLACK);
-                                } else {
-                                    holder.userName.setTextColor(Color.parseColor("#757575"));
-                                    holder.lastMessage.setTextColor(Color.parseColor("#757575"));
-                                    holder.userName.setTypeface(null, Typeface.NORMAL);
-                                    holder.lastMessage.setTypeface(null, Typeface.NORMAL);
-                                }
-                            }
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
+        }
 
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
@@ -262,6 +243,16 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
             blackCircle = itemView.findViewById(R.id.black_circle);
 
         }
+    }
+
+
+    public void updateUserList(ArrayList<Users> users) {
+        final ChatDiffCallback diffCallback = new ChatDiffCallback(this.list, users);
+        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
+        this.list.clear();
+        this.list.addAll(users);
+        diffResult.dispatchUpdatesTo(this);
     }
 
 
