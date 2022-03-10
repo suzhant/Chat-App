@@ -22,7 +22,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -335,11 +334,13 @@ public class SettingsActivity extends AppCompatActivity {
                                                         for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                                                             Users users = snapshot1.getValue(Users.class);
                                                             assert users != null;
-                                                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").
-                                                                    child(users.getUserId()).child("Friends");
-                                                            HashMap<String, Object> map = new HashMap<>();
-                                                            map.put("profilePic", uri.toString());
-                                                            reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(map);
+                                                            if (users.getUserId() != null) {
+                                                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").
+                                                                        child(users.getUserId()).child("Friends");
+                                                                HashMap<String, Object> map = new HashMap<>();
+                                                                map.put("profilePic", uri.toString());
+                                                                reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(map);
+                                                            }
                                                         }
                                                     }
                                                 }

@@ -40,7 +40,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
     Context context;
     String lastMsg;
 
-
     public UsersAdapter(ArrayList<Users> list, Context context) {
         this.list = list;
         this.context = context;
@@ -106,19 +105,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 //
 //                    }
 //                });
-//        FirebaseDatabase.getInstance().getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends")
-//                .child(users.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                lastMsg = snapshot.child("lastMessage").getValue(String.class);
-//                holder.lastMessage.setText(lastMsg);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
 
         if (users.getSeen() != null) {
             if (users.getSeen().equals("false")) {
@@ -134,33 +120,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
             }
         }
 
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
-        Query checkStatus = reference.orderByChild("userId").equalTo(users.getUserId());
-        checkStatus.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
-                    assert StatusFromDB != null;
-                    if ("online".equals(StatusFromDB)) {
-                        holder.blackCircle.setVisibility(View.VISIBLE);
-                        holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
-                        holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
-                    } else {
-                        holder.blackCircle.setVisibility(View.GONE);
-                        holder.image.setBorderColor(Color.GRAY);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        checkStatus.keepSynced(false);
-        reference.keepSynced(false);
 
 //        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
 //                .child("Friends");
@@ -187,6 +146,31 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 //
 //            }
 //        });
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        Query checkStatus = reference.orderByChild("userId").equalTo(users.getUserId());
+        checkStatus.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String StatusFromDB = snapshot.child(users.getUserId()).child("Connection").child("Status").getValue(String.class);
+                    assert StatusFromDB != null;
+                    if ("online".equals(StatusFromDB)) {
+                        holder.blackCircle.setVisibility(View.VISIBLE);
+                        holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
+                        holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
+                    } else {
+                        holder.blackCircle.setVisibility(View.GONE);
+                        holder.image.setBorderColor(Color.GRAY);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

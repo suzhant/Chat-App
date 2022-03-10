@@ -59,7 +59,7 @@ public class ChatDiffCallback extends DiffUtil.Callback {
             if (!oldUser.getLastMessage().equals(newUsers.getLastMessage())) {
                 bundle.putString("newLastMessage", newUsers.getLastMessage());
             } else if (!oldUser.getProfilePic().equals(newUsers.getProfilePic())) {
-                bundle.putString("newPic", newUsers.getLastMessage());
+                bundle.putString("newPic", newUsers.getProfilePic());
             } else if (!oldUser.getUserName().equals(newUsers.getUserName())) {
                 bundle.putString("newUserName", newUsers.getUserName());
             }

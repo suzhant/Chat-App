@@ -50,9 +50,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -82,6 +81,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.sushant.whatsapp.Adapters.ChatAdapter;
+import com.sushant.whatsapp.Adapters.UsersAdapter;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityChatDetailsBinding;
@@ -98,7 +98,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 
-public class ChatDetailsActivity extends AppCompatActivity implements LifecycleObserver {
+public class ChatDetailsActivity extends AppCompatActivity implements DefaultLifecycleObserver {
 
     public static final int PICK_IMAGE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 200;
@@ -128,6 +128,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
     int pos, numItems;
     ArrayList<Messages> messageModel;
     ActivityResultLauncher<Intent> someActivityResultLauncher;
+    UsersAdapter usersAdapter;
 
     @SuppressLint({"ClickableViewAccessibility", "ResourceType"})
     @Override
@@ -479,6 +480,31 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
+    @Override
+    public void onStart(@NonNull LifecycleOwner owner) {
+        DefaultLifecycleObserver.super.onStart(owner);
+        // app moved to foreground
+        CheckConnection checkConnection = new CheckConnection();
+        if (checkConnection.isConnected(getApplicationContext())) {
+            binding.txtChatConn.setVisibility(View.VISIBLE);
+        } else {
+            binding.txtChatConn.setVisibility(View.GONE);
+        }
+        if (auth.getCurrentUser() != null) {
+//            database.goOnline();
+            updateStatus("online");
+        }
+    }
+
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
+        DefaultLifecycleObserver.super.onStop(owner);
+        // app moved to background
+        if (auth.getCurrentUser() != null) {
+            updateStatus("offline");
+        }
+    }
+
     private void createImageBitmap(Uri imageUrl) {
         Bitmap bitmap = null;
         try {
@@ -765,29 +791,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements LifecycleO
         recorder.stop();
         recorder.release();
         recorder = null;
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onMoveToForeground() {
-        // app moved to foreground
-        CheckConnection checkConnection = new CheckConnection();
-        if (checkConnection.isConnected(getApplicationContext())) {
-            binding.txtChatConn.setVisibility(View.VISIBLE);
-        } else {
-            binding.txtChatConn.setVisibility(View.GONE);
-        }
-        if (auth.getCurrentUser() != null) {
-//            database.goOnline();
-            updateStatus("online");
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onMoveToBackground() {
-        // app moved to background
-        if (auth.getCurrentUser() != null) {
-            updateStatus("offline");
-        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
