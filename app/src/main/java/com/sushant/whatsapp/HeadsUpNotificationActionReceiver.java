@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.sushant.whatsapp.Models.Messages;
+import com.sushant.whatsapp.Utils.Encryption;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -102,7 +103,8 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
     private void sendMessage() {
         String key = database.getReference().push().getKey();
         String message = "You missed a Video Call.";
-        final Messages model = new Messages(senderId, message, profilePic);
+        String encryptMessage = Encryption.encryptMessage(message);
+        final Messages model = new Messages(senderId, encryptMessage, profilePic);
         Date date = new Date();
         model.setTimestamp(date.getTime());
         model.setType("videoCall");

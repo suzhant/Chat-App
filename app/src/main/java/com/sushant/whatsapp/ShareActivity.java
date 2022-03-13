@@ -41,6 +41,7 @@ import com.sushant.whatsapp.Adapters.ShareAdapter;
 import com.sushant.whatsapp.Interface.isClicked;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.Utils.Encryption;
 import com.sushant.whatsapp.databinding.ActivityShareBinding;
 
 import java.util.ArrayList;
@@ -191,7 +192,8 @@ public class ShareActivity extends AppCompatActivity {
                         String senderRoom = senderId + receiverId;
                         String receiverRoom = receiverId + senderId;
                         String profilePic = users.getProfilePic();
-                        sendImageInsideApp(img, senderRoom, receiverRoom, receiverId, profilePic);
+                        String encryptedMessage = Encryption.encryptMessage(img);
+                        sendImageInsideApp(encryptedMessage, senderRoom, receiverRoom, receiverId, profilePic);
                     } else if (intent.getType().equals("chat_txt")) {
                         for (int i = 0; i < receiver.size(); i++) {
                             dialog.setMessage("Forwarding...");
@@ -327,7 +329,6 @@ public class ShareActivity extends AppCompatActivity {
         assert key != null;
         Date date = new Date();
         final Messages model = new Messages(senderId, profilePic, date.getTime());
-        model.setMessage("forwarded a photo");
         model.setImageUrl(image);
         model.setType("photo");
         model.setMessageId(key);
@@ -375,8 +376,8 @@ public class ShareActivity extends AppCompatActivity {
                             String key = database.getReference().push().getKey();
                             assert key != null;
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
-                            model.setMessage("send you a photo");
-                            model.setImageUrl(filePath);
+                            String encryptedMessage = Encryption.encryptMessage(filePath);
+                            model.setImageUrl(encryptedMessage);
                             model.setType("photo");
                             model.setMessageId(key);
                             updateLastMessage(receiverId, "photo.jpg");
@@ -405,6 +406,7 @@ public class ShareActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
         });
     }
@@ -415,13 +417,15 @@ public class ShareActivity extends AppCompatActivity {
             i++;
             String key = database.getReference().push().getKey();
             assert key != null;
-            final Messages model = new Messages(senderId, message, profilePic);
+            String encryptedMessage = Encryption.encryptMessage(message);
+            final Messages model = new Messages(senderId, encryptedMessage, profilePic);
             Date date = new Date();
             model.setTimestamp(date.getTime());
             model.setType(type);
             model.setMessageId(key);
             if (message.contains("youtu.be")) {
-                model.setImageUrl(thumbnail);
+                String encrypt = Encryption.encryptMessage(thumbnail);
+                model.setImageUrl(encrypt);
             }
             updateLastMessage(receiverId, lastmessage);
 

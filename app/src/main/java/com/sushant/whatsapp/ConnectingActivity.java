@@ -25,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.Utils.Encryption;
 import com.sushant.whatsapp.databinding.ActivityConnetingBinding;
 
 import java.util.Date;
@@ -285,7 +286,9 @@ public class ConnectingActivity extends AppCompatActivity {
 
     private void sendMessage() {
         String message = "You missed a Video Call.";
-        final Messages model = new Messages(auth.getUid(), message, profilePic);
+        String encryptMessage = Encryption.encryptMessage(message);
+
+        final Messages model = new Messages(auth.getUid(), encryptMessage, profilePic);
         Date date = new Date();
         model.setTimestamp(date.getTime());
         model.setType("videoCall");

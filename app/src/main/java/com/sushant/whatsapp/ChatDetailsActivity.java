@@ -268,10 +268,28 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     Messages model = dataSnapshot.getValue(Messages.class);
                     assert model != null;
                     //  model.setMessageId(model.getMessageId());
-                    try {
-                        model.setMessage(Encryption.decryptMessage(model.getMessage()));
-                    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
-                        e.printStackTrace();
+                    if (model.getMessage() != null) {
+                        try {
+                            model.setMessage(Encryption.decryptMessage(model.getMessage()));
+                        } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (model.getImageUrl() != null) {
+                        try {
+                            model.setImageUrl(Encryption.decryptMessage(model.getImageUrl()));
+                        } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (model.getAudioFile() != null) {
+                        try {
+                            model.setAudioFile(Encryption.decryptMessage(model.getAudioFile()));
+                        } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
@@ -622,7 +640,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             String key = database.getReference().push().getKey();
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
-                            model.setMessage("Recorded Audio");
                             String encryptedMessage = Encryption.encryptMessage(filePath);
 
                             model.setAudioFile(encryptedMessage);
@@ -728,7 +745,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             String key = database.getReference().push().getKey();
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
-                            model.setMessage("send you a photo");
                             String encryptedMessage = Encryption.encryptMessage(filePath);
                             model.setImageUrl(encryptedMessage);
                             model.setType("photo");
