@@ -108,4 +108,7 @@ dependencies {
     //recycler view saved instance on rotating screen
     implementation "androidx.recyclerview:recyclerview:1.3.0-alpha01"
 
+    //AES encryption
+    implementation 'com.github.tozny:java-aes-crypto:1.1.0'
+
 }

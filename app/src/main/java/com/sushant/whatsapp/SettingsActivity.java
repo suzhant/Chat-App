@@ -269,6 +269,7 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         Users user = snapshot.getValue(Users.class);
+                        assert user != null;
                         Glide.with(getApplicationContext()).load(user.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(binding.imgProfile);
                         binding.editUserName.setText(user.getUserName());

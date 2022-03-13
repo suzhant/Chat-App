@@ -81,15 +81,17 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.sushant.whatsapp.Adapters.ChatAdapter;
-import com.sushant.whatsapp.Adapters.UsersAdapter;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.Utils.Encryption;
 import com.sushant.whatsapp.databinding.ActivityChatDetailsBinding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -100,7 +102,6 @@ import java.util.Objects;
 
 public class ChatDetailsActivity extends AppCompatActivity implements DefaultLifecycleObserver {
 
-    public static final int PICK_IMAGE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 200;
     ActivityChatDetailsBinding binding;
     FirebaseDatabase database;
@@ -128,7 +129,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     int pos, numItems;
     ArrayList<Messages> messageModel;
     ActivityResultLauncher<Intent> someActivityResultLauncher;
-    UsersAdapter usersAdapter;
+
 
     @SuppressLint({"ClickableViewAccessibility", "ResourceType"})
     @Override
@@ -267,6 +268,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     Messages model = dataSnapshot.getValue(Messages.class);
                     assert model != null;
                     //  model.setMessageId(model.getMessageId());
+                    try {
+                        model.setMessage(Encryption.decryptMessage(model.getMessage()));
+                    } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }
@@ -617,11 +623,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
                             model.setMessage("Recorded Audio");
-                            model.setAudioFile(filePath);
+                            String encryptedMessage = Encryption.encryptMessage(filePath);
+
+                            model.setAudioFile(encryptedMessage);
                             model.setType("audio");
                             model.setMessageId(key);
                             binding.editMessage.getText().clear();
-                            updateLastMessage("Recorded Audio");
+                            updateLastMessage(Encryption.getAudioLast());
 
                             if (notify) {
                                 sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "audio");
@@ -721,11 +729,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
                             model.setMessage("send you a photo");
-                            model.setImageUrl(filePath);
+                            String encryptedMessage = Encryption.encryptMessage(filePath);
+                            model.setImageUrl(encryptedMessage);
                             model.setType("photo");
                             model.setMessageId(key);
                             binding.editMessage.getText().clear();
-                            updateLastMessage("photo.jpg");
+                            updateLastMessage(Encryption.getPhotoLast());
 
                             if (notify) {
                                 sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "photo");
@@ -803,7 +812,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         assert key != null;
         if (!message.isEmpty()) {
             binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
-            final Messages model = new Messages(senderId, message, profilePic);
+            String encryptedMessage = Encryption.encryptMessage(message);
+            final Messages model = new Messages(senderId, encryptedMessage, profilePic);
             Date date = new Date();
             model.setTimestamp(date.getTime());
             model.setType("text");
@@ -844,7 +854,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             binding.icSend.startAnimation(scale_up);
             int unicode = 0x2764;
             String heart = new String(Character.toChars(unicode));
-            final Messages model1 = new Messages(senderId, heart, profilePic);
+            String encryptedMessage = Encryption.encryptMessage(heart);
+            final Messages model1 = new Messages(senderId, encryptedMessage, profilePic);
             model1.setType("text");
             Date date = new Date();
             model1.setTimestamp(date.getTime());

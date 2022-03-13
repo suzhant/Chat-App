@@ -84,7 +84,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
         Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.image);
         holder.userName.setText(users.getUserName());
-        holder.lastMessage.setText(users.getLastMessage());
+        if (users.getLastMessage() != null) {
+            holder.lastMessage.setText(users.getLastMessage());
+        }
 
 //        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId());
 //        Query message=reference2.orderByChild("timestamp").limitToLast(1);
