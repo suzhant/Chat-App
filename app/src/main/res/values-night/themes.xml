@@ -14,4 +14,10 @@
         <item name="android:navigationBarColor" tools:targetApi="l">@color/navColor</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:colorBackground">@color/chatNavColor</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
 </resources>

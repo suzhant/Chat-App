@@ -17,8 +17,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Adapters.ChatImagePreviewAdapter;
 import com.sushant.whatsapp.Models.Messages;
+import com.sushant.whatsapp.Utils.Encryption;
 import com.sushant.whatsapp.databinding.ActivityChatImagesBinding;
 
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 
 public class ChatImagesActivity extends AppCompatActivity {
@@ -67,6 +70,11 @@ public class ChatImagesActivity extends AppCompatActivity {
                     Messages model = dataSnapshot.getValue(Messages.class);
                     assert model != null;
                     if (model.getImageUrl() != null) {
+                        try {
+                            model.setImageUrl(Encryption.decryptMessage(model.getImageUrl()));
+                        } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                         imageModel.add(model);
                     }
                 }

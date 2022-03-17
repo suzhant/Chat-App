@@ -89,6 +89,9 @@ public class ChatsFragment extends Fragment {
                     users.setUserId(dataSnapshot.getKey());
                     if (users.getUserId() != null && !users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
                         if ("Accepted".equals(users.getRequest())) {
+                            if (users.getNickName() != null) {
+                                users.setUserName(users.getNickName());
+                            }
                             list.add(users);
                         }
                     }
