@@ -404,6 +404,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     receiverNickName = users.getNickName();
                     binding.userName.setText(receiverNickName);
                 } else {
+                    receiverNickName = users.getUserName();
                     binding.userName.setText(receiverName);
                 }
             }

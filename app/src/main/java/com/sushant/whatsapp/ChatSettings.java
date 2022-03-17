@@ -134,6 +134,7 @@ public class ChatSettings extends AppCompatActivity {
                     return;
                 }
                 setNickName(m_Text);
+                Toast.makeText(ChatSettings.this, "Created NickName Successfully", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }
         });
@@ -141,6 +142,13 @@ public class ChatSettings extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+            }
+        });
+        builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                deleteNickName();
+                Toast.makeText(ChatSettings.this, "Deleted Successfully", Toast.LENGTH_SHORT).show();
             }
         });
         // Title
@@ -160,6 +168,7 @@ public class ChatSettings extends AppCompatActivity {
         //buttons
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.colorPurple));
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.colorPurple));
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(ContextCompat.getColor(this, R.color.red));
 
 
         //message
@@ -193,6 +202,13 @@ public class ChatSettings extends AppCompatActivity {
         DatabaseReference databaseReference = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("Friends").child(receiverId);
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("nickName", nickname);
+        databaseReference.updateChildren(hashMap);
+    }
+
+    private void deleteNickName() {
+        DatabaseReference databaseReference = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("Friends").child(receiverId);
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("nickName", null);
         databaseReference.updateChildren(hashMap);
     }
 
