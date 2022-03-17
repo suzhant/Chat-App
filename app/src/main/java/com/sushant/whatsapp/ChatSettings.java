@@ -4,15 +4,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +32,7 @@ public class ChatSettings extends AppCompatActivity {
     AlertDialog.Builder dialog;
     FirebaseAuth auth;
     FirebaseDatabase database;
-    String senderId, receiverId, senderRoom, receiverName, receiverPP;
+    String senderId, receiverId, senderRoom, receiverName, receiverPP, senderNickName;
     private String m_Text = "";
 
     @Override
@@ -50,6 +55,7 @@ public class ChatSettings extends AppCompatActivity {
         receiverId = getIntent().getStringExtra("UserId");
         receiverName = getIntent().getStringExtra("UserName");
         receiverPP = getIntent().getStringExtra("ProfilePic");
+        senderNickName = getIntent().getStringExtra("SenderNickName");
         senderRoom = senderId + receiverId;
 
         dialog = new AlertDialog.Builder(this);
@@ -102,7 +108,9 @@ public class ChatSettings extends AppCompatActivity {
     private void showDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(ChatSettings.this, R.style.AlertDialogCustom);
-        builder.setTitle("Nickname");
+        builder.setMessage("My NickName : " + senderNickName + "\n" +
+                "Friend's NickName : " + receiverName);
+
 
         View viewInflated = LayoutInflater.from(ChatSettings.this).inflate(R.layout.nickname_dialog_box, findViewById(android.R.id.content), false);
 
@@ -120,9 +128,13 @@ public class ChatSettings extends AppCompatActivity {
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
                 m_Text = input.getText().toString();
+                if (m_Text.isEmpty()) {
+                    Toast.makeText(ChatSettings.this, "Field is Empty!! Try Again.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 setNickName(m_Text);
+                dialog.dismiss();
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -131,9 +143,34 @@ public class ChatSettings extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-        builder.show();
+        // Title
+        TextView titleView = new TextView(ChatSettings.this);
+        titleView.setText("NickName");
+        titleView.setGravity(Gravity.CENTER);
+        titleView.setPadding(20, 20, 20, 20);
+        titleView.setTextSize(20F);
+        titleView.setTypeface(Typeface.DEFAULT_BOLD);
+        titleView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPurple));
+        titleView.setTextColor(ContextCompat.getColor(this, R.color.white));
 
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+        AlertDialog dialog = builder.create();
+        dialog.setCustomTitle(titleView);
+        dialog.show();
+
+        //buttons
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.colorPurple));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.colorPurple));
+
+
+        //message
+        TextView messageView = dialog.findViewById(android.R.id.message);
+        if (messageView != null) {
+            messageView.setGravity(Gravity.START);
+            messageView.setTextColor(Color.BLACK);
+            messageView.setTypeface(Typeface.SANS_SERIF);
+        }
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 InputMethodManager inputMethodManager = (InputMethodManager) ChatSettings.this.getSystemService(Context.INPUT_METHOD_SERVICE);

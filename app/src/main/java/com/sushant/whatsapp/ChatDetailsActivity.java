@@ -113,11 +113,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     boolean notify = false, recording;
     FirebaseStorage storage;
     ProgressDialog dialog;
-    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true", receiverNickName;
+    String senderId, receiverId, senderRoom, receiverRoom, profilePic, senderPP, email, Status, receiverName, StatusFromDB, userToken, sendername, seen = "true", receiverNickName, senderNickName;
     long lastOnline;
-    ValueEventListener eventListener1, eventListener2, chatListener, senderListener, tokenListener, eventListener, receiverListener;
+    ValueEventListener eventListener1, eventListener2, chatListener, senderListener, tokenListener, eventListener, receiverListener, senderNickNameListener;
     Query checkStatus, checkStatus1;
-    DatabaseReference infoConnected, chatRef, senderRef, tokenRef, receiverRef;
+    DatabaseReference infoConnected, chatRef, senderRef, tokenRef, receiverRef, senderNickNameRef;
     TextView txtTimer, txtRecording;
     long recordedTime;
     Dialog memberDialog;
@@ -184,15 +184,38 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         chatAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
+        senderNickNameRef = database.getReference().child("Users").child(receiverId).child("Friends").child(Objects.requireNonNull(auth.getUid()));
+        senderNickNameListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Users users = snapshot.getValue(Users.class);
+                assert users != null;
+                if (users.getNickName() != null) {
+                    sendername = users.getNickName();
+                    senderNickName = users.getNickName();
+                } else {
+                    sendername = users.getUserName();
+                }
+                senderPP = users.getProfilePic();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        senderNickNameRef.addValueEventListener(senderNickNameListener);
+
         binding.icSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), ChatSettings.class);
                 intent.putExtra("UserId", receiverId);
-                intent.putExtra("UserName", receiverName);
+                intent.putExtra("UserName", receiverNickName);
                 intent.putExtra("ProfilePic", profilePic);
                 intent.putExtra("Email", email);
                 intent.putExtra("Status", Status);
+                intent.putExtra("SenderNickName", senderNickName);
                 startActivity(intent);
             }
         });
@@ -353,22 +376,23 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         });
 
 
-        senderRef = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()));
-        senderListener = new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.P)
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Users users = snapshot.getValue(Users.class);
-                sendername = users.getUserName();
-                senderPP = users.getProfilePic();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        senderRef.addValueEventListener(senderListener);
+//        senderRef = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()));
+//        senderListener = new ValueEventListener() {
+//            @RequiresApi(api = Build.VERSION_CODES.P)
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                Users users = snapshot.getValue(Users.class);
+//                assert users != null;
+//                sendername = users.getUserName();
+//                senderPP = users.getProfilePic();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        };
+//        senderRef.addValueEventListener(senderListener);
 
         receiverListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.P)
@@ -1096,8 +1120,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             chatRef.keepSynced(false);
             chatRef.removeEventListener(chatListener);
         }
-        if (senderRef != null) {
-            senderRef.removeEventListener(senderListener);
+        if (senderNickNameRef != null) {
+            senderNickNameRef.removeEventListener(senderNickNameListener);
         }
         if (receiverRef != null) {
             receiverRef.removeEventListener(receiverListener);
@@ -1124,8 +1148,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             chatRef.keepSynced(false);
             chatRef.removeEventListener(chatListener);
         }
-        if (senderRef != null) {
-            senderRef.removeEventListener(senderListener);
+        if (senderNickNameRef != null) {
+            senderNickNameRef.removeEventListener(senderNickNameListener);
         }
         if (receiverRef != null) {
             receiverRef.removeEventListener(receiverListener);
@@ -1152,8 +1176,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         if (receiverRef != null) {
             receiverRef.addValueEventListener(receiverListener);
         }
-        if (senderRef != null) {
-            senderRef.addValueEventListener(senderListener);
+        if (senderNickNameRef != null) {
+            senderNickNameRef.addValueEventListener(senderNickNameListener);
         }
         if (tokenRef != null) {
             tokenRef.addValueEventListener(tokenListener);
