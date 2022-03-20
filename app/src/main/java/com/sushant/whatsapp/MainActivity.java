@@ -6,12 +6,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -75,15 +77,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FirebaseAuth auth;
     FirebaseDatabase database;
     BroadcastReceiver broadcastReceiver;
-    DatabaseReference reference;
-    ValueEventListener eventListener1;
-    DatabaseReference NavDrawer;
+    DatabaseReference reference, infoConnected, NavDrawer, friendReqRef;
+    ValueEventListener eventListener1, eventListener, friendReqListener;
     SharedPreferences sharedPreferences;
-    TextView txtConnection;
+    TextView txtConnection, txtFriendReq;
     Boolean conn;
-    ValueEventListener eventListener;
-    DatabaseReference infoConnected;
-
+    int friendCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         viewPager = findViewById(R.id.viewPager);
         navigationView.setNavigationItemSelectedListener(this);
         txtUserName = findViewById(R.id.txtUserName);
+        MenuItem menu = navigationView.getMenu().findItem(R.id.nav_friendRequest);
+        txtFriendReq = (TextView) menu.getActionView();
 
 
         viewPager.setAdapter(new FragmentsAdapter(getSupportFragmentManager()));
@@ -200,6 +201,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
         NavDrawer = reference.child(Objects.requireNonNull(auth.getUid()));
         NavDrawer.addValueEventListener(eventListener1);
+
+        //retrieving friend request info from db
+        friendReqListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                friendCounter = 0;
+                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                    Users user = snapshot1.getValue(Users.class);
+                    assert user != null;
+                    if (user.getRequest() != null) {
+                        if ("Req_Pending".equals(user.getRequest())) {
+                            friendCounter++;
+                        }
+                    }
+
+                }
+                initializeCountDrawer();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        friendReqRef = reference.child(Objects.requireNonNull(auth.getUid())).child("Friends");
+        friendReqRef.addValueEventListener(friendReqListener);
+
 
         //check email verification
         assert user != null;
@@ -249,6 +278,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+
+    }
+
+    private void initializeCountDrawer() {
+        //Gravity property aligns the text
+        txtFriendReq.setGravity(Gravity.CENTER_VERTICAL);
+        txtFriendReq.setTypeface(null, Typeface.BOLD);
+        txtFriendReq.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPurple));
+        if (friendCounter == 0) {
+            txtFriendReq.setText("");
+        } else {
+            txtFriendReq.setText(String.valueOf(friendCounter));
+        }
+
     }
 
     @Override
@@ -263,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (auth.getCurrentUser() != null) {
             NavDrawer.addValueEventListener(eventListener1);
+            friendReqRef.addValueEventListener(friendReqListener);
 //            database.goOnline();
             updateStatus("online");
             if (!auth.getCurrentUser().isEmailVerified()) {
@@ -277,6 +321,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // app moved to background
         if (auth.getCurrentUser() != null) {
             NavDrawer.removeEventListener(eventListener1);
+            friendReqRef.removeEventListener(friendReqListener);
 //            database.goOffline();
             updateStatus("offline");
             if (!auth.getCurrentUser().isEmailVerified()) {
@@ -388,14 +433,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
+
 
     private void deleteToken() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -412,9 +450,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        }
+        registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     private void unregisterNetwork() {
@@ -431,8 +467,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
         unregisterNetwork();
         infoConnected.removeEventListener(eventListener);
+        friendReqRef.removeEventListener(friendReqListener);
         NavDrawer.removeEventListener(eventListener1);
         Log.d("Drawer", "onDestroy: eventDeleted");
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private void manageConnection() {

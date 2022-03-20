@@ -57,6 +57,9 @@ public class ChatSettings extends AppCompatActivity {
         receiverPP = getIntent().getStringExtra("ProfilePic");
         senderNickName = getIntent().getStringExtra("SenderNickName");
         senderRoom = senderId + receiverId;
+        if (senderNickName == null) {
+            senderNickName = "none";
+        }
 
         dialog = new AlertDialog.Builder(this);
         dialog.setMessage("Are you sure?")

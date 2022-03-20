@@ -150,7 +150,6 @@
             android:id="@+id/btnGoogle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginEnd="4dp"
             android:drawableLeft="@drawable/ic_google"
             android:enabled="false"
@@ -163,7 +162,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnSignIn" />
+            app:layout_constraintTop_toBottomOf="@+id/txt_timer_message" />
 
         <Button
             android:id="@+id/btnFb"
