@@ -41,7 +41,6 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     String receiverName, senderId, profilePic, email, message, msgType, title, icon, Gid, Type, isNotification, receiverId;
     NotificationCompat.Builder builder;
     String videoSoundPath;
-    Ringtone videoRingtone;
 
     @Override
     public void onNewToken(@NonNull String s) {
@@ -69,7 +68,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         message = data.get("message");
         msgType = data.get("msgType");
         title = data.get("title");
-        icon = data.get("icon");
+        icon = data.get("notificationIcon");
         Type = data.get("Type");
 
         int resourceImage = getResources().getIdentifier(icon, "drawable", getPackageName());

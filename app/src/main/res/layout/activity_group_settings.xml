@@ -38,53 +38,62 @@
             android:layout_gravity="center_horizontal" />
     </androidx.appcompat.widget.Toolbar>
 
-    <Button
+    <TextView
         android:id="@+id/btnGroupSetting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/ic_call_green"
+        android:backgroundTint="@color/colorPurple"
+        android:padding="15dp"
         android:textColor="@color/white"
         android:text="Settings"
-        android:layout_marginTop="5dp"
-        android:fontFamily="@font/advent_pro_medium"
-        android:backgroundTint="@color/colorPurple"
-        android:background="@drawable/bg_et_message"/>
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-    <Button
+    <TextView
         android:id="@+id/btnLeaveGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:background="@drawable/bg_et_message"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/ic_call_green"
         android:backgroundTint="@color/colorPurple"
-        android:fontFamily="@font/advent_pro_medium"
-        android:gravity="center"
+        android:padding="15dp"
+        android:textColor="@color/white"
         android:text="Leave Group"
-        android:textColor="@color/white" />
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-    <Button
+    <TextView
         android:id="@+id/btnAddParticipant"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/ic_call_green"
+        android:backgroundTint="@color/colorPurple"
+        android:padding="15dp"
         android:textColor="@color/white"
         android:text="Add Participant"
-        android:backgroundTint="@color/colorPurple"
-        android:fontFamily="@font/advent_pro_medium"
-        android:background="@drawable/bg_et_message"/>
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-    <Button
+    <TextView
         android:id="@+id/btnShowMember"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="@color/white"
-        android:text="show Members"
-        android:layout_marginTop="5dp"
-        android:fontFamily="@font/advent_pro_medium"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/ic_call_green"
         android:backgroundTint="@color/colorPurple"
-        android:background="@drawable/bg_et_message"/>
+        android:padding="15dp"
+        android:textColor="@color/white"
+        android:text="Show Members"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -93,7 +102,7 @@
         android:layout_gravity="center"
         android:textColor="@color/colorPurple"
         android:textStyle="bold"
-        android:layout_margin="10dp"/>
+        android:layout_margin="10dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/participantRecycler"

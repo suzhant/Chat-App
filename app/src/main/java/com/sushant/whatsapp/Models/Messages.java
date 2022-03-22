@@ -1,7 +1,7 @@
 package com.sushant.whatsapp.Models;
 
 public class Messages {
-    private String uId,message, messageId,profilePic,senderId,receiverId,senderName,receiverName,type,imageUrl,audioFile;
+    private String uId, message, messageId, profilePic, senderId, receiverId, senderName, receiverName, type, imageUrl, audioFile, videoFile;
     private Long timestamp;
     private int Reaction = -1;
 
@@ -10,6 +10,7 @@ public class Messages {
         this.profilePic = profilePic;
         this.timestamp = timestamp;
     }
+
     public Messages(String uId, String message) {
         this.uId = uId;
         this.message = message;
@@ -104,5 +105,13 @@ public class Messages {
 
     public void setReaction(int reaction) {
         Reaction = reaction;
+    }
+
+    public String getVideoFile() {
+        return videoFile;
+    }
+
+    public void setVideoFile(String videoFile) {
+        this.videoFile = videoFile;
     }
 }

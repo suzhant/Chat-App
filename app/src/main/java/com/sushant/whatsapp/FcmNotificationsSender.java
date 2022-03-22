@@ -97,7 +97,7 @@ public class FcmNotificationsSender {
             dataObject.put("msgType", msgType);
             dataObject.put("Notification", Notification);
             dataObject.put("click_action", click_action);
-            dataObject.put("icon", R.drawable.ic_circle_notifications);
+            dataObject.put("notificationIcon", R.drawable.ic_circle_notifications);
             mainObj.put("data", dataObject);
 
 

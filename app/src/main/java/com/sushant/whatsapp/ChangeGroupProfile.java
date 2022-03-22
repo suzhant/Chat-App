@@ -16,13 +16,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Fragments.GroupNameFragment;
 import com.sushant.whatsapp.Fragments.GroupPicFragment;
 import com.sushant.whatsapp.Fragments.GroupUsersFragment;
-import com.sushant.whatsapp.databinding.ActivityChangeGroupProfileBinding;
+import com.sushant.whatsapp.databinding.ActivityGroupProfileBinding;
 
 import java.util.Objects;
 
 public class ChangeGroupProfile extends AppCompatActivity {
 
-    ActivityChangeGroupProfileBinding binding;
+    ActivityGroupProfileBinding binding;
     FirebaseDatabase database;
     ValueEventListener eventListener;
     DatabaseReference reference;
@@ -31,7 +31,7 @@ public class ChangeGroupProfile extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityChangeGroupProfileBinding.inflate(getLayoutInflater());
+        binding = ActivityGroupProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();

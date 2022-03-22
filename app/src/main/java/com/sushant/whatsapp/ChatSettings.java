@@ -109,14 +109,11 @@ public class ChatSettings extends AppCompatActivity {
     }
 
     private void showDialog() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(ChatSettings.this, R.style.AlertDialogCustom);
         builder.setMessage("My NickName : " + senderNickName + "\n" +
                 "Friend's NickName : " + receiverName);
 
-
         View viewInflated = LayoutInflater.from(ChatSettings.this).inflate(R.layout.nickname_dialog_box, findViewById(android.R.id.content), false);
-
         final EditText input = viewInflated.findViewById(R.id.input);
         builder.setView(viewInflated);
 

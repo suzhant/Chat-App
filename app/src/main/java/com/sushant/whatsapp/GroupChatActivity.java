@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -42,13 +43,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.iceteck.silicompressorr.SiliCompressor;
 import com.sushant.whatsapp.Adapters.GroupChatAdapter;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.Utils.Encryption;
+import com.sushant.whatsapp.Utils.ImageUtils;
 import com.sushant.whatsapp.databinding.ActivityGroupChatBinding;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -356,10 +359,7 @@ public class GroupChatActivity extends AppCompatActivity {
                 if (data != null) {
                     if (data.getData() != null) {
                         Uri selectedImage = data.getData();
-                        File dir = getCacheDir();
-                        String file = SiliCompressor.with(this).compress(String.valueOf(selectedImage), dir);
-                        Uri uri = Uri.parse(file);
-                        uploadToFirebase(uri);
+                        createImageBitmap(selectedImage);
                     }
                 }
             }
@@ -367,23 +367,14 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
 
-    private void uploadToFirebase(Uri uri) {
+    private void uploadToFirebase(byte[] uri) {
         Calendar calendar = Calendar.getInstance();
-        final StorageReference reference = storage.getReference().child("Group Chat Pics").child(FirebaseAuth.getInstance().getUid()).child(calendar.getTimeInMillis() + "");
+        final StorageReference reference = storage.getReference().child("Group Chat Pics").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
         dialog.show();
-        reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        reference.putBytes(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @RequiresApi(api = Build.VERSION_CODES.P)
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
-
-                if (fdelete.exists()) {
-                    if (fdelete.delete()) {
-                        System.out.println("file Deleted :");
-                    } else {
-                        System.out.println("file not Deleted :");
-                    }
-                }
                 if (task.isSuccessful()) {
                     dialog.dismiss();
                     reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -394,15 +385,14 @@ public class GroupChatActivity extends AppCompatActivity {
                             notify = true;
                             Date date = new Date();
                             final Messages model = new Messages(senderId, profilePic, date.getTime());
-                            model.setMessage(fdelete.getName());
                             model.setImageUrl(filePath);
                             model.setType("photo");
                             binding.editMessage.getText().clear();
-                            updateLastMessage(fdelete.getName());
+                            updateLastMessage(Encryption.getPhotoLast());
 
                             if (notify) {
                                 for (int i = 0; i < list.size(); i++) {
-                                    sendNotification("/topics/" + Gid, Gname, sendername + ": " + fdelete.getName(), GPP, Gid, "photo");
+                                    sendNotification("/topics/" + Gid, Gname, sendername + ": " + filePath, GPP, Gid, "photo");
                                 }
                             }
                             notify = false;
@@ -440,6 +430,20 @@ public class GroupChatActivity extends AppCompatActivity {
             return picturePath;
         }
         return null;
+    }
+
+    private void createImageBitmap(Uri imageUrl) {
+        Bitmap bitmap = null;
+        try {
+            bitmap = ImageUtils.handleSamplingAndRotationBitmap(GroupChatActivity.this, imageUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        assert bitmap != null;
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] bytes = baos.toByteArray();
+        uploadToFirebase(bytes);
     }
 
 }

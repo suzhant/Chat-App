@@ -9,8 +9,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ClipData;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -21,16 +23,20 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +48,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -49,7 +56,12 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.abedelazizshe.lightcompressorlibrary.CompressionListener;
+import com.abedelazizshe.lightcompressorlibrary.VideoCompressor;
+import com.abedelazizshe.lightcompressorlibrary.VideoQuality;
+import com.abedelazizshe.lightcompressorlibrary.config.Configuration;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -92,6 +104,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 
 public class ChatDetailsActivity extends AppCompatActivity implements DefaultLifecycleObserver {
@@ -122,9 +135,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     CountDownTimer timer;
     int pos, numItems;
     ArrayList<Messages> messageModel;
-    ActivityResultLauncher<Intent> someActivityResultLauncher;
+    ActivityResultLauncher<Intent> imageLauncher, videoLauncher;
+    ArrayList<Uri> videos = new ArrayList<>();
+    int itemPos = 30;
+    private boolean isSwiped = false;
+    Query query1, query2;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"ClickableViewAccessibility", "ResourceType"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -312,6 +330,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     messageModel.add(model);
                 }
                 chatAdapter.notifyDataSetChanged();
+                if (isSwiped) {
+                    if (messageModel.size() == itemPos) {
+                        Objects.requireNonNull(binding.chatRecyclerView.getLayoutManager()).scrollToPosition(30);
+                    } else {
+                        Objects.requireNonNull(binding.chatRecyclerView.getLayoutManager()).scrollToPosition(Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount() - 30);
+                    }
+                    isSwiped = false;
+                }
                 if (count == 0) {
                     chatAdapter.notifyDataSetChanged();
                 } else {
@@ -330,7 +356,36 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
 
             }
         };
-        chatRef.addValueEventListener(chatListener);
+        //     chatRef.addValueEventListener(chatListener);
+        query1 = chatRef.limitToLast(itemPos);
+        query1.addValueEventListener(chatListener);
+
+        binding.swipeChatRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (layoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+                    // Its at top
+                    if (Objects.requireNonNull(binding.chatRecyclerView.getLayoutManager()).getItemCount() != itemPos) {
+                        Toast.makeText(ChatDetailsActivity.this, "No data to load", Toast.LENGTH_SHORT).show();
+                        binding.swipeChatRefresh.setRefreshing(false);
+                        return;
+                    }
+                    isSwiped = true;
+                    itemPos += 30;
+                    Handler handler = new Handler();
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            query2 = chatRef.limitToLast(itemPos);
+                            query2.addListenerForSingleValueEvent(chatListener);
+                            binding.swipeChatRefresh.setRefreshing(false);
+                        }
+                    };
+                    handler.postDelayed(runnable, 1000);
+                }
+            }
+        });
+
         chatRef.keepSynced(true);
 
 
@@ -423,15 +478,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         binding.imgGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                someActivityResultLauncher.launch(intent);
-
+                showDialog();
             }
         });
-        someActivityResultLauncher = registerForActivityResult(
+
+        imageLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
@@ -449,6 +500,23 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             } else if (result.getData().getData() != null) {
                                 Uri selectedImage = result.getData().getData();
                                 createImageBitmap(selectedImage);
+                            }
+                        }
+                    }
+                });
+
+        videoLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // There are no request codes
+                            if (result.getData().getData() != null) {
+                                Uri selectedVideo = result.getData().getData();
+                                compressVideo(selectedVideo);
+
+
                             }
                         }
                     }
@@ -543,6 +611,93 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+
+    private void uploadVideoToFirebase(Uri selectedVideo, Uri ext) {
+        dialog.setMessage("Uploading Video...");
+        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dialog.setProgress(0);
+        dialog.show();
+        Calendar calendar = Calendar.getInstance();
+        Uri uri = Uri.fromFile(new File(String.valueOf(selectedVideo)));
+        StorageReference filepath = storage.getReference().child("Video").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
+        filepath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()) {
+                    binding.linear.setVisibility(View.VISIBLE);
+                    binding.audioLayout.setVisibility(View.GONE);
+                    dialog.dismiss();
+                    filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String filePath = uri.toString();
+                            notify = true;
+                            String key = database.getReference().push().getKey();
+                            Date date = new Date();
+                            final Messages model = new Messages(senderId, profilePic, date.getTime());
+                            String encryptedMessage = Encryption.encryptMessage(filePath);
+
+                            model.setVideoFile(encryptedMessage);
+                            model.setType("video");
+                            model.setMessageId(key);
+                            binding.editMessage.getText().clear();
+                            updateLastMessage(Encryption.getVideoLast());
+
+                            if (notify) {
+                                sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "video");
+                            }
+                            notify = false;
+
+                            assert key != null;
+                            database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
+                                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+                                                    r.play();
+                                                    binding.chatRecyclerView.smoothScrollToPosition(messageModel.size());
+                                                }
+                                            });
+                                        }
+                                    });
+                        }
+                    });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
+                int currentProgress = (int) progress;
+                dialog.setProgress(currentProgress);
+            }
+        });
+    }
+
+    private void imgPicker() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        imageLauncher.launch(intent);
+    }
+
+    private void videoPicker() {
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        videoLauncher.launch(intent);
     }
 
     @Override
@@ -663,8 +818,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         dialog.setMessage("Uploading Audio...");
         dialog.show();
         Calendar calendar = Calendar.getInstance();
-        StorageReference filepath = storage.getReference().child("Audio").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
         Uri uri = Uri.fromFile(new File(fileName));
+        StorageReference filepath = storage.getReference().child("Audio").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "." + getExt(uri));
         filepath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -806,6 +961,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                                             database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
+                                                    database.getReference().child("Images").child(senderRoom).child(key).setValue(model);
                                                     String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
                                                     Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
                                                     r.play();
@@ -1100,6 +1256,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             chatRef.keepSynced(false);
             chatRef.removeEventListener(chatListener);
         }
+        if (query1 != null) {
+            query1.removeEventListener(chatListener);
+        }
         if (senderNickNameRef != null) {
             senderNickNameRef.removeEventListener(senderNickNameListener);
         }
@@ -1128,6 +1287,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             chatRef.keepSynced(false);
             chatRef.removeEventListener(chatListener);
         }
+        if (query1 != null) {
+            query1.removeEventListener(chatListener);
+        }
         if (senderNickNameRef != null) {
             senderNickNameRef.removeEventListener(senderNickNameListener);
         }
@@ -1152,6 +1314,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         if (chatRef != null) {
             chatRef.keepSynced(true);
             chatRef.addValueEventListener(chatListener);
+        }
+        if (query1 != null) {
+            query1.addValueEventListener(chatListener);
         }
         if (receiverRef != null) {
             receiverRef.addValueEventListener(receiverListener);
@@ -1178,5 +1343,154 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("Status", status);
         database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("Connection").updateChildren(obj);
+    }
+
+    private void showDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(ChatDetailsActivity.this, R.style.AlertDialogCustom);
+        builder.setCancelable(false);
+        builder.setTitle("Choose");
+
+
+        View viewInflated = LayoutInflater.from(ChatDetailsActivity.this).inflate(R.layout.image_picker, findViewById(android.R.id.content), false);
+
+        final ImageView imgPicker = viewInflated.findViewById(R.id.imgGalleryPick);
+        final ImageView videoPicker = viewInflated.findViewById(R.id.imgVideoPicker);
+        builder.setView(viewInflated);
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        // Title
+        TextView titleView = new TextView(ChatDetailsActivity.this);
+        titleView.setText("Choose");
+        titleView.setTextSize(20F);
+        titleView.setPadding(20, 20, 20, 20);
+        titleView.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+        AlertDialog dialog = builder.create();
+        // dialog.setCustomTitle(titleView);
+        dialog.show();
+
+        videoPicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                videoPicker();
+                dialog.dismiss();
+            }
+        });
+
+        imgPicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imgPicker();
+                dialog.dismiss();
+            }
+        });
+
+        //buttons
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, red));
+
+    }
+
+    private String getExt(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap map = MimeTypeMap.getSingleton();
+        return map.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    private void deleteMessage() {
+        long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
+        DatabaseReference ttlRef = database.getReference().child("Chats").child(senderRoom);
+        Query oldItems = ttlRef.orderByChild("timestamp").endAt(cutoff);
+        oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                    itemSnapshot.getRef().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                throw databaseError.toException();
+            }
+        });
+    }
+
+    private void compressVideo(Uri uri) {
+        videos.clear();
+        videos.add(uri);
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Compressing...");
+        dialog.setCancelable(false);
+        dialog.show();
+        VideoCompressor.start(
+                this, // => This is required
+                videos, // => Source can be provided as content uris
+                false, // => isStreamable
+                Environment.DIRECTORY_MOVIES, // => the directory to save the compressed video(s)
+                new CompressionListener() {
+                    @Override
+                    public void onSuccess(int i, long l, @Nullable String s) {
+                        dialog.dismiss();
+                        Uri path = Uri.parse(s);
+                        uploadVideoToFirebase(path, uri);
+                    }
+
+                    @Override
+                    public void onStart(int i) {
+
+                    }
+
+                    @Override
+                    public void onFailure(int index, @NonNull String failureMessage) {
+                        // On Failure
+                    }
+
+                    @Override
+                    public void onProgress(int index, float progressPercent) {
+                        // Update UI with progress value
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(int index) {
+                        // On Cancelled
+                    }
+                }, new Configuration(
+                        VideoQuality.MEDIUM,
+                        24, /*frameRate: int, or null*/
+                        false, /*isMinBitrateCheckEnabled*/
+                        null, /*videoBitrate: int, or null*/
+                        false, /*disableAudio: Boolean, or null*/
+                        false, /*keepOriginalResolution: Boolean, or null*/
+                        null, /*videoWidth: Double, or null*/
+                        null/*videoHeight: Double, or null*/
+                )
+        );
+
+
+    }
+
+    private String getFilePath(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(projection[0]);
+            String picturePath = cursor.getString(columnIndex); // returns null
+            cursor.close();
+            return picturePath;
+        }
+        return null;
     }
 }

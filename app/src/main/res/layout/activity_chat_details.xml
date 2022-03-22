@@ -14,20 +14,27 @@
         android:layout_centerHorizontal="true"
         android:contentDescription="TODO"
         android:backgroundTint="@color/colorPurple"
+        app:tint="@color/white"
         tools:ignore="VectorDrawableCompat"
         android:layout_margin="10dp"
         app:fabSize="mini"
         android:elevation="4dp"
         android:visibility="gone" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chatRecyclerView"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeChatRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/linear"
-        android:layout_below="@id/toolbar"
-        android:background="@color/chatNavColor"
-        android:transcriptMode="alwaysScroll" />
+        android:layout_below="@id/toolbar">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/chatNavColor"
+            android:transcriptMode="alwaysScroll" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/txtChatConn"
@@ -140,7 +147,7 @@
             android:layout_marginEnd="4dp"
             android:contentDescription="Send Pic from Gallery"
             android:padding="5dp"
-            android:src="@drawable/ic_gallery"
+            android:src="@drawable/outline_collections_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imgMic"
             app:layout_constraintStart_toEndOf="@+id/imgCamera"
@@ -237,7 +244,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:text="UserName"
                 android:textColor="@color/white"
                 android:textSize="18sp"
@@ -289,7 +295,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
-                android:layout_marginRight="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/ic_videoCam"
                 app:layout_constraintTop_toTopOf="parent"

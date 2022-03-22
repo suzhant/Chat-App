@@ -46,6 +46,10 @@ public class Encryption {
         return ("Recorded Audio");
     }
 
+    public static String getVideoLast() {
+        return ("video.mp4");
+    }
+
     public static String getPhotoLast() {
         return ("photo.jpg");
     }

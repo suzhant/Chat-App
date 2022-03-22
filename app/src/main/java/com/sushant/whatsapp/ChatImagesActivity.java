@@ -60,7 +60,7 @@ public class ChatImagesActivity extends AppCompatActivity {
         final ChatImagePreviewAdapter imageAdapter = new ChatImagePreviewAdapter(imageModel, this, receiverId);
         binding.chatImageRecycler.setAdapter(imageAdapter);
 
-        imgRef = database.getReference().child("Chats").child(senderRoom);
+        imgRef = database.getReference().child("Images").child(senderRoom);
         imgListener = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -86,7 +86,7 @@ public class ChatImagesActivity extends AppCompatActivity {
 
             }
         };
-        imgRef.addListenerForSingleValueEvent(imgListener);
+        imgRef.addValueEventListener(imgListener);
 
     }
 
@@ -94,5 +94,13 @@ public class ChatImagesActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (imgRef != null) {
+            imgRef.removeEventListener(imgListener);
+        }
+        super.onDestroy();
     }
 }

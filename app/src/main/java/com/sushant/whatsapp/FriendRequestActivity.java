@@ -2,6 +2,8 @@ package com.sushant.whatsapp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,6 +58,8 @@ public class FriendRequestActivity extends AppCompatActivity {
         adapter = new FriendRequestAdapter(list, this);
         binding.friendRequestRecycleView.setAdapter(adapter);
         layoutManager = new LinearLayoutManager(this);
+        RecyclerView.ItemDecoration verticalDivider = new DividerItemDecorator(ContextCompat.getDrawable(this, R.drawable.horizontal_divider));
+        binding.friendRequestRecycleView.addItemDecoration(verticalDivider);
         binding.friendRequestRecycleView.setLayoutManager(layoutManager);
         getAllUsers();
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
@@ -182,5 +187,32 @@ public class FriendRequestActivity extends AppCompatActivity {
     protected void onRestart() {
         ref.addValueEventListener(valueEventListener1);
         super.onRestart();
+    }
+
+    public static class DividerItemDecorator extends RecyclerView.ItemDecoration {
+        private final Drawable mDivider;
+
+        public DividerItemDecorator(Drawable divider) {
+            mDivider = divider;
+        }
+
+        @Override
+        public void onDraw(@NonNull Canvas canvas, RecyclerView parent, @NonNull RecyclerView.State state) {
+            int dividerLeft = parent.getPaddingLeft();
+            int dividerRight = parent.getWidth() - parent.getPaddingRight();
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = parent.getChildAt(i);
+
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                int dividerTop = child.getBottom() + params.bottomMargin;
+                int dividerBottom = dividerTop + mDivider.getIntrinsicHeight();
+
+                mDivider.setBounds(dividerLeft, dividerTop, dividerRight, dividerBottom);
+                mDivider.draw(canvas);
+            }
+        }
     }
 }
