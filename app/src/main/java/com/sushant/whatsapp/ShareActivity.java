@@ -424,8 +424,8 @@ public class ShareActivity extends AppCompatActivity {
             model.setType(type);
             model.setMessageId(key);
             if (message.contains("youtu.be")) {
-                String encrypt = Encryption.encryptMessage(thumbnail);
-                model.setImageUrl(encrypt);
+                String encryptedImage = Encryption.encryptMessage(thumbnail);
+                model.setImageUrl(encryptedImage);
             }
             updateLastMessage(receiverId, lastmessage);
 

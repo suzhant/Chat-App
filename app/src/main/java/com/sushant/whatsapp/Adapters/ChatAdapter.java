@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +37,18 @@ import com.bumptech.glide.request.RequestOptions;
 import com.github.pgreze.reactions.ReactionPopup;
 import com.github.pgreze.reactions.ReactionsConfig;
 import com.github.pgreze.reactions.ReactionsConfigBuilder;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,6 +61,7 @@ import com.klinker.android.link_builder.LinkBuilder;
 import com.sushant.whatsapp.CheckConnection;
 import com.sushant.whatsapp.ConnectingActivity;
 import com.sushant.whatsapp.FullScreenImage;
+import com.sushant.whatsapp.FullScreenVideo;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
@@ -103,7 +117,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Messages message = messageModel.get(position);
-        holder.setIsRecyclable(false);
+        // holder.setIsRecyclable(false);
         ReactionsConfig config = new ReactionsConfigBuilder(context)
                 .withReactions(new int[]{
                         R.drawable.ic_fb_like,
@@ -124,14 +138,10 @@ public class ChatAdapter extends RecyclerView.Adapter {
         if (holder.getClass() == SenderViewHolder.class) {
             if ("photo".equals(message.getType())) { //yoda condition solves unsafe null behaviour
                 if (message.getImageUrl() != null) {
-                    ((SenderViewHolder) holder).imgSender.setImageBitmap(null);
-                    ((SenderViewHolder) holder).imgSender.setVisibility(View.VISIBLE);
-                    ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                    ((SenderViewHolder) holder).imgSender.layout(0, 0, 0, 0);
-                    Glide.with(((SenderViewHolder) holder).imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
-                            diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgSender);
+                    setPhoto(holder, message);
                 }
             } else if ("text".equals(message.getType())) {
+                ((SenderViewHolder) holder).txtSender.setVisibility(View.VISIBLE);
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
                 ((SenderViewHolder) holder).txtSender.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -142,60 +152,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         manager.setPrimaryClip(clipData);
                     }
                 });
-                if (message.getMessage().contains("https://")) {
-                    //   ((SenderViewHolder) holder).txtSender.setSingleLine();
-                    ((SenderViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
-                    ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                    ((SenderViewHolder) holder).txtLink.setText(message.getMessage());
-
-                    Link link = new Link(message.getMessage())
-                            .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
-                            .setHighlightAlpha(.4f)                                     // optional, defaults to .15f
-                            .setUnderlined(true)                                       // optional, defaults to true
-                            .setBold(true)// optional, defaults to false
-                            .setOnLongClickListener(new Link.OnLongClickListener() {
-                                @Override
-                                public void onLongClick(String clickedText) {
-                                    // long clicked
-                                }
-                            })
-                            .setOnClickListener(new Link.OnClickListener() {
-                                @Override
-                                public void onClick(@NonNull String clickedText) {
-                                    // single clicked
-                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedText));
-                                    context.startActivity(browserIntent);
-                                }
-                            });
-
-
-                    // create the link builder object add the link rule
-                    LinkBuilder.on(((SenderViewHolder) holder).txtLink)
-                            .addLink(link)
-                            .build(); //
-
-                    if (message.getMessage().contains("tiktok")) {
-                        Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
-                                into(((SenderViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
-                        RequestOptions options = new RequestOptions();
-                        Glide.with(context).load(message.getImageUrl())
-                                .thumbnail(Glide.with(context).load(message.getImageUrl()))
-                                .apply(options)
-                                .placeholder(R.drawable.placeholder).
-                                into(((SenderViewHolder) holder).imgLink);
-
-                    } else if (message.getMessage().contains("instagram")) {
-                        Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
-                                into(((SenderViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
-                        Glide.with(context).load(R.drawable.fb_logo).placeholder(R.drawable.placeholder).
-                                into(((SenderViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("youtube.com/shorts")) {
-                        Glide.with(context).load(R.drawable.yt_purple_shorts).placeholder(R.drawable.placeholder).
-                                into(((SenderViewHolder) holder).imgLink);
-                    }
-                }
+                checkLinkType(holder, message);
                 ((SenderViewHolder) holder).txtSender.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -215,76 +172,45 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         checkResponse();
                     }
                 });
-            } else {
-                if (message.getAudioFile() != null) {
-
+            } else if (message.getType().equals("video")) {
+                if (message.getVideoFile() != null) {
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                    ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
-                    ((SenderViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
+                    //   initializeExoPlayer( holder, message);
+                    ((SenderViewHolder) holder).cardVideoPlayer.setVisibility(View.VISIBLE);
+                    RequestOptions options = new RequestOptions();
+                    Glide.with(context).load(message.getImageUrl())
+                            .thumbnail(Glide.with(context).load(message.getVideoFile()))
+                            .apply(options)
+                            .placeholder(R.drawable.placeholder)
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into(((SenderViewHolder) holder).imgVideoThumbnail);
+                    ((SenderViewHolder) holder).imgPlay.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            CheckConnection checkConnection = new CheckConnection();
-                            if (checkConnection.isConnected(context) || !checkConnection.isInternet()) {
-                                Toast.makeText(context, "Please connect to the internet", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            ((SenderViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
-                            ((SenderViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
+                            Intent intent = new Intent(context, FullScreenVideo.class);
+                            intent.putExtra("videoUrl", message.getVideoFile());
+                            context.startActivity(intent);
                         }
                     });
-
+                }
+            } else {
+                if (message.getAudioFile() != null) {
+                    ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
+                    setAudio(holder, message);
                 }
             }
+            ((SenderViewHolder) holder).txtSenderTime.setVisibility(View.VISIBLE);
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
             ((SenderViewHolder) holder).txtSenderTime.setText(dateFormat.format(new Date(message.getTimestamp())));
 
-            if (message.getReaction() >= 0 && message.getReaction() <= 5) {
-                ((SenderViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
-                switch (message.getReaction()) {
-                    case 0:
-                        reaction = R.drawable.ic_fb_like;
-                        break;
-                    case 1:
-                        reaction = R.drawable.ic_fb_love;
-                        break;
-                    case 2:
-                        reaction = R.drawable.ic_haha;
-                        break;
-                    case 3:
-                        reaction = R.drawable.wow;
-                        break;
-                    case 4:
-                        reaction = R.drawable.sad;
-                        break;
-                    case 5:
-                        reaction = R.drawable.angry;
-                        break;
-                    default:
-                        ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
-                        break;
-                }
-                Glide.with(context).load(reaction)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL).into(((SenderViewHolder) holder).imgReact);
-            }
-            ((SenderViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    popup.onTouch(view, motionEvent);
-                    return false;
-                }
-            });
-
         } else {
+            //ReceiverView Starts From here
             if ("photo".equals(message.getType())) {
                 if (message.getImageUrl() != null) {
-                    ((ReceiverViewHolder) holder).imgReceiver.setImageBitmap(null);
-                    ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.VISIBLE);
-                    ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                    ((ReceiverViewHolder) holder).imgReceiver.layout(0, 0, 0, 0);
-                    Glide.with(((ReceiverViewHolder) holder).imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL).into(((ReceiverViewHolder) holder).imgReceiver);
+                    setPhoto(holder, message);
                 }
             } else if ("text".equals(message.getType())) {
+                ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
                 ((ReceiverViewHolder) holder).txtReceiver.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -296,60 +222,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     }
                 });
 
-                if (message.getMessage().contains("https://")) {
-                    // ((ReceiverViewHolder) holder).txtReceiver.setSingleLine();
-                    ((ReceiverViewHolder) holder).cardLink.setVisibility(View.VISIBLE);
-                    ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                    ((ReceiverViewHolder) holder).txtLink.setText(message.getMessage());
-                    Link link = new Link(message.getMessage())
-                            .setTextColor(Color.parseColor("#259B24"))                  // optional, defaults to holo blue
-                            .setTextColorOfHighlightedLink(Color.parseColor("#0D3D0C")) // optional, defaults to holo blue
-                            .setHighlightAlpha(.4f)                                     // optional, defaults to .15f
-                            .setUnderlined(true)                                       // optional, defaults to true
-                            .setBold(true)                                              // optional, defaults to false
-                            .setOnLongClickListener(new Link.OnLongClickListener() {
-                                @Override
-                                public void onLongClick(String clickedText) {
-                                    // long clicked
-                                }
-                            })
-                            .setOnClickListener(new Link.OnClickListener() {
-                                @Override
-                                public void onClick(@NonNull String clickedText) {
-                                    // single clicked
-                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedText));
-                                    context.startActivity(browserIntent);
-
-                                }
-                            });
-
-
-                    // create the link builder object add the link rule
-                    LinkBuilder.on(((ReceiverViewHolder) holder).txtLink)
-                            .addLink(link)
-                            .build();
-
-                    if (message.getMessage().contains("tiktok")) {
-                        Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
-                                into(((ReceiverViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
-                        RequestOptions options = new RequestOptions();
-                        Glide.with(context).load(message.getImageUrl())
-                                .thumbnail(Glide.with(context).load(message.getImageUrl()))
-                                .apply(options)
-                                .placeholder(R.drawable.placeholder).
-                                into(((ReceiverViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("instagram")) {
-                        Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
-                                into(((ReceiverViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
-                        Glide.with(context).load(R.drawable.fb_logo).placeholder(R.drawable.placeholder).
-                                into(((ReceiverViewHolder) holder).imgLink);
-                    } else if (message.getMessage().contains("youtube.com/shorts")) {
-                        Glide.with(context).load(R.drawable.yt_purple_shorts).placeholder(R.drawable.placeholder).
-                                into(((ReceiverViewHolder) holder).imgLink);
-                    }
-                }
+                checkLinkType(holder, message);
                 ((ReceiverViewHolder) holder).txtReceiver.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -369,27 +242,37 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         checkResponse();
                     }
                 });
-            } else {
-                if (message.getAudioFile() != null) {
+            } else if (message.getType().equals("video")) {
+                if (message.getVideoFile() != null) {
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                    ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.VISIBLE);
-                    ((ReceiverViewHolder) holder).voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
+                    //    initializeExoPlayer( holder, message);
+                    ((ReceiverViewHolder) holder).cardVideoPlayer.setVisibility(View.VISIBLE);
+                    RequestOptions options = new RequestOptions();
+                    Glide.with(context).load(message.getImageUrl())
+                            .thumbnail(Glide.with(context).load(message.getVideoFile()))
+                            .apply(options)
+                            .placeholder(R.drawable.placeholder)
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into(((ReceiverViewHolder) holder).imgVideoThumbnail);
+                    ((ReceiverViewHolder) holder).imgPlay.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            CheckConnection checkConnection = new CheckConnection();
-                            if (checkConnection.isConnected(context) || !checkConnection.isInternet()) {
-                                Toast.makeText(context, "Please connect to the internet", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            ((ReceiverViewHolder) holder).voicePlayerView.setAudio(message.getAudioFile());
-                            ((ReceiverViewHolder) holder).voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
+                            Intent intent = new Intent(context, FullScreenVideo.class);
+                            intent.putExtra("videoUrl", message.getVideoFile());
+                            context.startActivity(intent);
                         }
                     });
                 }
+            } else {
+                if (message.getAudioFile() != null) {
+                    ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
+                    setAudio(holder, message);
+                }
             }
+            ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.VISIBLE);
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
             ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
-            Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
+            Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .into(((ReceiverViewHolder) holder).profilepic);
 
             FirebaseDatabase.getInstance().getReference().child("Users").child(recId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -421,45 +304,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     context.startActivity(intent);
                 }
             });
-
-            if (message.getReaction() >= 0 && message.getReaction() <= 5) {
-                ((ReceiverViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
-
-                switch (message.getReaction()) {
-                    case 0:
-                        reaction = R.drawable.ic_fb_like;
-                        break;
-                    case 1:
-                        reaction = R.drawable.ic_fb_love;
-                        break;
-                    case 2:
-                        reaction = R.drawable.ic_haha;
-                        break;
-                    case 3:
-                        reaction = R.drawable.wow;
-                        break;
-                    case 4:
-                        reaction = R.drawable.sad;
-                        break;
-                    case 5:
-                        reaction = R.drawable.angry;
-                        break;
-                    default:
-                        ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);
-                        break;
-                }
-                Glide.with(context).load(reaction).diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(((ReceiverViewHolder) holder).imgReact);
-            }
-
-            ((ReceiverViewHolder) holder).imgReact.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    popup.onTouch(view, motionEvent);
-                    return false;
-                }
-            });
         }
+        setReaction(holder, message, popup);
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -622,12 +468,212 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             @Override
                             public void onSuccess(Void unused) {
                                 FirebaseDatabase.getInstance().getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(map);
+                                notifyItemChanged(holder.getAbsoluteAdapterPosition(), message.getReaction());
+                                if (integer > 5) {
+                                    if (holder.getClass() == SenderViewHolder.class) {
+                                        ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
+                                    } else {
+                                        ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);
+                                    }
+                                }
                             }
                         });
+
                 return null;
             }
         });
 
+    }
+
+    private void setReaction(RecyclerView.ViewHolder holder, Messages message, ReactionPopup popup) {
+        ImageView imgReact;
+        if (holder.getClass() == SenderViewHolder.class) {
+            imgReact = ((SenderViewHolder) holder).imgReact;
+        } else {
+            imgReact = ((ReceiverViewHolder) holder).imgReact;
+        }
+        if (message.getReaction() >= 0 && message.getReaction() <= 5) {
+            imgReact.setVisibility(View.VISIBLE);
+            switch (message.getReaction()) {
+                case 0:
+                    reaction = R.drawable.ic_fb_like;
+                    break;
+                case 1:
+                    reaction = R.drawable.ic_fb_love;
+                    break;
+                case 2:
+                    reaction = R.drawable.ic_haha;
+                    break;
+                case 3:
+                    reaction = R.drawable.wow;
+                    break;
+                case 4:
+                    reaction = R.drawable.sad;
+                    break;
+                case 5:
+                    reaction = R.drawable.angry;
+                    break;
+                default:
+                    imgReact.setVisibility(View.GONE);
+                    break;
+            }
+            Glide.with(context).load(reaction)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imgReact);
+        }
+        imgReact.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                popup.onTouch(view, motionEvent);
+                return false;
+            }
+        });
+    }
+
+    private void setAudio(@NonNull RecyclerView.ViewHolder holder, Messages message) {
+        VoicePlayerView voicePlayerView;
+        if (holder.getClass() == SenderViewHolder.class) {
+            voicePlayerView = ((SenderViewHolder) holder).voicePlayerView;
+        } else {
+            voicePlayerView = ((ReceiverViewHolder) holder).voicePlayerView;
+        }
+        voicePlayerView.setVisibility(View.VISIBLE);
+        voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CheckConnection checkConnection = new CheckConnection();
+                if (checkConnection.isConnected(context) || !checkConnection.isInternet()) {
+                    Toast.makeText(context, "Please connect to the internet", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                voicePlayerView.setAudio(message.getAudioFile());
+                voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
+            }
+        });
+    }
+
+    private void initializeExoPlayer(RecyclerView.ViewHolder holder, Messages message) {
+
+        StyledPlayerView playerView = null;
+        if (holder.getClass() == SenderViewHolder.class) {
+            //  playerView=((SenderViewHolder) holder).playerControlView;
+        } else {
+            //   playerView=((ReceiverViewHolder) holder).playerView;
+        }
+        assert playerView != null;
+        playerView.setVisibility(View.VISIBLE);
+        ImageView play = playerView.findViewById(R.id.exo_play);
+        // Create a data source factory.
+        DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+//                DataSource.Factory cacheDataSourceFactory =
+//                        new CacheDataSource.Factory()
+//                                .setCache(downloadCache)
+//                                .setUpstreamDataSourceFactory(dataSourceFactory)
+//                                .setCacheWriteDataSinkFactory(null); // Disable writing.
+
+        DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
+
+        // Create a progressive media source pointing to a stream uri.
+        DefaultExtractorsFactory extractorsFactory = new DefaultExtractorsFactory().setConstantBitrateSeekingEnabled(true);
+        ProgressiveMediaSource mediaSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory)
+                .createMediaSource(MediaItem.fromUri(message.getVideoFile()));
+        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
+
+        ExoPlayer player = new ExoPlayer.Builder(context)
+                .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
+                .setBandwidthMeter(bandwidthMeter)
+                .setTrackSelector(trackSelector)
+                .build();
+        player.setRepeatMode(Player.REPEAT_MODE_OFF);
+        player.setMediaSource(mediaSource);
+        playerView.setPlayer(player);
+        player.setPlayWhenReady(false);
+    }
+
+    private void checkLinkType(RecyclerView.ViewHolder holder, Messages message) {
+        if (message.getMessage().contains("https://")) {
+            //   ((SenderViewHolder) holder).txtSender.setSingleLine();
+            CardView cardLink;
+            TextView txtLink, textView;
+            ImageView imgLink;
+            int textColor = 0;
+            int highLightColor;
+            if (holder.getClass() == SenderViewHolder.class) {
+                cardLink = ((SenderViewHolder) holder).cardLink;
+                txtLink = ((SenderViewHolder) holder).txtLink;
+                textView = ((SenderViewHolder) holder).txtSender;
+                imgLink = ((SenderViewHolder) holder).imgLink;
+            } else {
+                cardLink = ((ReceiverViewHolder) holder).cardLink;
+                txtLink = ((ReceiverViewHolder) holder).txtLink;
+                textView = ((ReceiverViewHolder) holder).txtReceiver;
+                imgLink = ((ReceiverViewHolder) holder).imgLink;
+                textColor = Color.parseColor("#259B24");
+            }
+            highLightColor = Color.parseColor("#0D3D0C");
+            cardLink.setVisibility(View.VISIBLE);
+            imgLink.setVisibility(View.VISIBLE);
+            textView.setVisibility(View.GONE);
+            txtLink.setText(message.getMessage());
+
+            Link link = new Link(message.getMessage())
+                    .setTextColor(textColor)
+                    .setTextColorOfHighlightedLink(highLightColor) // optional, defaults to holo blue
+                    .setHighlightAlpha(.4f)                                     // optional, defaults to .15f
+                    .setUnderlined(true)                                       // optional, defaults to true
+                    .setBold(true)// optional, defaults to false
+                    .setOnLongClickListener(new Link.OnLongClickListener() {
+                        @Override
+                        public void onLongClick(String clickedText) {
+                            // long clicked
+                        }
+                    })
+                    .setOnClickListener(new Link.OnClickListener() {
+                        @Override
+                        public void onClick(@NonNull String clickedText) {
+                            // single clicked
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedText));
+                            context.startActivity(browserIntent);
+                        }
+                    });
+
+
+            // create the link builder object add the link rule
+            LinkBuilder.on(txtLink)
+                    .addLink(link)
+                    .build(); //
+
+            if (message.getMessage().contains("tiktok")) {
+                Glide.with(context).load(R.drawable.tiktok4).placeholder(R.drawable.placeholder).
+                        into(imgLink);
+            } else if (message.getMessage().contains("youtu.be") && message.getImageUrl() != null) {
+                RequestOptions options = new RequestOptions();
+                Glide.with(context).load(message.getImageUrl())
+                        .thumbnail(Glide.with(context).load(message.getImageUrl()))
+                        .apply(options)
+                        .placeholder(R.drawable.placeholder).
+                        into(imgLink);
+
+            } else if (message.getMessage().contains("instagram")) {
+                Glide.with(context).load(R.drawable.instagram_round_logo).placeholder(R.drawable.placeholder).
+                        into(imgLink);
+            } else if (message.getMessage().contains("facebook") || message.getMessage().contains("fb")) {
+                Glide.with(context).load(R.drawable.fb_logo).placeholder(R.drawable.placeholder).
+                        into(imgLink);
+            } else if (message.getMessage().contains("youtube.com/shorts")) {
+                Glide.with(context).load(R.drawable.yt_purple_shorts).placeholder(R.drawable.placeholder).
+                        into(imgLink);
+            }
+        }
+    }
+
+    private void setPhoto(@NonNull RecyclerView.ViewHolder holder, Messages message) {
+        if (message.getImageUrl() != null) {
+            if (holder.getClass() == SenderViewHolder.class) {
+                ((SenderViewHolder) holder).bind(message);
+            } else {
+                ((ReceiverViewHolder) holder).bind(message);
+            }
+        }
     }
 
     @Override
@@ -648,11 +694,11 @@ public class ChatAdapter extends RecyclerView.Adapter {
         private final TextView txtReceiver, txtLink;
         private final TextView txtReceiverTime, txtVideoCall;
         private final CircleImageView profilepic;
-        private final ImageView imgReceiver, imgLink, imgReact;
+        private final ImageView imgReceiver, imgLink, imgReact, imgPlay, imgVideoThumbnail;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
-        private final MaterialCardView cardLink;
+        private final MaterialCardView cardLink, cardVideoPlayer;
 
         public ReceiverViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -668,17 +714,30 @@ public class ChatAdapter extends RecyclerView.Adapter {
             txtLink = itemView.findViewById(R.id.receiverTxtLink);
             imgLink = itemView.findViewById(R.id.receiverImgThumbnail);
             imgReact = itemView.findViewById(R.id.img_receiver_react);
+            cardVideoPlayer = itemView.findViewById(R.id.receiverCardVideoPlayer);
+            imgVideoThumbnail = itemView.findViewById(R.id.videoThumbnail1);
+            imgPlay = itemView.findViewById(R.id.imgPlay1);
+        }
+
+        public void bind(Messages message) {
+            //  imgReceiver.setImageBitmap(null);
+            imgReceiver.setVisibility(View.VISIBLE);
+            txtReceiver.setVisibility(View.GONE);
+            imgReceiver.layout(0, 0, 0, 0);
+            Glide.with(imgReceiver.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
+                    diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imgReceiver);
         }
     }
 
     public static class SenderViewHolder extends RecyclerView.ViewHolder {
         private final TextView txtSender, txtLink;
         private final TextView txtSenderTime, txtVideoCall;
-        private final ImageView imgSender, imgLink, imgReact;
+        private final ImageView imgSender, imgLink, imgReact, imgVideoThumbnail, imgPlay;
         private final VoicePlayerView voicePlayerView;
         private final LinearLayout layoutVideoCall;
         private final Button btnCall;
-        private final MaterialCardView cardLink;
+        private final MaterialCardView cardLink, cardVideoPlayer;
+
 
         public SenderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -693,8 +752,46 @@ public class ChatAdapter extends RecyclerView.Adapter {
             imgLink = itemView.findViewById(R.id.imgThumbnail);
             cardLink = itemView.findViewById(R.id.cardLink);
             imgReact = itemView.findViewById(R.id.img_react);
+            imgVideoThumbnail = itemView.findViewById(R.id.videoThumbnail);
+            imgPlay = itemView.findViewById(R.id.imgPlay);
+            cardVideoPlayer = itemView.findViewById(R.id.cardVideoPlayer);
+        }
+
+        public void bind(Messages message) {
+            // imgSender.setImageURI(null);
+            imgSender.setVisibility(View.VISIBLE);
+            txtSender.setVisibility(View.GONE);
+            imgSender.layout(0, 0, 0, 0);
+            Glide.with(imgSender.getContext()).load(message.getImageUrl()).placeholder(R.drawable.placeholder).
+                    diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imgSender);
         }
     }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        if (holder.getClass() == SenderViewHolder.class) {
+            ((SenderViewHolder) holder).imgSender.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).cardLink.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).imgLink.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).layoutVideoCall.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).txtSenderTime.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).cardVideoPlayer.setVisibility(View.GONE);
+
+        } else {
+            ((ReceiverViewHolder) holder).imgReceiver.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).cardLink.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).imgLink.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).layoutVideoCall.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).cardVideoPlayer.setVisibility(View.GONE);
+        }
+        super.onViewRecycled(holder);
+    }
+
 
     private void checkResponse() {
         FirebaseDatabase.getInstance().getReference().child("Users").child(recId).child("VideoCall").addListenerForSingleValueEvent(new ValueEventListener() {

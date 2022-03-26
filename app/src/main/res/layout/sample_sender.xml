@@ -76,6 +76,31 @@
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardVideoPlayer"
+            android:layout_width="270dp"
+            android:layout_height="250dp"
+            app:cardElevation="@dimen/dp_8"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/dp_24">
+
+            <ImageView
+                android:id="@+id/videoThumbnail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/placeholder" />
+
+            <ImageView
+                android:id="@+id/imgPlay"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play_arrow_white_24dp" />
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardViewSender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
