@@ -159,11 +159,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                     assert StatusFromDB != null;
                     if ("online".equals(StatusFromDB)) {
                         holder.blackCircle.setVisibility(View.VISIBLE);
-                        holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
-                        holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
+//                        holder.blackCircle.setColorFilter(Color.parseColor("#7C4DFF"));
+                        //   holder.image.setBorderColor(Color.parseColor("#7C4DFF"));
                     } else {
                         holder.blackCircle.setVisibility(View.GONE);
-                        holder.image.setBorderColor(Color.GRAY);
+                        //   holder.image.setBorderColor(Color.GRAY);
                     }
                 }
             }
