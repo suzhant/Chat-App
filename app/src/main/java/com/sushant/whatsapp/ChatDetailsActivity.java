@@ -845,6 +845,30 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                 }).check();
     }
 
+    private void checkVideoPermission() {
+        Dexter.withContext(this)
+                .withPermission(Manifest.permission.CAMERA)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+                            videoRecorderLauncher.launch(takeVideoIntent);
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                        Toast.makeText(ChatDetailsActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+
+                    }
+                }).check();
+    }
+
     private void checkResponse(String type) {
 
         database.getReference().child("Users").child(receiverId).child("VideoCall").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -1532,10 +1556,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         videoRecorder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
-                    videoRecorderLauncher.launch(takeVideoIntent);
-                }
+                checkVideoPermission();
                 dialog.dismiss();
             }
         });
