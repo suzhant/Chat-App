@@ -107,6 +107,7 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
         final Messages model = new Messages(senderId, encryptMessage, profilePic);
         Date date = new Date();
         model.setTimestamp(date.getTime());
+        model.setMessageId(key);
         model.setType("videoCall");
         updateLastMessage(message);
 

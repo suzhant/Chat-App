@@ -1,9 +1,11 @@
 package com.sushant.whatsapp.Models;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Users implements Serializable {
-    private String profilePic, userName, mail, password, userId, lastMessage, status, request, Typing, role, joinedGroupOn, seen, nickName;
+    private String profilePic, userName, mail, password, lastMessage, status, request, Typing, role, joinedGroupOn, seen, nickName;
+    public String userId;
 
     public Users(String profilePic, String userName, String mail, String password, String userId, String lastMessage, String status) {
         this.profilePic = profilePic;
@@ -131,5 +133,17 @@ public class Users implements Serializable {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Users users = (Users) o;
+        return Objects.equals(profilePic, users.profilePic) && Objects.equals(userName, users.userName) && Objects.equals(mail, users.mail)
+                && Objects.equals(password, users.password) && Objects.equals(lastMessage, users.lastMessage) && Objects.equals(status, users.status)
+                && Objects.equals(request, users.request) && Objects.equals(Typing, users.Typing) && Objects.equals(role, users.role)
+                && Objects.equals(joinedGroupOn, users.joinedGroupOn) && Objects.equals(seen, users.seen) && Objects.equals(nickName, users.nickName)
+                && Objects.equals(userId, users.userId);
     }
 }

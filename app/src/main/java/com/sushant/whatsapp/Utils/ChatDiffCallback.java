@@ -30,20 +30,14 @@ public class ChatDiffCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        if (mOldUsers.size() != mNewUsers.size())
-            return false;
-        else
-            return mOldUsers.get(oldItemPosition).getUserId().equals(mNewUsers.get(newItemPosition).getUserId());
+        return mOldUsers.get(oldItemPosition).userId.equals(mNewUsers.get(newItemPosition).userId);
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
         final Users oldUser = mOldUsers.get(oldItemPosition);
         final Users newUsers = mNewUsers.get(newItemPosition);
-        if (mOldUsers.size() != mNewUsers.size())
-            return false;
-        else
-            return oldUser == newUsers;
+        return oldUser.equals(newUsers);
     }
 
     @Nullable
@@ -53,9 +47,6 @@ public class ChatDiffCallback extends DiffUtil.Callback {
         final Users newUsers = mNewUsers.get(newItemPosition);
 
         Bundle bundle = new Bundle();
-        if (mOldUsers.size() != mNewUsers.size())
-            return false;
-        else {
             if (!oldUser.getLastMessage().equals(newUsers.getLastMessage())) {
                 bundle.putString("newLastMessage", newUsers.getLastMessage());
             } else if (!oldUser.getProfilePic().equals(newUsers.getProfilePic())) {
@@ -63,7 +54,6 @@ public class ChatDiffCallback extends DiffUtil.Callback {
             } else if (!oldUser.getUserName().equals(newUsers.getUserName())) {
                 bundle.putString("newUserName", newUsers.getUserName());
             }
-        }
 
 
         if (bundle.size() == 0) {

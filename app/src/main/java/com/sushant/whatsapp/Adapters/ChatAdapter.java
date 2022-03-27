@@ -12,6 +12,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -67,6 +69,7 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 import com.sushant.whatsapp.ShareActivity;
+import com.sushant.whatsapp.Utils.MessageDiffUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -75,6 +78,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.jvm.functions.Function1;
@@ -110,6 +115,70 @@ public class ChatAdapter extends RecyclerView.Adapter {
         } else {
             View view = LayoutInflater.from(context).inflate(R.layout.sample, parent, false);
             return new ReceiverViewHolder(view);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List payloads) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        } else {
+            Bundle bundle = (Bundle) payloads.get(0);
+            for (String key : bundle.keySet()) {
+                switch (key) {
+                    case "newMessage":
+                        if (holder.getClass() == SenderViewHolder.class) {
+                            ((SenderViewHolder) holder).txtSender.setText(bundle.getString("newMessage"));
+                        } else {
+                            ((ReceiverViewHolder) holder).txtReceiver.setText(bundle.getString("newMessage"));
+                        }
+
+                        break;
+                    case "newUserPic":
+                        if (holder.getClass() == ReceiverViewHolder.class) {
+                            Glide.with(context).load(bundle.getString("newUserPic")).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .into(((ReceiverViewHolder) holder).profilepic);
+                        }
+                        break;
+                    case "newReaction":
+                        if (holder.getClass() == SenderViewHolder.class) {
+                            Glide.with(context).load(bundle.getString("newReaction")).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .into(((SenderViewHolder) holder).imgReact);
+                        }
+                        break;
+                    case "newImageUrl":
+                        if (holder.getClass() == SenderViewHolder.class) {
+                            Glide.with(context).load(bundle.getString("newImageUrl")).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .into(((SenderViewHolder) holder).imgSender);
+                        } else {
+                            Glide.with(context).load(bundle.getString("newImageUrl")).placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .into(((ReceiverViewHolder) holder).imgReceiver);
+                        }
+                        break;
+                    case "newVideoFile":
+                        RequestOptions options = new RequestOptions();
+                        if (holder.getClass() == SenderViewHolder.class) {
+                            Glide.with(context).load(bundle.getString("newVideoFile"))
+                                    .thumbnail(Glide.with(context).load(bundle.getString("newVideoFile")))
+                                    .apply(options)
+                                    .placeholder(R.drawable.placeholder)
+                                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                                    .into(((SenderViewHolder) holder).imgVideoThumbnail);
+                        } else {
+                            Glide.with(context).load(bundle.getString("newVideoFile"))
+                                    .thumbnail(Glide.with(context).load(bundle.getString("newVideoFile")))
+                                    .apply(options)
+                                    .placeholder(R.drawable.placeholder)
+                                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                                    .into(((ReceiverViewHolder) holder).imgVideoThumbnail);
+                        }
+                        break;
+
+                    case "newAudioFile":
+                        setAudio(holder, bundle.getString("newAudioFile"));
+                        break;
+                }
+            }
         }
     }
 
@@ -172,7 +241,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         checkResponse();
                     }
                 });
-            } else if (message.getType().equals("video")) {
+            } else if ("video".equals(message.getType())) {
                 if (message.getVideoFile() != null) {
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
                     //   initializeExoPlayer( holder, message);
@@ -196,7 +265,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             } else {
                 if (message.getAudioFile() != null) {
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
-                    setAudio(holder, message);
+                    setAudio(holder, message.getAudioFile());
                 }
             }
             ((SenderViewHolder) holder).txtSenderTime.setVisibility(View.VISIBLE);
@@ -242,7 +311,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         checkResponse();
                     }
                 });
-            } else if (message.getType().equals("video")) {
+            } else if ("video".equals(message.getType())) {
                 if (message.getVideoFile() != null) {
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
                     //    initializeExoPlayer( holder, message);
@@ -266,12 +335,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
             } else {
                 if (message.getAudioFile() != null) {
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
-                    setAudio(holder, message);
+                    setAudio(holder, message.getAudioFile());
                 }
             }
             ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.VISIBLE);
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
-            ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
+            if (message.getTimestamp() != null) {
+                ((ReceiverViewHolder) holder).txtReceiverTime.setText(dateFormat.format(new Date(message.getTimestamp())));
+            }
             Glide.with(context).load(message.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .into(((ReceiverViewHolder) holder).profilepic);
 
@@ -406,8 +477,10 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     public void onClick(View view) {
                         shareDialog.dismiss();
                         if (holder.getClass() == SenderViewHolder.class) {
+                            ((SenderViewHolder) holder).imgReact.setImageResource(R.drawable.ic_add_reaction_24);
                             ((SenderViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
                         } else {
+                            ((ReceiverViewHolder) holder).imgReact.setImageResource(R.drawable.ic_add_reaction_24);
                             ((ReceiverViewHolder) holder).imgReact.setVisibility(View.VISIBLE);
                         }
                     }
@@ -468,14 +541,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                             @Override
                             public void onSuccess(Void unused) {
                                 FirebaseDatabase.getInstance().getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(map);
-                                notifyItemChanged(holder.getAbsoluteAdapterPosition(), message.getReaction());
-                                if (integer > 5) {
-                                    if (holder.getClass() == SenderViewHolder.class) {
-                                        ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
-                                    } else {
-                                        ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);
-                                    }
-                                }
                             }
                         });
 
@@ -492,6 +557,13 @@ public class ChatAdapter extends RecyclerView.Adapter {
         } else {
             imgReact = ((ReceiverViewHolder) holder).imgReact;
         }
+        imgReact.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                popup.onTouch(view, motionEvent);
+                return false;
+            }
+        });
         if (message.getReaction() >= 0 && message.getReaction() <= 5) {
             imgReact.setVisibility(View.VISIBLE);
             switch (message.getReaction()) {
@@ -518,18 +590,11 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     break;
             }
             Glide.with(context).load(reaction)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imgReact);
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).into(imgReact);
         }
-        imgReact.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                popup.onTouch(view, motionEvent);
-                return false;
-            }
-        });
     }
 
-    private void setAudio(@NonNull RecyclerView.ViewHolder holder, Messages message) {
+    private void setAudio(@NonNull RecyclerView.ViewHolder holder, String audioFile) {
         VoicePlayerView voicePlayerView;
         if (holder.getClass() == SenderViewHolder.class) {
             voicePlayerView = ((SenderViewHolder) holder).voicePlayerView;
@@ -545,7 +610,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     Toast.makeText(context, "Please connect to the internet", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                voicePlayerView.setAudio(message.getAudioFile());
+                voicePlayerView.setAudio(audioFile);
                 voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
             }
         });
@@ -683,7 +748,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (messageModel.get(position).getuId().equals(FirebaseAuth.getInstance().getUid())) {
+        if (Objects.equals(FirebaseAuth.getInstance().getUid(), messageModel.get(position).getuId())) {
             return SENDER_VIEW_TYPE;
         } else {
             return RECEIVER_VIEW_TYPE;
@@ -776,6 +841,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             ((SenderViewHolder) holder).layoutVideoCall.setVisibility(View.GONE);
             ((SenderViewHolder) holder).txtSenderTime.setVisibility(View.GONE);
             ((SenderViewHolder) holder).imgReact.setVisibility(View.GONE);
+            ((SenderViewHolder) holder).imgReact.setImageBitmap(null);
             ((SenderViewHolder) holder).voicePlayerView.setVisibility(View.GONE);
             ((SenderViewHolder) holder).cardVideoPlayer.setVisibility(View.GONE);
 
@@ -786,6 +852,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             ((ReceiverViewHolder) holder).layoutVideoCall.setVisibility(View.GONE);
             ((ReceiverViewHolder) holder).txtReceiverTime.setVisibility(View.GONE);
             ((ReceiverViewHolder) holder).imgReact.setVisibility(View.GONE);
+            ((ReceiverViewHolder) holder).imgReact.setImageBitmap(null);
             ((ReceiverViewHolder) holder).voicePlayerView.setVisibility(View.GONE);
             ((ReceiverViewHolder) holder).cardVideoPlayer.setVisibility(View.GONE);
         }
@@ -850,5 +917,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
         }
         return bmpUri;
     }
+
+    public void updateUserList(ArrayList<Messages> messages) {
+        final MessageDiffUtils diffCallback = new MessageDiffUtils(this.messageModel, messages);
+        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+        this.messageModel.clear();
+        this.messageModel.addAll(messages);
+        diffResult.dispatchUpdatesTo(this);
+    }
+
 
 }

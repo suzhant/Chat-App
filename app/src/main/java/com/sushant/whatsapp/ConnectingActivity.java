@@ -287,15 +287,15 @@ public class ConnectingActivity extends AppCompatActivity {
     private void sendMessage() {
         String message = "You missed a Video Call.";
         String encryptMessage = Encryption.encryptMessage(message);
-
+        String key = database.getReference().push().getKey();
         final Messages model = new Messages(auth.getUid(), encryptMessage, profilePic);
         Date date = new Date();
         model.setTimestamp(date.getTime());
         model.setType("videoCall");
         model.setSenderName(sendername);
+        model.setMessageId(key);
         updateLastMessage(message);
 
-        String key = database.getReference().push().getKey();
 
         assert key != null;
         database.getReference().child("Chats").child(senderRoom).child(key).setValue(model)

@@ -33,19 +33,17 @@ public class MessageDiffUtils extends DiffUtil.Callback {
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         final Messages oldMessage = mOldMessages.get(oldItemPosition);
         final Messages newMessage = mNewMessages.get(newItemPosition);
-        if (oldMessage.getMessageId() != null && newMessage.getMessageId() != null) {
-            return oldMessage.getMessageId().equals(newMessage.getMessageId());
-        } else {
-            return false;
+        if (oldMessage.getuId() != null && newMessage.getuId() != null) {
+            return oldMessage.getuId().equals(newMessage.getuId());
         }
-
+        return false;
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
         final Messages oldMessage = mOldMessages.get(oldItemPosition);
         final Messages newMessage = mNewMessages.get(newItemPosition);
-        return oldMessage == newMessage;
+        return oldMessage.equals(newMessage);
     }
 
     @Nullable
@@ -56,12 +54,18 @@ public class MessageDiffUtils extends DiffUtil.Callback {
 
         Bundle bundle = new Bundle();
 
-        if (!oldMessage.getMessage().equals(newMessage.getMessage())) {
+        if (oldMessage.getMessage() != null && newMessage.getMessage() != null && !oldMessage.getMessage().equals(newMessage.getMessage())) {
             bundle.putString("newMessage", newMessage.getMessage());
-        } else if (!oldMessage.getProfilePic().equals(newMessage.getProfilePic())) {
-            bundle.putString("newPic", newMessage.getProfilePic());
-        } else if (oldMessage.getReaction() != newMessage.getReaction()) {
+        } else if (oldMessage.getProfilePic() != null && newMessage.getProfilePic() != null && !oldMessage.getProfilePic().equals(newMessage.getProfilePic())) {
+            bundle.putString("newUserPic", newMessage.getProfilePic());
+        } else if (oldMessage.getReaction() == -1 && oldMessage.getReaction() != newMessage.getReaction()) {
             bundle.putInt("newReaction", newMessage.getReaction());
+        } else if (oldMessage.getImageUrl() != null && newMessage.getImageUrl() != null && !oldMessage.getImageUrl().equals(newMessage.getImageUrl())) {
+            bundle.putString("newImageUrl", newMessage.getImageUrl());
+        } else if (oldMessage.getVideoFile() != null && newMessage.getVideoFile() != null && !oldMessage.getVideoFile().equals(newMessage.getVideoFile())) {
+            bundle.putString("newVideoFile", newMessage.getVideoFile());
+        } else if (oldMessage.getAudioFile() != null && newMessage.getAudioFile() != null && !oldMessage.getAudioFile().equals(newMessage.getAudioFile())) {
+            bundle.putString("newAudioFile", newMessage.getAudioFile());
         }
 
         if (bundle.size() == 0) {

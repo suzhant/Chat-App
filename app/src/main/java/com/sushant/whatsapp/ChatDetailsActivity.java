@@ -134,8 +134,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     FirebaseAuth auth;
     Animation scale_up, scale_down;
     ImageView blackCircle, stopRecording, btnSend;
-    Handler handler, audioHandler;
-    Runnable runnable, audioRunnable;
+    Handler handler, audioHandler, chatHandler;
+    Runnable runnable, audioRunnable, chatRunnable;
     boolean notify = false, recording;
     FirebaseStorage storage;
     ProgressDialog dialog;
@@ -156,7 +156,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     ArrayList<Messages> messageModel;
     ActivityResultLauncher<Intent> imageLauncher, videoLauncher;
     ArrayList<Uri> videos = new ArrayList<>();
-    private boolean isSwiped = false;
+    ArrayList<Messages> oldList = new ArrayList<>();
 
     /**
      * Application name.
@@ -225,7 +225,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         binding.chatRecyclerView.setLayoutManager(layoutManager);
         binding.chatRecyclerView.setHasFixedSize(true);
         layoutManager.setStackFromEnd(true);
-        final ChatAdapter chatAdapter = new ChatAdapter(messageModel, this, receiverId);
+        final ChatAdapter chatAdapter = new ChatAdapter(oldList, this, receiverId);
         chatAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
@@ -371,7 +371,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }
+                // chatAdapter.notifyDataSetChanged();
                 chatAdapter.notifyItemInserted(messageModel.size());
+                chatAdapter.updateUserList(messageModel);
+                oldList.clear();
+                oldList.addAll(messageModel);
                 if (count == 0) {
                     chatAdapter.notifyDataSetChanged();
                 } else {
@@ -379,7 +383,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     pos = layoutManager.findLastCompletelyVisibleItemPosition();
                     numItems = Objects.requireNonNull(binding.chatRecyclerView.getAdapter()).getItemCount();
                     if (pos >= numItems - 2) {
-                        chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
+                        //  chatAdapter.notifyItemRangeChanged(messageModel.size(), messageModel.size());
                         binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
                     }
                 }
@@ -390,8 +394,17 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
 
             }
         };
-        chatRef.addValueEventListener(chatListener);
-        chatRef.keepSynced(true);
+
+        chatHandler = new Handler();
+        chatRunnable = new Runnable() {
+            @Override
+            public void run() {
+                chatRef.addValueEventListener(chatListener);
+                chatRef.keepSynced(true);
+            }
+        };
+        chatHandler.postDelayed(chatRunnable, 300);
+
 
         binding.swipeChatRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -623,6 +636,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         });
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+        deleteMessage();
 
     }
 
@@ -1284,6 +1298,11 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             recorder.release();
             recorder = null;
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (chatHandler.hasCallbacks(chatRunnable)) {
+                chatHandler.removeCallbacks(chatRunnable);
+            }
+        }
         super.onDestroy();
     }
 
@@ -1409,22 +1428,29 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     }
 
     private void deleteMessage() {
-        long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
-        DatabaseReference ttlRef = database.getReference().child("Chats").child(senderRoom);
-        Query oldItems = ttlRef.orderByChild("timestamp").endAt(cutoff);
-        oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    itemSnapshot.getRef().removeValue();
-                }
-            }
+            public void run() {
+                long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
+                DatabaseReference ttlRef = database.getReference().child("Chats").child(senderRoom);
+                Query oldItems = ttlRef.orderByChild("timestamp").endAt(cutoff);
+                oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                            itemSnapshot.getRef().removeValue();
+                        }
+                    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                throw databaseError.toException();
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        throw databaseError.toException();
+                    }
+                });
             }
-        });
+        };
+        handler.postDelayed(runnable, 2000);
     }
 
     private void compressVideo(Uri uri) {

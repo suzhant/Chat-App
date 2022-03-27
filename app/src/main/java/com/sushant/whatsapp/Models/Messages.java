@@ -1,5 +1,7 @@
 package com.sushant.whatsapp.Models;
 
+import java.util.Objects;
+
 public class Messages {
     private String uId, message, messageId, profilePic, senderId, receiverId, senderName, receiverName, type, imageUrl, audioFile, videoFile;
     private Long timestamp;
@@ -113,5 +115,17 @@ public class Messages {
 
     public void setVideoFile(String videoFile) {
         this.videoFile = videoFile;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Messages messages = (Messages) o;
+        return Reaction == messages.Reaction && Objects.equals(message, messages.message) && Objects.equals(messageId, messages.messageId)
+                && Objects.equals(profilePic, messages.profilePic) && Objects.equals(senderId, messages.senderId) && Objects.equals(receiverId, messages.receiverId)
+                && Objects.equals(senderName, messages.senderName) && Objects.equals(receiverName, messages.receiverName) && Objects.equals(type, messages.type)
+                && Objects.equals(imageUrl, messages.imageUrl) && Objects.equals(audioFile, messages.audioFile) && Objects.equals(videoFile, messages.videoFile)
+                && Objects.equals(timestamp, messages.timestamp) && Objects.equals(uId, messages.uId);
     }
 }
