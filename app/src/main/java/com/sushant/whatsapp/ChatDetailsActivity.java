@@ -154,9 +154,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     CountDownTimer timer;
     int pos, numItems;
     ArrayList<Messages> messageModel;
-    ActivityResultLauncher<Intent> imageLauncher, videoLauncher;
+    ActivityResultLauncher<Intent> imageLauncher, videoLauncher, videoRecorderLauncher, audioLauncher;
     ArrayList<Uri> videos = new ArrayList<>();
     ArrayList<Messages> oldList = new ArrayList<>();
+    Uri audioUri = null;
 
     /**
      * Application name.
@@ -504,7 +505,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         binding.imgGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog();
+                showUploadDialog();
             }
         });
 
@@ -547,13 +548,42 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     }
                 });
 
+        videoRecorderLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // There are no request codes
+                            if (result.getData().getData() != null) {
+                                Uri selectedVideo = result.getData().getData();
+                                compressVideo(selectedVideo);
+                                // uploadVideoToGoogleDrive(selectedVideo);
+                            }
+                        }
+                    }
+                });
+
+        audioLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // There are no request codes
+                            if (result.getData().getData() != null) {
+                                audioUri = result.getData().getData();
+                                uploadAudioToFirebase();
+                                // uploadVideoToGoogleDrive(selectedVideo);
+                            }
+                        }
+                    }
+                });
+
         binding.imgCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ImagePicker.with(ChatDetailsActivity.this)
-                        .cameraOnly()
-                        .crop()
-                        .start(REQUEST_IMAGE_CAPTURE);
+                showCaptureDialog();
             }
         });
 
@@ -617,6 +647,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                 txtRecording.setText("Recording :");
                 btnSend.setVisibility(View.GONE);
                 memberDialog.dismiss();
+                int length = fileName.length();
+                length = length / 1024;
                 uploadAudioToFirebase();
             }
         });
@@ -725,6 +757,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         intent.setType("video/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         videoLauncher.launch(intent);
+    }
+
+    private void audioPicker() {
+        Intent intent = new Intent();
+        intent.setType("audio/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        audioLauncher.launch(intent);
     }
 
     @Override
@@ -844,8 +883,15 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     private void uploadAudioToFirebase() {
         dialog.setMessage("Uploading Audio...");
         dialog.show();
+        Uri uri;
         Calendar calendar = Calendar.getInstance();
-        Uri uri = Uri.fromFile(new File(fileName));
+        if (audioUri == null) {
+            uri = Uri.fromFile(new File(fileName));
+        } else {
+            uri = audioUri;
+            audioUri = null;
+        }
+
         StorageReference filepath = storage.getReference().child("Audio").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "." + getExt(uri));
         filepath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -895,6 +941,18 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                         }
                     });
                 }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
+                int currentProgress = (int) progress;
+                dialog.setProgress(currentProgress);
             }
         });
     }
@@ -1370,7 +1428,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).child("Connection").updateChildren(obj);
     }
 
-    private void showDialog() {
+    private void showUploadDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(ChatDetailsActivity.this, R.style.AlertDialogCustom);
         builder.setCancelable(false);
@@ -1379,8 +1437,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
 
         View viewInflated = LayoutInflater.from(ChatDetailsActivity.this).inflate(R.layout.image_picker, findViewById(android.R.id.content), false);
 
-        final ImageView imgPicker = viewInflated.findViewById(R.id.imgGalleryPick);
+        final ImageView imgPicker = viewInflated.findViewById(R.id.imgCapture);
         final ImageView videoPicker = viewInflated.findViewById(R.id.imgVideoPicker);
+        final ImageView audioPicker = viewInflated.findViewById(R.id.imgAudioPicker);
         builder.setView(viewInflated);
 
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -1399,6 +1458,14 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         AlertDialog dialog = builder.create();
         // dialog.setCustomTitle(titleView);
         dialog.show();
+
+        audioPicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                audioPicker();
+                dialog.dismiss();
+            }
+        });
 
         videoPicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1421,6 +1488,63 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
 
     }
 
+    private void showCaptureDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(ChatDetailsActivity.this, R.style.AlertDialogCustom);
+        builder.setCancelable(false);
+        builder.setTitle("Choose");
+
+
+        View viewInflated = LayoutInflater.from(ChatDetailsActivity.this).inflate(R.layout.media_capture_layout, findViewById(android.R.id.content), false);
+
+        final ImageView imgCapture = viewInflated.findViewById(R.id.imgCapture);
+        final ImageView videoRecorder = viewInflated.findViewById(R.id.imgVideoRecorder);
+        builder.setView(viewInflated);
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        // Title
+        TextView titleView = new TextView(ChatDetailsActivity.this);
+        titleView.setText("Choose");
+        titleView.setTextSize(20F);
+        titleView.setPadding(20, 20, 20, 20);
+        titleView.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+        AlertDialog dialog = builder.create();
+        // dialog.setCustomTitle(titleView);
+        dialog.show();
+
+        imgCapture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ImagePicker.with(ChatDetailsActivity.this)
+                        .cameraOnly()
+                        .crop()
+                        .start(REQUEST_IMAGE_CAPTURE);
+                dialog.dismiss();
+            }
+        });
+
+        videoRecorder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+                    videoRecorderLauncher.launch(takeVideoIntent);
+                }
+                dialog.dismiss();
+            }
+        });
+
+        //buttons
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, red));
+
+    }
+
     private String getExt(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         MimeTypeMap map = MimeTypeMap.getSingleton();
@@ -1432,7 +1556,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
+                long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS); //90days old
                 DatabaseReference ttlRef = database.getReference().child("Chats").child(senderRoom);
                 Query oldItems = ttlRef.orderByChild("timestamp").endAt(cutoff);
                 oldItems.addListenerForSingleValueEvent(new ValueEventListener() {

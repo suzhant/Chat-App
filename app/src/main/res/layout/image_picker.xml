@@ -6,45 +6,76 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/imgGalleryPick"
+        android:id="@+id/imgCapture"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="70dp"
+        android:layout_marginStart="40dp"
         android:layout_marginTop="4dp"
         android:src="@drawable/ic_gallery"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/textView6"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:text="Image"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/imgGalleryPick"
+        app:layout_constraintEnd_toEndOf="@+id/imgCapture"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/imgGalleryPick"
-        app:layout_constraintTop_toBottomOf="@+id/imgGalleryPick" />
+        app:layout_constraintStart_toStartOf="@+id/imgCapture"
+        app:layout_constraintTop_toBottomOf="@+id/imgCapture" />
 
     <ImageView
         android:id="@+id/imgVideoPicker"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="70dp"
+        android:layout_marginEnd="40dp"
         android:src="@drawable/ic_video_library_24"
-        app:tint="?attr/colorControlNormal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorControlNormal" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/textView7"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:text="Video"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/imgVideoPicker"
         app:layout_constraintStart_toStartOf="@+id/imgVideoPicker"
         app:layout_constraintTop_toBottomOf="@+id/imgVideoPicker" />
+
+
+    <ImageView
+        android:id="@+id/imgAudioPicker"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/ic_audio_file_24"
+        app:layout_constraintEnd_toStartOf="@+id/imgVideoPicker"
+        app:layout_constraintStart_toEndOf="@+id/imgCapture"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorControlNormal" />
+
+    <TextView
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:autoSizeTextType="uniform"
+        android:breakStrategy="simple"
+        android:gravity="center_horizontal"
+        android:maxLines="2"
+        android:text="Audio"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/imgAudioPicker"
+        app:layout_constraintStart_toStartOf="@+id/imgAudioPicker"
+        app:layout_constraintTop_toBottomOf="@+id/imgAudioPicker" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
