@@ -39,6 +39,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
     ArrayList<Users> list;
     Context context;
     String lastMsg;
+    ArrayList<String> lastMessages;
 
     public UsersAdapter(ArrayList<Users> list, Context context) {
         this.list = list;

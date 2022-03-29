@@ -724,6 +724,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             model.setMessageId(key);
                             binding.editMessage.getText().clear();
                             updateLastMessage(Encryption.getVideoLast());
+                            updateTimestamp(date);
 
                             if (notify) {
                                 sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "video");
@@ -955,6 +956,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             model.setMessageId(key);
                             binding.editMessage.getText().clear();
                             updateLastMessage(Encryption.getAudioLast());
+                            updateTimestamp(date);
 
                             if (notify) {
                                 sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "audio");
@@ -1071,6 +1073,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             model.setMessageId(key);
                             binding.editMessage.getText().clear();
                             updateLastMessage(Encryption.getPhotoLast());
+                            updateTimestamp(date);
 
                             if (notify) {
                                 sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "photo");
@@ -1159,6 +1162,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             model.setMessageId(key);
             binding.editMessage.getText().clear();
             updateLastMessage(message);
+            updateTimestamp(date);
 
             if (notify) {
                 sendNotification(receiverId, sendername, message, senderPP, email, senderId, "text");
@@ -1200,6 +1204,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             model1.setTimestamp(date.getTime());
             model1.setMessageId(key);
             updateLastMessage(heart);
+            updateTimestamp(date);
 
             if (notify) {
                 sendNotification(receiverId, sendername, heart, senderPP, email, senderId, "text");
@@ -1228,6 +1233,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         }
         seen = "false";
         updateSeen(seen, receiverId, senderId);
+    }
+
+    private void updateTimestamp(Date date) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("timestamp", date.getTime());
+        database.getReference().child("Users").child(receiverId).child("Friends").child(auth.getUid()).updateChildren(map);
     }
 
     private void updateLastMessage(String message) {

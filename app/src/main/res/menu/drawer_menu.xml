@@ -8,10 +8,6 @@
             android:id="@+id/nav_setting"
             android:icon="@drawable/ic_setting"
             android:title="Setting" />
-<!--        <item-->
-<!--            android:id="@+id/nav_groupChat"-->
-<!--            android:icon="@drawable/ic_people"-->
-<!--            android:title="Group chat" />-->
         <item
             android:id="@+id/nav_findFriend"
             android:icon="@drawable/ic_find_friend"
@@ -26,12 +22,7 @@
             android:checkable="true"
             app:actionViewClass="android.widget.TextView"
             android:title="Friend Request" />
-<!--        <item-->
-<!--            android:id="@+id/nav_delete"-->
-<!--            android:icon="@drawable/ic_delete"-->
-<!--            android:checked="false"-->
-<!--            android:checkable="true"-->
-<!--            android:title="Delete account" />-->
+
         <item
             android:id="@+id/nav_link"
             android:icon="@drawable/ic_google"

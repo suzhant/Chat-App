@@ -34,8 +34,8 @@
         app:cardElevation="8dp"
         app:strokeColor="@color/stroke_color"
         android:layout_marginTop="@dimen/dp_24"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
         app:cardCornerRadius="@dimen/dp_8"
         app:cardBackgroundColor="@color/chatNavColor">
 
@@ -89,7 +89,7 @@
                     android:id="@+id/txtAbout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:text="About"
                     android:gravity="center"
                     android:layout_gravity="center_horizontal"
@@ -102,7 +102,7 @@
 
             <Button
                 android:id="@+id/btnAddFriend"
-                android:layout_width="200dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/user_bg"
                 android:layout_margin="8dp"

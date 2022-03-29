@@ -18,6 +18,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Adapters.UsersAdapter;
 import com.sushant.whatsapp.FindFriendActivity;
@@ -25,6 +26,7 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.FragmentChatsBinding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 
 
@@ -38,6 +40,7 @@ public class ChatsFragment extends Fragment {
     DatabaseReference d1;
     ValueEventListener eventListener;
     ArrayList<Users> oldlist = new ArrayList<>();
+    Query query;
 
 
     public ChatsFragment() {
@@ -96,6 +99,7 @@ public class ChatsFragment extends Fragment {
                         }
                     }
                 }
+                Collections.reverse(list);
                 //  adapter.notifyDataSetChanged();
                 adapter.updateUserList(list);
                 oldlist.clear();
@@ -103,17 +107,18 @@ public class ChatsFragment extends Fragment {
 
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+           @Override
+           public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        };
-       d1.addValueEventListener(eventListener);
+           }
+       };
+        query = d1.orderByChild("timestamp");
+        query.addValueEventListener(eventListener);
 
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                d1.addValueEventListener(eventListener);
+                query.addValueEventListener(eventListener);
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -124,7 +129,7 @@ public class ChatsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        d1.removeEventListener(eventListener);
+        query.removeEventListener(eventListener);
         d1.keepSynced(false);
     }
 }
