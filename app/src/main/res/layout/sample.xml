@@ -1,211 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/groupChatRelative"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPurple">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/group_profile_image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignBottom="@+id/parent"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="2dp"
-        android:layout_marginBottom="17dp"
-        android:padding="5dp"
-        android:src="@drawable/avatar" />
-
-    <LinearLayout
-        android:id="@+id/parent"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/backArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_toEndOf="@id/group_profile_image"
-        android:maxWidth="310dp"
-        android:maxHeight="400dp"
-        android:minHeight="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:tint="@color/white"
+        app:srcCompat="?attr/actionModeCloseDrawable" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/linearPic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/backArrow"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:gravity="center"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/receiverLayoutVideoCall"
-            android:layout_width="wrap_content"
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgProfile"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/avatar"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="2dp" />
+
+        <TextView
+            android:id="@+id/txtUserName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:background="@drawable/bg_et_message"
-            android:backgroundTint="@color/white"
-            android:orientation="vertical"
-            android:padding="10dp"
-            android:visibility="gone">
+            android:hint="UserName"
+            android:padding="5dp"
+            android:layout_marginTop="@dimen/dp_8"
+            android:gravity="center_horizontal"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="16sp" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+        <TextView
+            android:id="@+id/txtEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:padding="5dp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="16sp" />
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_margin="5dp"
-                    android:background="@drawable/bg_et_message"
-                    android:backgroundTint="@color/gray"
-                    android:padding="3dp"
-                    android:src="@drawable/ic_missed_video_call"
-                    app:tint="@color/white" />
+        <TextView
+            android:id="@+id/txtAbout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="About"
+            android:padding="5dp"
+            android:gravity="center_horizontal"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/txtReceiverVideoCall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:text="You missed a call"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btnReceiverCall"
-                android:layout_width="200dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:backgroundTint="@color/gray"
-                android:text="call back"
-                android:textSize="11sp" />
-
-        </LinearLayout>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/receiverCardVideoPlayer"
-            android:layout_width="270dp"
-            android:layout_height="250dp"
-            app:cardElevation="@dimen/dp_8"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            app:cardCornerRadius="@dimen/dp_24">
-
-            <ImageView
-                android:id="@+id/videoThumbnail1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/placeholder" />
-
-            <ImageView
-                android:id="@+id/imgPlay1"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_play_arrow_white_24dp" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardViewReceiver"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/imgReceiver"
-                android:layout_width="300dp"
-                android:layout_height="300dp"
-                android:src="@drawable/avatar"
+            <Button
+                android:id="@+id/btnAddFriend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#00C853"
+                android:text="Add Friend" />
+
+            <Button
+                android:id="@+id/btnAccept"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btnAddFriend"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#00C853"
+                android:text="Accept"
                 android:visibility="gone" />
-        </com.google.android.material.card.MaterialCardView>
 
-        <me.jagar.chatvoiceplayerlibrary.VoicePlayerView
-            android:id="@+id/voicePlayerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:playPauseBackgroundColor="@color/colorPurple"
-            app:playPauseCornerRadius="100"
-            app:playProgressbarColor="#ff7700"
-            app:progressTimeColor="@color/white"
-            app:seekBarProgressColor="@color/black"
-            app:seekBarThumbColor="@color/colorPurple"
-            app:shareBackgroundColor="#ff7700"
-            app:shareCornerRadius="100"
-            app:shareText="SHARE ME"
-            app:showShareButton="false"
-            app:showTiming="true"
-            app:timingBackgroundColor="@color/colorPurple"
-            app:viewCornerRadius="100" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/receiverCardLink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:id="@+id/layoutLink"
+            <Button
+                android:id="@+id/btnReject"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/purple_700"
-                android:orientation="vertical">
+                android:layout_below="@+id/btnAddFriend"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@+id/btnAccept"
+                android:backgroundTint="@color/red"
+                android:text="Reject"
+                android:visibility="gone" />
+        </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/receiverTxtLink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="5dp"
-                    android:maxWidth="250dp"
-                    android:minWidth="50dp"
-                    android:padding="10dp"
-                    android:singleLine="true"
-                    android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
-                    android:textColor="@color/white" />
-
-                <ImageView
-                    android:id="@+id/receiverImgThumbnail"
-                    android:layout_width="250dp"
-                    android:layout_height="200dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/ic_call_green"
-                    android:backgroundTint="@color/black"
-                    android:src="@drawable/placeholder" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_et_message">
-
-            <TextView
-                android:id="@+id/txtGroupReceiver"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:maxWidth="270dp"
-                android:minWidth="50dp"
-                android:padding="10dp"
-                android:text="asdfasdfasdasdfdasfasdfasfdasdfasdffasfdaasfdasfd"
-                android:textColor="@color/black" />
-
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/txtGroupReceiverTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginStart="10dp"
-            android:layout_marginBottom="4dp"
-            android:text="12:00pm"
-            android:textSize="11sp"
-            app:layout_goneMarginBottom="4dp" />
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/img_receiver_react"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_alignBottom="@+id/parent"
-        android:layout_marginBottom="15dp"
-        android:layout_marginHorizontal="8dp"
-        android:layout_toEndOf="@id/parent"
-        android:visibility="gone"
-        android:src="@drawable/ic_add_reaction_24" />
-
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </RelativeLayout>

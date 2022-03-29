@@ -1,6 +1,5 @@
 package com.sushant.whatsapp;
 
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -92,28 +91,29 @@ public class ProfileActivity extends AppCompatActivity {
                         if (Receiverid.equals(users.getUserId())) {
                             if (users.getRequest().equals("Accepted")) {
                                 binding.btnAddFriend.setText("Unfriend");
-                                binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
+                                binding.btnAddFriend.setBackgroundTintList(getColorStateList(R.color.colorUnfriend)); //using material design button color
+//                                binding.btnAddFriend.setBackgroundColor(Color.parseColor("#FF3D00"));
                                 friend = true;
                             }
                             if (users.getRequest().equals("Req_Sent")) {
                                 binding.btnAddFriend.setText("Cancel Friend Request");
-                                binding.btnAddFriend.setBackgroundColor(Color.RED);
+                                binding.btnAddFriend.setBackgroundTintList(getColorStateList(R.color.colorUnfriend));
+                                //   binding.btnAddFriend.setBackgroundColor(Color.RED);
                                 friend = true;
                             }
 
                             if (users.getRequest().equals("Req_Pending")) {
                                 binding.btnAddFriend.setVisibility(View.GONE);
-                                binding.btnAccept.setVisibility(View.VISIBLE);
-                                binding.btnReject.setVisibility(View.VISIBLE);
+                                binding.btnLayout.setVisibility(View.VISIBLE);
                             }
                         }
                     }
                     if (!snapshot.child(Receiverid).exists()) {
                         binding.btnAddFriend.setVisibility(View.VISIBLE);
                         binding.btnAddFriend.setText("Add friend");
-                        binding.btnAddFriend.setBackgroundColor(0x09af00);
-                        binding.btnAccept.setVisibility(View.GONE);
-                        binding.btnReject.setVisibility(View.GONE);
+                        binding.btnAddFriend.setBackgroundTintList(getColorStateList(R.color.colorAddFriend));
+                        //  binding.btnAddFriend.setBackgroundColor(0x09af00);
+                        binding.btnLayout.setVisibility(View.GONE);
                     }
                 }
             }
@@ -125,7 +125,7 @@ public class ProfileActivity extends AppCompatActivity {
         };
         reference.addValueEventListener(eventListener);
 
-        binding.backArrow.setOnClickListener(new View.OnClickListener() {
+        binding.topAppBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
@@ -141,8 +141,7 @@ public class ProfileActivity extends AppCompatActivity {
                         database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
                     }
                 });
-                binding.btnAccept.setVisibility(View.GONE);
-                binding.btnReject.setVisibility(View.GONE);
+                binding.btnLayout.setVisibility(View.GONE);
                 binding.btnAddFriend.setVisibility(View.VISIBLE);
                 friend = false;
             }
@@ -163,8 +162,7 @@ public class ProfileActivity extends AppCompatActivity {
                         database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).updateChildren(obj2);
                     }
                 });
-                binding.btnAccept.setVisibility(View.GONE);
-                binding.btnReject.setVisibility(View.GONE);
+                binding.btnLayout.setVisibility(View.GONE);
                 binding.btnAddFriend.setVisibility(View.VISIBLE);
                 friend = true;
             }
@@ -178,7 +176,8 @@ public class ProfileActivity extends AppCompatActivity {
                     database.getReference().child("Users").child(user.getUid()).child("Friends").child(Receiverid).removeValue();
                     database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).removeValue();
                     binding.btnAddFriend.setText("Add friend");
-                    binding.btnAddFriend.setBackgroundColor(0x09af00);
+                    binding.btnAddFriend.setBackgroundTintList(getColorStateList(R.color.colorAddFriend));
+                    // binding.btnAddFriend.setBackgroundColor(0x09af00);
                     friend = false;
                 } else {
                     notify = true;
@@ -221,7 +220,8 @@ public class ProfileActivity extends AppCompatActivity {
                     });
 
                     binding.btnAddFriend.setText("Unfriend");
-                    binding.btnAddFriend.setBackgroundColor(Color.RED);
+                    binding.btnAddFriend.setBackgroundTintList(getColorStateList(R.color.colorUnfriend));
+                    //    binding.btnAddFriend.setBackgroundColor(Color.RED);
                     friend = true;
                 }
 
@@ -265,6 +265,11 @@ public class ProfileActivity extends AppCompatActivity {
             Log.d("REF1", "onDestroy: called");
             reference.removeEventListener(eventListener);
         }
+    }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
     }
 }

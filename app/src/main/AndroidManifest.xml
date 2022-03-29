@@ -142,9 +142,6 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
         <activity
-            android:name=".LinkAccount"
-            android:exported="true" />
-        <activity
             android:name=".ChangeEmail"
             android:exported="true"
             android:parentActivityName=".Privacy" />

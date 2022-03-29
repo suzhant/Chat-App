@@ -101,6 +101,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.sushant.whatsapp.Adapters.ChatAdapter;
+import com.sushant.whatsapp.Interface.AudioInterface;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.Utils.Encryption;
@@ -124,6 +125,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import me.jagar.chatvoiceplayerlibrary.VoicePlayerView;
 
 
 public class ChatDetailsActivity extends AppCompatActivity implements DefaultLifecycleObserver {
@@ -158,6 +161,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     ArrayList<Uri> videos = new ArrayList<>();
     ArrayList<Messages> oldList = new ArrayList<>();
     Uri audioUri = null;
+    AudioInterface audioInterface;
 
     /**
      * Application name.
@@ -221,12 +225,28 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.profileImage);
         checkConn();
 
+        audioInterface = new AudioInterface() {
+            @Override
+            public void onAudioPlay(String audioFile, VoicePlayerView playerView) {
+                Handler handler = new Handler();
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        playerView.setAudio(audioFile);
+                        playerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
+                    }
+                };
+                handler.postDelayed(runnable, 1000);
+
+            }
+        };
+
         messageModel = new ArrayList<>();
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         binding.chatRecyclerView.setLayoutManager(layoutManager);
         binding.chatRecyclerView.setHasFixedSize(true);
         layoutManager.setStackFromEnd(true);
-        final ChatAdapter chatAdapter = new ChatAdapter(oldList, this, receiverId);
+        final ChatAdapter chatAdapter = new ChatAdapter(oldList, this, receiverId, audioInterface);
         chatAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         binding.chatRecyclerView.setAdapter(chatAdapter);
 
@@ -594,6 +614,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             }
         });
 
+
         memberDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
@@ -745,24 +766,18 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     }
 
     private void imgPicker() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
         imageLauncher.launch(intent);
     }
 
     private void videoPicker() {
-        Intent intent = new Intent();
-        intent.setType("video/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
         videoLauncher.launch(intent);
     }
 
     private void audioPicker() {
-        Intent intent = new Intent();
-        intent.setType("audio/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
         audioLauncher.launch(intent);
     }
 

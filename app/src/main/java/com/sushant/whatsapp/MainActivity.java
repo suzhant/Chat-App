@@ -388,11 +388,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent3);
                 break;
 
-            case R.id.nav_link:
-                Intent intent1 = new Intent(MainActivity.this, LinkAccount.class);
-                startActivity(intent1);
-                break;
-
 //            case R.id.nav_delete:
 //                showDeleteDialog();
 //                break;

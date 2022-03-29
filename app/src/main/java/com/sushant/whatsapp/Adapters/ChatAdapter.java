@@ -64,6 +64,7 @@ import com.sushant.whatsapp.CheckConnection;
 import com.sushant.whatsapp.ConnectingActivity;
 import com.sushant.whatsapp.FullScreenImage;
 import com.sushant.whatsapp.FullScreenVideo;
+import com.sushant.whatsapp.Interface.AudioInterface;
 import com.sushant.whatsapp.Models.Messages;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
@@ -94,16 +95,18 @@ public class ChatAdapter extends RecyclerView.Adapter {
     int RECEIVER_VIEW_TYPE = 2;
     String receiverName, profilePic, email, Status;
     int reaction;
+    AudioInterface audioInterface;
 
     public ChatAdapter(ArrayList<Messages> messageModel, Context context) {
         this.messageModel = messageModel;
         this.context = context;
     }
 
-    public ChatAdapter(ArrayList<Messages> messageModel, Context context, String recId) {
+    public ChatAdapter(ArrayList<Messages> messageModel, Context context, String recId, AudioInterface audioInterface) {
         this.messageModel = messageModel;
         this.context = context;
         this.recId = recId;
+        this.audioInterface = audioInterface;
     }
 
     @NonNull
@@ -113,7 +116,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             View view = LayoutInflater.from(context).inflate(R.layout.sample_sender, parent, false);
             return new SenderViewHolder(view);
         } else {
-            View view = LayoutInflater.from(context).inflate(R.layout.sample, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.sample_receiver, parent, false);
             return new ReceiverViewHolder(view);
         }
     }
@@ -602,6 +605,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
             voicePlayerView = ((ReceiverViewHolder) holder).voicePlayerView;
         }
         voicePlayerView.setVisibility(View.VISIBLE);
+
         voicePlayerView.getImgPlay().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -610,8 +614,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     Toast.makeText(context, "Please connect to the internet", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                voicePlayerView.setAudio(audioFile);
-                voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
+                audioInterface.onAudioPlay(audioFile, voicePlayerView);
+                //  voicePlayerView.setAudio(audioFile);
+                //  voicePlayerView.setSeekBarStyle(R.color.colorPurple, R.color.colorPurple);
             }
         });
     }
