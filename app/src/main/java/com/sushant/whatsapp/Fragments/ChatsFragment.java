@@ -105,23 +105,9 @@ public class ChatsFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getContext());
         binding.chatRecyclerView.setLayoutManager(layoutManager);
 
+
         //getting pic from the db
-        database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                admin = snapshot.getValue(Users.class);
-                assert admin != null;
-                pp = admin.getProfilePic();
-                name = admin.getUserName();
-                Glide.with(getContext()).load(pp).placeholder(R.drawable.avatar)
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(binding.imgCreateStory);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        getUserDetails();
 
         //story adapter
         storyAdapter = new StoryAdapter(selectedUsers, getContext());
@@ -213,8 +199,7 @@ public class ChatsFragment extends Fragment {
                         }
                     }
                 }
-                System.out.println("seleceted users:" + selectedUsers);
-
+                storyAdapter.notifyDataSetChanged();
             }
 
            @Override
@@ -266,8 +251,28 @@ public class ChatsFragment extends Fragment {
                     }
                 });
         deleteMessage();
-
         return binding.getRoot();
+    }
+
+    private void getUserDetails() {
+        database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid())).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                admin = snapshot.getValue(Users.class);
+                assert admin != null;
+                pp = admin.getProfilePic();
+                name = admin.getUserName();
+                if (getActivity() != null) {
+                    Glide.with(getActivity()).load(pp).placeholder(R.drawable.avatar)
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(binding.imgCreateStory);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void createImageBitmap(Uri imageUrl) {
