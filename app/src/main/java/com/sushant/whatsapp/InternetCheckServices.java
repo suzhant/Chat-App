@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
-import android.widget.Button;
 
 import androidx.annotation.RequiresApi;
 
@@ -23,7 +22,6 @@ public class InternetCheckServices extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Dialog dialog = new Dialog(context, android.R.style.Theme_NoTitleBar);
         dialog.setContentView(R.layout.no_connection);
-        Button retry = dialog.findViewById(R.id.btnRetry);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("No Connection").setMessage("You are not Connected to Internet");
         builder.setPositiveButton("Connect", new DialogInterface.OnClickListener() {

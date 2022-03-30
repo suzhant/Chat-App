@@ -28,6 +28,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.browser.customtabs.CustomTabColorSchemeParams;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.DiffUtil;
@@ -693,7 +695,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     .setBold(true)// optional, defaults to false
                     .setOnLongClickListener(new Link.OnLongClickListener() {
                         @Override
-                        public void onLongClick(String clickedText) {
+                        public void onLongClick(@NonNull String clickedText) {
                             // long clicked
                         }
                     })
@@ -701,8 +703,17 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         @Override
                         public void onClick(@NonNull String clickedText) {
                             // single clicked
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedText));
-                            context.startActivity(browserIntent);
+//                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedText));
+//                            context.startActivity(browserIntent);
+                            int colorInt = Color.parseColor("#7C4DFF"); //purple
+                            CustomTabColorSchemeParams defaultColors = new CustomTabColorSchemeParams.Builder()
+                                    .setToolbarColor(colorInt)
+                                    .build();
+                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                            builder.setDefaultColorSchemeParams(defaultColors);
+                            builder.setShowTitle(true);
+                            CustomTabsIntent customTabsIntent = builder.build();
+                            customTabsIntent.launchUrl(context, Uri.parse(clickedText));
                         }
                     });
 

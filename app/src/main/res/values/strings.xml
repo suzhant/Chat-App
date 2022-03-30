@@ -4,12 +4,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
-    <string name="channel_name">Notification</string>
-    <string name="channel_description">Nothing</string>
     <string name="accept_call">Accept call</string>
     <string name="decline_call">Decline call</string>
-    <string name="bottom_sheet_option_camera">Use Camera</string>
-    <string name="bottom_sheet_option_gallery">Upload from Gallery</string>
-    <string name="bottom_sheet_option_heading">Add Photo</string>
-    <string name="bottom_sheet_option_remove_photo">Remove Photo</string>
 </resources>

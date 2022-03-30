@@ -68,20 +68,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.FileContent;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -110,19 +96,14 @@ import com.sushant.whatsapp.databinding.ActivityChatDetailsBinding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -163,21 +144,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     Uri audioUri = null;
     AudioInterface audioInterface;
 
-    /**
-     * Application name.
-     */
-    private static final String APPLICATION_NAME = "com.sushant.whatsapp";
-    /**
-     * Global instance of the JSON factory.
-     */
-    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-    /**
-     * Directory to store authorization tokens for this application.
-     */
-    private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final String CREDENTIALS_FILE_PATH = "/client_secret.json";
-    private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_FILE);
-    Drive service;
+
+//    private static final String APPLICATION_NAME = "com.sushant.whatsapp";
+//    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+//    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+//    private static final String CREDENTIALS_FILE_PATH = "/client_secret.json";
+//    private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_FILE);
+//    Drive service;
 
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -1603,7 +1576,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS); //90days old
+                long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS); //365 days old
                 DatabaseReference ttlRef = database.getReference().child("Chats").child(senderRoom);
                 Query oldItems = ttlRef.orderByChild("timestamp").endAt(cutoff);
                 oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -1705,67 +1678,67 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
      * @return An authorized Credential object.
      * @throws IOException If the credentials.json file cannot be found.
      */
-    private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        // Load client secrets.
-        InputStream in = ChatDetailsActivity.class.getResourceAsStream("/client_secret.json");
-        if (in == null) {
-            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
-        }
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-        File tokenFolder = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) +
-                File.separator + TOKENS_DIRECTORY_PATH);
-        if (!tokenFolder.exists()) {
-            tokenFolder.mkdirs();
-        }
-        // Build flow and trigger user authorization request.
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(tokenFolder))
-                .setAccessType("offline")
-                .build();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-        //returns an authorized Credential object.
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()) {
-            protected void onAuthorization(AuthorizationCodeRequestUrl authorizationUrl) throws IOException {
-                String url = (authorizationUrl.build());
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-            }
-        }.authorize("sushantshrestha62@gmail.com");
-    }
-
-    private void uploadVideoToGoogleDrive(Uri uri) {
-        // Build a new authorized API client service.
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final NetHttpTransport HTTP_TRANSPORT;
-                    HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-                    service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                            .setApplicationName(APPLICATION_NAME)
-                            .build();
-                } catch (GeneralSecurityException | IOException e) {
-                    e.printStackTrace();
-                }
-                com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
-                fileMetadata.setName("video.mp4");
-                java.io.File filePath = new java.io.File(String.valueOf(uri));
-                FileContent mediaContent = new FileContent("video/mp4", filePath);
-                com.google.api.services.drive.model.File file = null;
-                try {
-                    file = service.files().create(fileMetadata, mediaContent)
-                            .setFields("id")
-                            .execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("File ID: " + file.getId());
-            }
-        });
-        thread.start();
-    }
+//    private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+//        // Load client secrets.
+//        InputStream in = ChatDetailsActivity.class.getResourceAsStream("/client_secret.json");
+//        if (in == null) {
+//            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+//        }
+//        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+//
+//        File tokenFolder = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) +
+//                File.separator + TOKENS_DIRECTORY_PATH);
+//        if (!tokenFolder.exists()) {
+//            tokenFolder.mkdirs();
+//        }
+//        // Build flow and trigger user authorization request.
+//        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+//                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+//                .setDataStoreFactory(new FileDataStoreFactory(tokenFolder))
+//                .setAccessType("offline")
+//                .build();
+//        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+//        //returns an authorized Credential object.
+//        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()) {
+//            protected void onAuthorization(AuthorizationCodeRequestUrl authorizationUrl) throws IOException {
+//                String url = (authorizationUrl.build());
+//                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+//                startActivity(browserIntent);
+//            }
+//        }.authorize("sushantshrestha62@gmail.com");
+//    }
+//
+//    private void uploadVideoToGoogleDrive(Uri uri) {
+//        // Build a new authorized API client service.
+//
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    final NetHttpTransport HTTP_TRANSPORT;
+//                    HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+//                    service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+//                            .setApplicationName(APPLICATION_NAME)
+//                            .build();
+//                } catch (GeneralSecurityException | IOException e) {
+//                    e.printStackTrace();
+//                }
+//                com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
+//                fileMetadata.setName("video.mp4");
+//                java.io.File filePath = new java.io.File(String.valueOf(uri));
+//                FileContent mediaContent = new FileContent("video/mp4", filePath);
+//                com.google.api.services.drive.model.File file = null;
+//                try {
+//                    file = service.files().create(fileMetadata, mediaContent)
+//                            .setFields("id")
+//                            .execute();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                System.out.println("File ID: " + file.getId());
+//            }
+//        });
+//        thread.start();
+//    }
 
 }
