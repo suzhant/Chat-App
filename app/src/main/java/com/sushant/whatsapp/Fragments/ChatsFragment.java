@@ -3,6 +3,7 @@ package com.sushant.whatsapp.Fragments;
 import static com.sushant.whatsapp.R.color.amp_transparent;
 import static com.sushant.whatsapp.R.color.red;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -38,6 +39,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.dsphotoeditor.sdk.activity.DsPhotoEditorActivity;
+import com.dsphotoeditor.sdk.utils.DsPhotoEditorConstants;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -54,6 +57,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.sushant.whatsapp.Adapters.StoryAdapter;
 import com.sushant.whatsapp.Adapters.UsersAdapter;
 import com.sushant.whatsapp.CheckConnection;
@@ -94,11 +103,13 @@ public class ChatsFragment extends Fragment {
     StoryAdapter storyAdapter;
     FirebaseAuth auth;
     String pp, name;
-    ActivityResultLauncher<Intent> imageLauncher, cameraLauncher;
+    ActivityResultLauncher<Intent> imageLauncher, cameraLauncher, editResultLauncher;
     ProgressDialog dialog;
     FirebaseStorage storage;
     Users admin;
     ArrayList<Users> oldStoryList = new ArrayList<>();
+    android.app.AlertDialog.Builder alertDialog;
+    Uri selectedImage;
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -337,6 +348,38 @@ public class ChatsFragment extends Fragment {
             }
         });
 
+        alertDialog = new android.app.AlertDialog.Builder(getContext()).setTitle("Image")
+                .setMessage("Do you want to edit the image?")
+                .setCancelable(false)
+                .setIcon(R.drawable.ic_gallery)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        checkPermission(selectedImage);
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        createImageBitmap(selectedImage);
+                        dialogInterface.dismiss();
+                    }
+                });
+
+        editResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // There are no request codes
+                            if (result.getData().getData() != null) {
+                                Uri editedImage = result.getData().getData();
+                                createImageBitmap(editedImage);
+                            }
+                        }
+                    }
+                });
+
         imageLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -353,8 +396,9 @@ public class ChatsFragment extends Fragment {
                                 }
 
                             } else if (result.getData().getData() != null) {
-                                Uri selectedImage = result.getData().getData();
-                                createImageBitmap(selectedImage);
+                                selectedImage = result.getData().getData();
+                                alertDialog.show();
+//                                createImageBitmap(selectedImage);
                             }
                         }
                     }
@@ -609,11 +653,44 @@ public class ChatsFragment extends Fragment {
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
                     if (data.getData() != null) {
-                        Uri selectedImage = data.getData();
-                        createImageBitmap(selectedImage);
+                        selectedImage = data.getData();
+                        alertDialog.show();
+//                        createImageBitmap(selectedImage);
                     }
                 }
             }
+        }
+    }
+
+    private void startEditIntent(Uri data) {
+        Intent dsPhotoEditorIntent = new Intent(getContext(), DsPhotoEditorActivity.class);
+        dsPhotoEditorIntent.setData(data);
+        dsPhotoEditorIntent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_OUTPUT_DIRECTORY, "Edited Pics");
+        int[] toolsToHide = {DsPhotoEditorActivity.TOOL_ORIENTATION, DsPhotoEditorActivity.TOOL_CROP};
+        dsPhotoEditorIntent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_TOOLS_TO_HIDE, toolsToHide);
+        editResultLauncher.launch(dsPhotoEditorIntent);
+    }
+
+    private void checkPermission(Uri data) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            startEditIntent(data);
+        } else {
+            Dexter.withContext(getContext())
+                    .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .withListener(new PermissionListener() {
+                        @Override
+                        public void onPermissionGranted(PermissionGrantedResponse response) {
+                            startEditIntent(data);
+                        }
+
+                        @Override
+                        public void onPermissionDenied(PermissionDeniedResponse response) {
+                            Toast.makeText(getContext(), "Please accept permissions", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+                    }).check();
         }
     }
 
