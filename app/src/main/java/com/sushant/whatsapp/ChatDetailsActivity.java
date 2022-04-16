@@ -381,6 +381,10 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                         binding.chatRecyclerView.smoothScrollToPosition(messageModel.size() - 1);
                     }
                 }
+                if (binding.loadingPanel.getVisibility() == View.VISIBLE) {
+                    binding.chatRecyclerView.scheduleLayoutAnimation();
+                }
+                binding.loadingPanel.setVisibility(View.GONE);
             }
 
             @Override
@@ -397,7 +401,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                 chatRef.keepSynced(true);
             }
         };
-        chatHandler.postDelayed(chatRunnable, 300);
+        chatHandler.postDelayed(chatRunnable, 500);
 
 
         binding.swipeChatRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

@@ -46,7 +46,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgIcon"
         app:startIconDrawable="@drawable/ic_user"
-        app:startIconTint="@color/colorPurple">
+        app:startIconTint="@color/colorPurple"
+        style="@style/Widget.App.TextInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etName"
@@ -78,7 +79,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editName"
         app:startIconDrawable="@drawable/ic_email"
-        app:startIconTint="@color/colorPurple">
+        app:startIconTint="@color/colorPurple"
+        style="@style/Widget.App.TextInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEmail"
@@ -108,7 +110,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editEmail"
         app:startIconDrawable="@drawable/ic_lock"
-        app:startIconTint="@color/colorPurple">
+        app:startIconTint="@color/colorPurple"
+        style="@style/Widget.App.TextInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPass"

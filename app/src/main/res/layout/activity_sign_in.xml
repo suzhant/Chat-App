@@ -37,13 +37,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imgIcon"
             app:startIconDrawable="@drawable/ic_email"
-            app:startIconTint="@color/colorPurple">
+            app:startIconTint="@color/colorPurple"
+            style="@style/Widget.App.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
                 android:inputType="textEmailAddress"
                 android:maxLength="30" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -72,7 +72,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editEmail"
             app:startIconDrawable="@drawable/ic_lock"
-            app:startIconTint="@color/colorPurple">
+            app:startIconTint="@color/colorPurple"
+            style="@style/Widget.App.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPass"

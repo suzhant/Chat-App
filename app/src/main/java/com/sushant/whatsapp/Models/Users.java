@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Users implements Serializable {
-    private String profilePic, userName, mail, password, lastMessage, status, request, Typing, role, joinedGroupOn, seen, nickName;
+    private String profilePic, userName, mail, password, lastMessage, status, request, Typing, role, joinedGroupOn, seen, nickName, lastStory;
     public String userId;
+    private int storiesCount = 0, seenCount = 0, unseenCount = 0;
 
     public Users(String profilePic, String userName, String mail, String password, String userId, String lastMessage, String status) {
         this.profilePic = profilePic;
@@ -145,5 +146,37 @@ public class Users implements Serializable {
                 && Objects.equals(request, users.request) && Objects.equals(Typing, users.Typing) && Objects.equals(role, users.role)
                 && Objects.equals(joinedGroupOn, users.joinedGroupOn) && Objects.equals(seen, users.seen) && Objects.equals(nickName, users.nickName)
                 && Objects.equals(userId, users.userId);
+    }
+
+    public int getStoriesCount() {
+        return storiesCount;
+    }
+
+    public void setStoriesCount(int storiesCount) {
+        this.storiesCount = storiesCount;
+    }
+
+    public String getLastStory() {
+        return lastStory;
+    }
+
+    public void setLastStory(String lastStory) {
+        this.lastStory = lastStory;
+    }
+
+    public int getSeenCount() {
+        return seenCount;
+    }
+
+    public void setSeenCount(int seenCount) {
+        this.seenCount = seenCount;
+    }
+
+    public int getUnseenCount() {
+        return unseenCount;
+    }
+
+    public void setUnseenCount(int unseenCount) {
+        this.unseenCount = unseenCount;
     }
 }

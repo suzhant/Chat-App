@@ -74,6 +74,7 @@ public class ShareActivity extends AppCompatActivity {
     int i = 0;
     BroadcastReceiver broadcastReceiver;
     String img, txt, audio, thumbnail;
+    Users users;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +143,24 @@ public class ShareActivity extends AppCompatActivity {
                 }
             }
         };
+
+        senderRef = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()));
+        senderListener = new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                users = snapshot.getValue(Users.class);
+                sendername = users.getUserName();
+                senderPP = users.getProfilePic();
+                email = users.getMail();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        senderRef.addValueEventListener(senderListener);
 
         adapter = new ShareAdapter(list, this, clicked);
         binding.sendRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -240,24 +259,6 @@ public class ShareActivity extends AppCompatActivity {
             }
         });
 
-        senderRef = database.getReference().child("Users").child(Objects.requireNonNull(auth.getUid()));
-        senderListener = new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.P)
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Users users = snapshot.getValue(Users.class);
-                sendername = users.getUserName();
-                senderPP = users.getProfilePic();
-                email = users.getMail();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        senderRef.addValueEventListener(senderListener);
-
     }
 
     private void setImagePreview(String txt) {
@@ -309,6 +310,10 @@ public class ShareActivity extends AppCompatActivity {
                             }
                         }
                     }
+                    if (image != null || getIntent().getAction().equals("SEND_IMAGE")) {
+                        list.add(0, users);
+                    }
+
                     adapter.notifyDataSetChanged();
                 }
             }

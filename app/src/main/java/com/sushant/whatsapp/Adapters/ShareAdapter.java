@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,10 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.sushant.whatsapp.Interface.isClicked;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.R;
@@ -50,7 +45,11 @@ public class ShareAdapter extends RecyclerView.Adapter<ShareAdapter.viewHolder> 
         Users users = list.get(position);
         Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.image);
-        holder.userName.setText(users.getUserName());
+        if (users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+            holder.userName.setText("Add Image to your Story");
+        } else {
+            holder.userName.setText(users.getUserName());
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

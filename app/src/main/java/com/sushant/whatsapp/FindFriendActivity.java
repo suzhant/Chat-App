@@ -111,6 +111,7 @@ public class FindFriendActivity extends AppCompatActivity {
                     }
                 }
                 adapter.notifyDataSetChanged();
+                findFriendBinding.findFriendRecycleView.scheduleLayoutAnimation();
             }
 
             @Override

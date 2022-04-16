@@ -87,6 +87,12 @@ public class SignInActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
 
+        //automatically sign in user
+        if (auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified()) {
+            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+            startActivity(intent);
+        }
+
         dialog = new ProgressDialog(this);
         dialog.setTitle("Login");
         dialog.setMessage("Login to your account");
@@ -262,11 +268,6 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
-        //automatically sign in user
-        if (auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified()) {
-            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-            startActivity(intent);
-        }
     }
 
     @Override

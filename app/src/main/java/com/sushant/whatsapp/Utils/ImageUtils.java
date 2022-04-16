@@ -1,17 +1,50 @@
 package com.sushant.whatsapp.Utils;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Base64;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.sushant.whatsapp.Models.Story;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class ImageUtils {
+    private static final FirebaseStorage storage = FirebaseStorage.getInstance();
+    private static final FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private static final FirebaseAuth auth = FirebaseAuth.getInstance();
 
     public static Bitmap handleSamplingAndRotationBitmap(Context context, Uri selectedImage)
             throws IOException {
@@ -101,5 +134,133 @@ public class ImageUtils {
         Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
         img.recycle();
         return rotatedImg;
+    }
+
+    public static void createImageBitmap(Uri imageUrl, ProgressDialog dialog, String name, String pp, Context context) {
+        Bitmap bitmap = null;
+        try {
+            bitmap = ImageUtils.handleSamplingAndRotationBitmap(context, imageUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        assert bitmap != null;
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] bytes = baos.toByteArray();
+        int length = bytes.length / 1024;
+        uploadImageToFirebase(bytes, length, dialog, name, pp, context);
+    }
+
+    private static void uploadImageToFirebase(byte[] uri, int length, ProgressDialog dialog, String name, String pp, Context context) {
+        Calendar calendar = Calendar.getInstance();
+        final StorageReference reference = storage.getReference().child("Stories").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(calendar.getTimeInMillis() + "");
+        if (length > 256) {
+            dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        }
+        dialog.setProgress(0);
+        dialog.setMessage("Uploading Image");
+        dialog.show();
+        UploadTask uploadTask = reference.putBytes(uri);
+        uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @RequiresApi(api = Build.VERSION_CODES.P)
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                // Uri fdelete = Uri.fromFile(new File(uri.toString()));
+                // File fdelete= new File(uri.toString());
+                //File fdelete = new File(Objects.requireNonNull(getFilePath(uri)));
+
+                if (task.isSuccessful()) {
+                    dialog.dismiss();
+                    reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @RequiresApi(api = Build.VERSION_CODES.P)
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String filePath = uri.toString();
+                            String key = database.getReference().push().getKey();
+                            Date date = new Date();
+                            final Story story = new Story(key, Encryption.encryptMessage(filePath), date.getTime());
+                            story.setType("image");
+
+                            assert key != null;
+
+                            HashMap<String, Object> user = new HashMap<>();
+                            user.put("userName", name);
+                            user.put("profilePic", pp);
+                            user.put("userId", auth.getUid());
+                            database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid())).child("Info").child(key).setValue(story).
+                                    addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid())).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Toast.makeText(context, "Added Story Successfully", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    });
+                        }
+                    });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                //only works if image size is greater than 256kb!
+                if (length > 256) {
+                    double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
+                    int currentProgress = (int) progress;
+                    dialog.setProgress(currentProgress);
+                }
+            }
+        });
+    }
+
+    //contrast : 0 to 10 brightness : -255 to 255
+    public static Bitmap changeBitmapContrastBrightness(Bitmap bmp, float contrast, float brightness) {
+        ColorMatrix cm = new ColorMatrix(new float[]
+                {
+                        contrast, 0, 0, 0, brightness,
+                        0, contrast, 0, 0, brightness,
+                        0, 0, contrast, 0, brightness,
+                        0, 0, 0, 1, 0
+                });
+
+        Bitmap ret = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
+
+        Canvas canvas = new Canvas(ret);
+
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+        canvas.drawBitmap(bmp, 0, 0, paint);
+
+        return ret;
+    }
+
+    public static Bitmap StringToBitMap(String encodedString) {
+        try {
+            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
+    public static Bitmap getLocalBitmap(ImageView imageView) {
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp = null;
+        if (drawable instanceof BitmapDrawable) {
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        return bmp;
     }
 }

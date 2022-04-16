@@ -33,8 +33,22 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/chatNavColor"
-            android:transcriptMode="alwaysScroll" />
+            android:transcriptMode="alwaysScroll"
+            android:layoutAnimation="@anim/layout_animation" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/fcm_test_color" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/txtChatConn"
@@ -178,6 +192,7 @@
             android:layout_weight="1"
             android:background="@drawable/bg_et_message"
             android:textSize="15sp"
+            android:textColor="@color/black"
             android:textColorHint="@color/navColor"
             android:backgroundTint="@color/chatNavColor"
             android:ems="10"

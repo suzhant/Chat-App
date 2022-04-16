@@ -87,7 +87,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 resultIntent.putExtra("userEmail", email);
                 resultIntent.putExtra("UserName", receiverName);
                 resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 builder.setContentTitle(title);
                 builder.setContentIntent(pendingIntent);
                 break;
@@ -104,7 +104,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 resultIntent.putExtra("GPic", profilePic);
                 resultIntent.putExtra("Notification", isNotification);
                 resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 builder.setContentTitle(title);
                 builder.setContentIntent(pendingIntent);
                 break;
@@ -138,8 +138,8 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 cancelCallAction.putExtra("UserId", senderId);
                 cancelCallAction.setAction("CANCEL_CALL");
 
-                PendingIntent receiveCallPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 1, receiveCallAction, PendingIntent.FLAG_ONE_SHOT);
-                PendingIntent cancelCallPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 1201, cancelCallAction, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent receiveCallPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 1, receiveCallAction, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent cancelCallPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 1201, cancelCallAction, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
                 Intent resultIntent = new Intent(this, InComingCall.class);
                 resultIntent.putExtra("UserId", senderId);
@@ -150,7 +150,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 resultIntent.putExtra("key", email);
                 resultIntent.putExtra("receiverId", receiverId);
                 resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
                 builder.setContentTitle(title);
                 builder.setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setCategory(NotificationCompat.CATEGORY_CALL);
@@ -198,7 +198,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 Intent resultIntent = new Intent(this, FriendRequestActivity.class);
                 resultIntent.putExtra("Notification", isNotification);
                 resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 builder.setContentTitle(title);
                 builder.setContentIntent(pendingIntent);
                 break;

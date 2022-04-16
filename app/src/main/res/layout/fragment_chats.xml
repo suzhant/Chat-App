@@ -18,75 +18,105 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/chatScroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@color/white">
+                    android:orientation="vertical">
 
-                    <FrameLayout
-                        android:layout_width="wrap_content"
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:background="@color/amp_transparent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/white">
+                        android:orientation="horizontal">
 
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/imgCreateStory"
-                            android:layout_width="73dp"
-                            android:layout_height="80dp"
-                            android:layout_margin="@dimen/dp_8"
-                            android:src="@drawable/avatar" />
-
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/imgStoryPlus"
+                        <FrameLayout
+                            android:id="@+id/shimmerPP"
                             android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/createStoryCard"
+                                android:layout_width="120dp"
+                                android:layout_height="200dp"
+                                app:cardCornerRadius="@dimen/dp_8"
+                                android:layout_margin="@dimen/dp_8"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <ImageView
+                                    android:id="@+id/imgPp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:alpha="0.8"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/placeholder" />
+
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:id="@+id/imgStoryPlus"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="5dp"
+                                    android:src="@drawable/outline_add_circle_24"
+                                    app:civ_border_width="2dp"
+                                    app:civ_border_overlay="true"
+                                    app:civ_border_color="@color/white"
+                                    android:layout_marginBottom="12dp"
+                                    app:civ_circle_background_color="@color/white" />
+
+                                <TextView
+                                    android:id="@+id/name"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="start|bottom"
+                                    android:textSize="13sp"
+                                    android:textColor="@color/white"
+                                    android:text="Create Story"
+                                    android:padding="4dp"
+                                    android:textStyle="bold" />
+
+                            </androidx.cardview.widget.CardView>
+
+                        </FrameLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/storyRecycler"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom|end"
-                            android:src="@drawable/outline_add_circle_24"
-                            app:civ_border_width="2dp"
-                            app:civ_border_overlay="true"
-                            app:civ_border_color="@color/white"
-                            android:layout_marginBottom="12dp"
-                            android:layout_marginEnd="8dp"
-                            app:civ_circle_background_color="@color/white" />
-                        <!--                        <ImageView-->
-                        <!--                            android:id="@+id/imgStoryPlus"-->
-                        <!--                            android:layout_width="wrap_content"-->
-                        <!--                            android:layout_height="wrap_content"-->
-                        <!--                            android:layout_gravity="bottom|end"-->
-                        <!--                            android:layout_marginBottom="12dp"-->
-                        <!--                            android:layout_marginEnd="8dp"-->
-                        <!--                            android:src="@drawable/outline_add_circle_24"-->
-                        <!--                            android:background="@color/white"-->
-                        <!--                            app:tint="#0D47A1" />-->
-                    </FrameLayout>
+                            android:layout_marginBottom="@dimen/dp_8"
+                            android:layout_marginTop="@dimen/dp_8"
+                            android:orientation="horizontal" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@color/amp_transparent" />
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/storyRecycler"
+                        android:id="@+id/chatRecyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:layout_marginBottom="@dimen/dp_8"
-                        android:layout_marginTop="@dimen/dp_8"
-                        android:background="@color/white"
-                        android:orientation="horizontal" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:nestedScrollingEnabled="false"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
                 </LinearLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/chatRecyclerView"
-                    android:layout_width="match_parent"
-                    android:background="@color/white"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical" />
-            </LinearLayout>
-
+            </androidx.core.widget.NestedScrollView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </LinearLayout>
-
     <com.tuann.floatingactionbuttonexpandable.FloatingActionButtonExpandable
         android:id="@+id/fab"
         android:layout_width="wrap_content"

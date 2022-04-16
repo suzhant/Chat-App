@@ -32,7 +32,8 @@
             app:helperTextTextColor="@color/red"
             app:hintTextColor="@color/purple_700"
             app:startIconDrawable="@drawable/ic_lock"
-            app:startIconTint="@color/colorPurple">
+            app:startIconTint="@color/colorPurple"
+            android:textColorHint="@color/black">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNewPass"
@@ -40,6 +41,7 @@
                 android:layout_height="match_parent"
                 android:backgroundTint="@color/white"
                 android:inputType="textPassword"
+                android:textColor="@color/black"
                 android:maxLength="20" />
         </com.google.android.material.textfield.TextInputLayout>
 

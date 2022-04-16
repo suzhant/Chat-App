@@ -1,19 +1,26 @@
 package com.sushant.whatsapp.Fragments;
 
+import static com.sushant.whatsapp.R.color.amp_transparent;
+import static com.sushant.whatsapp.R.color.red;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -21,14 +28,17 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -46,6 +56,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.sushant.whatsapp.Adapters.StoryAdapter;
 import com.sushant.whatsapp.Adapters.UsersAdapter;
+import com.sushant.whatsapp.CheckConnection;
 import com.sushant.whatsapp.FindFriendActivity;
 import com.sushant.whatsapp.Models.Story;
 import com.sushant.whatsapp.Models.Users;
@@ -56,6 +67,8 @@ import com.sushant.whatsapp.databinding.FragmentChatsBinding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -67,24 +80,25 @@ import java.util.concurrent.TimeUnit;
 
 public class ChatsFragment extends Fragment {
 
+    public static final int REQUEST_IMAGE_CAPTURE = 23;
     FragmentChatsBinding binding;
     ArrayList<Users> list = new ArrayList<>();
     FirebaseDatabase database;
     LinearLayoutManager layoutManager, storyLayoutManager;
     UsersAdapter adapter;
     DatabaseReference d1, storyRef;
-    ValueEventListener eventListener, storyListener;
+    ValueEventListener eventListener, storyListener, mediaListener;
     ArrayList<Users> oldlist = new ArrayList<>();
     Query query;
-    ArrayList<String> stories = new ArrayList<>();
     ArrayList<Users> selectedUsers = new ArrayList<>();
     StoryAdapter storyAdapter;
     FirebaseAuth auth;
     String pp, name;
-    ActivityResultLauncher<Intent> imageLauncher;
+    ActivityResultLauncher<Intent> imageLauncher, cameraLauncher;
     ProgressDialog dialog;
     FirebaseStorage storage;
     Users admin;
+    ArrayList<Users> oldStoryList = new ArrayList<>();
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -110,7 +124,7 @@ public class ChatsFragment extends Fragment {
         getUserDetails();
 
         //story adapter
-        storyAdapter = new StoryAdapter(selectedUsers, getContext());
+        storyAdapter = new StoryAdapter(oldStoryList, getContext());
         binding.storyRecycler.setAdapter(storyAdapter);
         storyLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.storyRecycler.setLayoutManager(storyLayoutManager);
@@ -118,11 +132,22 @@ public class ChatsFragment extends Fragment {
 
         d1 = database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
 
-        binding.chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//        binding.chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                if (dy > 0) {
+//                    binding.fab.collapse(true);
+//                } else {
+//                    binding.fab.expand(true);
+//                }
+//            }
+//        });
+
+        binding.chatScroll.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
+            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                if (i1 > 0) {
                     binding.fab.collapse(true);
                 } else {
                     binding.fab.expand(true);
@@ -137,29 +162,6 @@ public class ChatsFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
-        database.getReference().child("Stories").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    stories.clear();
-                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                        Users users = snapshot1.getValue(Users.class);
-                        assert users != null;
-                        if (snapshot1.hasChild("Info")) {
-                            stories.add(users.getUserId());
-                        }
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
 
         eventListener = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
@@ -185,46 +187,153 @@ public class ChatsFragment extends Fragment {
                 oldlist.clear();
                 oldlist.addAll(list);
 
-                selectedUsers.clear();
-                for (int i = 0; i < stories.size(); i++) {
-                    String users1 = stories.get(i);
-                    if (users1.equals(auth.getUid())) {
-                        selectedUsers.add(admin);
-                    }
-                    for (int j = 0; j < oldlist.size(); j++) {
-                        Users users = oldlist.get(j);
-                        if (users1.equals(users.getUserId())) {
-                            selectedUsers.add(users);
-                            break;
-                        }
-                    }
-                }
-                storyAdapter.notifyDataSetChanged();
             }
 
-           @Override
-           public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-           }
-       };
+            }
+        };
         query = d1.orderByChild("timestamp");
         query.addValueEventListener(eventListener);
+
+        storyRef = database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid()));
+        storyListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                selectedUsers.clear();
+                if (snapshot.exists()) {
+                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                        Users users = snapshot1.getValue(Users.class);
+                        assert users != null;
+                        if (users.getUserId() != null) {
+                            if (users.getLastStory() != null) {
+                                try {
+                                    users.setLastStory(Encryption.decryptMessage(users.getLastStory()));
+                                } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            storyRef.child(users.getUserId()).child("medias").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    int childCount = (int) snapshot.getChildrenCount();
+                                    HashMap<String, Object> map = new HashMap<>();
+                                    map.put("storiesCount", childCount);
+                                    storyRef.child(users.getUserId()).updateChildren(map);
+                                    int unSeenCount = 0;
+                                    for (DataSnapshot snapshot2 : snapshot.getChildren()) {
+                                        Story story = snapshot2.getValue(Story.class);
+                                        assert story != null;
+                                        if (story.getSid() != null) {
+                                            if (story.getSeen().equals("false")) {
+                                                unSeenCount++;
+                                            }
+                                        }
+                                    }
+                                    HashMap<String, Object> user = new HashMap<>();
+                                    user.put("unseenCount", unSeenCount);
+                                    FirebaseDatabase.getInstance().getReference().child("Stories").child(FirebaseAuth.getInstance().getUid())
+                                            .child(users.userId).updateChildren(user);
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                            selectedUsers.add(users);
+                            Collections.reverse(selectedUsers);
+                            storyAdapter.updateStoryList(selectedUsers);
+                            oldStoryList.clear();
+                            oldStoryList.addAll(selectedUsers);
+                        }
+                    }
+                    //    storyAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        Query story = storyRef.orderByChild("unseenCount");
+        story.addValueEventListener(storyListener);
 
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                story.addValueEventListener(storyListener);
                 query.addValueEventListener(eventListener);
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
 
+        mediaListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                    Users users = snapshot1.getValue(Users.class);
+                    assert users != null;
+                    if (users.getUserId() != null) {
+                        storyRef.child(users.getUserId()).child("medias").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                int count = 0;
+                                for (DataSnapshot snapshot2 : snapshot.getChildren()) {
+                                    Story story = snapshot2.getValue(Story.class);
+                                    assert story != null;
+                                    if (story.getSid() != null) {
+                                        if (snapshot.getChildrenCount() == 1) {
+                                            HashMap<String, Object> user = new HashMap<>();
+                                            user.put("lastStory", story.getUrl());
+                                            storyRef.child(users.getUserId()).updateChildren(user);
+                                            break;
+                                        } else if (story.getSeen().equals("false")) {
+                                            HashMap<String, Object> user = new HashMap<>();
+                                            user.put("lastStory", story.getUrl());
+                                            storyRef.child(users.getUserId()).updateChildren(user);
+                                            break;
+                                        } else if (story.getSeen().equals("true")) {
+                                            count = (int) ((count + 1) % snapshot.getChildrenCount());
+                                        }
+                                    }
+                                }
+                                HashMap<String, Object> user = new HashMap<>();
+                                user.put("seenCount", count);
+                                storyRef.child(users.getUserId()).updateChildren(user);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        storyRef.addValueEventListener(mediaListener);
+
         //  createStory;
-        binding.imgCreateStory.setOnClickListener(new View.OnClickListener() {
+        binding.createStoryCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                imageLauncher.launch(intent);
+                Handler handler = new Handler();
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        showCaptureDialog();
+                    }
+                };
+                handler.postDelayed(runnable, 100);
             }
         });
 
@@ -250,6 +359,21 @@ public class ChatsFragment extends Fragment {
                         }
                     }
                 });
+
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                            // There are no request codes
+                            if (result.getData().getData() != null) {
+                                Uri selectedImage = result.getData().getData();
+                                createImageBitmap(selectedImage);
+                            }
+                        }
+                    }
+                });
         deleteMessage();
         return binding.getRoot();
     }
@@ -264,7 +388,7 @@ public class ChatsFragment extends Fragment {
                 name = admin.getUserName();
                 if (getActivity() != null) {
                     Glide.with(getActivity()).load(pp).placeholder(R.drawable.avatar)
-                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(binding.imgCreateStory);
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(binding.imgPp);
                 }
             }
 
@@ -319,6 +443,8 @@ public class ChatsFragment extends Fragment {
                             Date date = new Date();
                             final Story story = new Story(key, Encryption.encryptMessage(filePath), date.getTime());
                             story.setType("image");
+                            story.setSid(key);
+                            story.setSeen("false");
 
                             assert key != null;
 
@@ -326,16 +452,23 @@ public class ChatsFragment extends Fragment {
                             user.put("userName", name);
                             user.put("profilePic", pp);
                             user.put("userId", auth.getUid());
-                            database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid())).child("Info").child(key).setValue(story).
-                                    addOnSuccessListener(new OnSuccessListener<Void>() {
+                            database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid())).child(auth.getUid()).updateChildren(user)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid())).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    Toast.makeText(getContext(), "Added Story Successfully", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                            database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid())).child(auth.getUid()).child("medias")
+                                                    .child(key).setValue(story);
+                                            for (int i = 0; i < oldlist.size(); i++) {
+                                                Users users = oldlist.get(i);
+                                                database.getReference().child("Stories").child(Objects.requireNonNull(users.getUserId())).child(auth.getUid()).updateChildren(user)
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+                                                                database.getReference().child("Stories").child(users.getUserId()).child(auth.getUid()).child("medias")
+                                                                        .child(key).setValue(story);
+                                                            }
+                                                        });
+                                            }
                                         }
                                     });
                         }
@@ -361,32 +494,35 @@ public class ChatsFragment extends Fragment {
     }
 
     private void deleteMessage() {
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 long cutoff = new Date().getTime() - TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS); //1 day old
-                DatabaseReference ttlRef = database.getReference().child("Stories");
+                DatabaseReference ttlRef = database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid()));
                 ttlRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                             Users users = snapshot1.getValue(Users.class);
-                            DatabaseReference infoRef = database.getReference().child("Stories").child(users.getUserId()).child("Info");
-                            Query oldItems = infoRef.orderByChild("timestamp").endAt(cutoff);
-                            oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                                        itemSnapshot.getRef().removeValue();
+                            assert users != null;
+                            if (users.getUserId() != null) {
+                                DatabaseReference infoRef = database.getReference().child("Stories").child(auth.getUid()).child(users.getUserId()).child("medias");
+                                Query oldItems = infoRef.orderByChild("timestamp").endAt(cutoff);
+                                oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                                            itemSnapshot.getRef().removeValue();
+                                        }
                                     }
-                                }
 
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    throw databaseError.toException();
-                                }
-                            });
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        throw databaseError.toException();
+                                    }
+                                });
+                            }
                         }
                     }
 
@@ -401,9 +537,93 @@ public class ChatsFragment extends Fragment {
         handler.postDelayed(runnable, 2000);
     }
 
+    private void showCaptureDialog() {
+
+        if (getActivity() != null) {
+            CheckConnection checkConnection = new CheckConnection();
+            if (checkConnection.isConnected(getActivity()) || !checkConnection.isInternet()) {
+                Toast.makeText(getActivity(), "Please connect to the internet", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogCustom);
+        builder.setCancelable(true);
+        builder.setTitle("Choose");
+
+
+        View viewInflated = LayoutInflater.from(getActivity()).inflate(R.layout.story_item_dialog, getActivity().findViewById(android.R.id.content), false);
+
+        final ImageView imgCapture = viewInflated.findViewById(R.id.imgCapture);
+        final ImageView imgGallery = viewInflated.findViewById(R.id.imgGallery);
+        builder.setView(viewInflated);
+
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        // Title
+        TextView titleView = new TextView(getActivity());
+        titleView.setText("Choose");
+        titleView.setTextSize(20F);
+        titleView.setPadding(20, 20, 20, 20);
+        //    titleView.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
+
+        AlertDialog alertDialog = builder.create();
+        // dialog.setCustomTitle(titleView);
+        alertDialog.show();
+
+        imgCapture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ImagePicker.with(ChatsFragment.this)
+                        .cameraOnly()
+                        .crop()
+                        .start(REQUEST_IMAGE_CAPTURE);
+                alertDialog.dismiss();
+            }
+        });
+
+        imgGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                imageLauncher.launch(intent);
+                alertDialog.dismiss();
+            }
+        });
+
+
+        //buttons
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(getActivity(), red));
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(ContextCompat.getColor(getActivity(), amp_transparent));
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null) {
+                    if (data.getData() != null) {
+                        Uri selectedImage = data.getData();
+                        createImageBitmap(selectedImage);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (storyRef != null) {
+            storyRef.removeEventListener(storyListener);
+            storyRef.removeEventListener(mediaListener);
+        }
         query.removeEventListener(eventListener);
         d1.keepSynced(false);
     }

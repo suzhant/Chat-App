@@ -1,7 +1,7 @@
 package com.sushant.whatsapp.Models;
 
 public class Story {
-    private String sid, url, type, uId;
+    private String sid, url, type, seen;
     private Long timestamp;
 
     public Story() {
@@ -45,12 +45,11 @@ public class Story {
         this.type = type;
     }
 
-    public String getuId() {
-        return uId;
+    public String getSeen() {
+        return seen;
     }
 
-    public void setuId(String uId) {
-        this.uId = uId;
+    public void setSeen(String seen) {
+        this.seen = seen;
     }
-
 }

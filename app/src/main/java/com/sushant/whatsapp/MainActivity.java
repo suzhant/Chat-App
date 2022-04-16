@@ -1,6 +1,7 @@
 package com.sushant.whatsapp;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -83,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     TextView txtConnection, txtFriendReq;
     Boolean conn;
     int friendCounter;
+    ProgressDialog dialog;
+    String name, pp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         reference = database.getReference().child("Users");
         auth = FirebaseAuth.getInstance();
         manageConnection();
+        dialog = new ProgressDialog(this);
 
         broadcastReceiver = new InternetCheckServices();
         registerBroadcastReceiver();
@@ -192,6 +197,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nav_email.setText(user.getMail());
                 nav_username.setText(user.getUserName());
                 txtUserName.setText(user.getUserName().toUpperCase(Locale.ROOT));
+                name = user.getUserName();
+                pp = user.getProfilePic();
             }
 
             @Override
@@ -362,6 +369,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        return super.onOptionsItemSelected(item);
 //    }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     @SuppressLint("NonConstantResourceId")
     @Override
