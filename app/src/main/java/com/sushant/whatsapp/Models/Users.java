@@ -141,11 +141,17 @@ public class Users implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Users users = (Users) o;
-        return Objects.equals(profilePic, users.profilePic) && Objects.equals(userName, users.userName) && Objects.equals(mail, users.mail)
-                && Objects.equals(password, users.password) && Objects.equals(lastMessage, users.lastMessage) && Objects.equals(status, users.status)
-                && Objects.equals(request, users.request) && Objects.equals(Typing, users.Typing) && Objects.equals(role, users.role)
-                && Objects.equals(joinedGroupOn, users.joinedGroupOn) && Objects.equals(seen, users.seen) && Objects.equals(nickName, users.nickName)
+        return storiesCount == users.storiesCount && seenCount == users.seenCount && unseenCount == users.unseenCount && Objects.equals(profilePic, users.profilePic)
+                && Objects.equals(userName, users.userName) && Objects.equals(mail, users.mail) && Objects.equals(password, users.password)
+                && Objects.equals(lastMessage, users.lastMessage) && Objects.equals(status, users.status) && Objects.equals(request, users.request)
+                && Objects.equals(Typing, users.Typing) && Objects.equals(role, users.role) && Objects.equals(joinedGroupOn, users.joinedGroupOn)
+                && Objects.equals(seen, users.seen) && Objects.equals(nickName, users.nickName) && Objects.equals(lastStory, users.lastStory)
                 && Objects.equals(userId, users.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(profilePic, userName, mail, password, lastMessage, status, request, Typing, role, joinedGroupOn, seen, nickName, lastStory, userId, storiesCount, seenCount, unseenCount);
     }
 
     public int getStoriesCount() {

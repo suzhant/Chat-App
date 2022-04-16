@@ -30,7 +30,12 @@ public class StoriesDiffUtil extends DiffUtil.Callback {
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        return mOldUsers.get(oldItemPosition).userId.equals(mNewUsers.get(newItemPosition).userId);
+        final Users oldUser = mOldUsers.get(oldItemPosition);
+        final Users newUsers = mNewUsers.get(newItemPosition);
+        if (oldUser.getUserId() != null && newUsers.getUserId() != null) {
+            return oldUser.userId.equals(newUsers.userId);
+        }
+        return false;
     }
 
     @Override
@@ -47,13 +52,13 @@ public class StoriesDiffUtil extends DiffUtil.Callback {
         final Users newUsers = mNewUsers.get(newItemPosition);
 
         Bundle bundle = new Bundle();
-        if (!oldUser.getLastStory().equals(newUsers.getLastStory())) {
-            bundle.putString("newLastStory", newUsers.getLastMessage());
-        } else if (!oldUser.getProfilePic().equals(newUsers.getProfilePic())) {
+        if (oldUser.getLastStory() != null && newUsers.getLastStory() != null && !oldUser.getLastStory().equals(newUsers.getLastStory())) {
+            bundle.putString("newLastStory", newUsers.getLastStory());
+        } else if (oldUser.getProfilePic() != null && newUsers.getProfilePic() != null && !oldUser.getProfilePic().equals(newUsers.getProfilePic())) {
             bundle.putString("newPic", newUsers.getProfilePic());
-        } else if (!oldUser.getUserName().equals(newUsers.getUserName())) {
+        } else if (oldUser.getUserName() != null && newUsers.getUserName() != null && !oldUser.getUserName().equals(newUsers.getUserName())) {
             bundle.putString("newUserName", newUsers.getUserName());
-        } else if (oldUser.getStoriesCount() != newUsers.getStoriesCount()) {
+        } else if (oldUser.getStoriesCount() == 0 && oldUser.getStoriesCount() != newUsers.getStoriesCount()) {
             bundle.putInt("newStoriesCount", newUsers.getStoriesCount());
         }
 

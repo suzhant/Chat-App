@@ -110,6 +110,7 @@ public class ChatsFragment extends Fragment {
     ArrayList<Users> oldStoryList = new ArrayList<>();
     android.app.AlertDialog.Builder alertDialog;
     Uri selectedImage;
+    Query story;
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -208,12 +209,12 @@ public class ChatsFragment extends Fragment {
         query = d1.orderByChild("timestamp");
         query.addValueEventListener(eventListener);
 
-        storyRef = database.getReference().child("Stories").child(Objects.requireNonNull(auth.getUid()));
+        storyRef = database.getReference().child("Stories").child((Objects.requireNonNull(auth.getUid())));
         storyListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                selectedUsers.clear();
                 if (snapshot.exists()) {
+                    selectedUsers.clear();
                     for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                         Users users = snapshot1.getValue(Users.class);
                         assert users != null;
@@ -229,24 +230,26 @@ public class ChatsFragment extends Fragment {
                             storyRef.child(users.getUserId()).child("medias").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    int childCount = (int) snapshot.getChildrenCount();
-                                    HashMap<String, Object> map = new HashMap<>();
-                                    map.put("storiesCount", childCount);
-                                    storyRef.child(users.getUserId()).updateChildren(map);
-                                    int unSeenCount = 0;
-                                    for (DataSnapshot snapshot2 : snapshot.getChildren()) {
-                                        Story story = snapshot2.getValue(Story.class);
-                                        assert story != null;
-                                        if (story.getSid() != null) {
-                                            if (story.getSeen().equals("false")) {
-                                                unSeenCount++;
+                                    if (snapshot.exists()) {
+                                        int childCount = (int) snapshot.getChildrenCount();
+                                        HashMap<String, Object> map = new HashMap<>();
+                                        map.put("storiesCount", childCount);
+                                        storyRef.child(users.getUserId()).updateChildren(map);
+                                        int unSeenCount = 0;
+                                        for (DataSnapshot snapshot2 : snapshot.getChildren()) {
+                                            Story story = snapshot2.getValue(Story.class);
+                                            assert story != null;
+                                            if (story.getSid() != null) {
+                                                if (story.getSeen().equals("false")) {
+                                                    unSeenCount++;
+                                                }
                                             }
                                         }
+                                        HashMap<String, Object> user = new HashMap<>();
+                                        user.put("unseenCount", unSeenCount);
+                                        FirebaseDatabase.getInstance().getReference().child("Stories").child(FirebaseAuth.getInstance().getUid())
+                                                .child(users.userId).updateChildren(user);
                                     }
-                                    HashMap<String, Object> user = new HashMap<>();
-                                    user.put("unseenCount", unSeenCount);
-                                    FirebaseDatabase.getInstance().getReference().child("Stories").child(FirebaseAuth.getInstance().getUid())
-                                            .child(users.userId).updateChildren(user);
                                 }
 
                                 @Override
@@ -254,14 +257,15 @@ public class ChatsFragment extends Fragment {
 
                                 }
                             });
-                            selectedUsers.add(users);
-                            Collections.reverse(selectedUsers);
-                            storyAdapter.updateStoryList(selectedUsers);
-                            oldStoryList.clear();
-                            oldStoryList.addAll(selectedUsers);
+                            if (snapshot1.child("medias").exists()) {
+                                selectedUsers.add(users);
+                            }
                         }
                     }
-                    //    storyAdapter.notifyDataSetChanged();
+                    Collections.reverse(selectedUsers);
+                    storyAdapter.updateStoryList(selectedUsers);
+                    oldStoryList.clear();
+                    oldStoryList.addAll(selectedUsers);
                 }
             }
 
@@ -270,13 +274,15 @@ public class ChatsFragment extends Fragment {
 
             }
         };
-        Query story = storyRef.orderByChild("unseenCount");
+        story = storyRef.orderByChild("unseenCount");
         story.addValueEventListener(storyListener);
+
 
         binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 story.addValueEventListener(storyListener);
+                storyRef.addValueEventListener(mediaListener);
                 query.addValueEventListener(eventListener);
                 binding.swipeRefreshLayout.setRefreshing(false);
             }
@@ -292,29 +298,31 @@ public class ChatsFragment extends Fragment {
                         storyRef.child(users.getUserId()).child("medias").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                int count = 0;
-                                for (DataSnapshot snapshot2 : snapshot.getChildren()) {
-                                    Story story = snapshot2.getValue(Story.class);
-                                    assert story != null;
-                                    if (story.getSid() != null) {
-                                        if (snapshot.getChildrenCount() == 1) {
-                                            HashMap<String, Object> user = new HashMap<>();
-                                            user.put("lastStory", story.getUrl());
-                                            storyRef.child(users.getUserId()).updateChildren(user);
-                                            break;
-                                        } else if (story.getSeen().equals("false")) {
-                                            HashMap<String, Object> user = new HashMap<>();
-                                            user.put("lastStory", story.getUrl());
-                                            storyRef.child(users.getUserId()).updateChildren(user);
-                                            break;
-                                        } else if (story.getSeen().equals("true")) {
-                                            count = (int) ((count + 1) % snapshot.getChildrenCount());
+                                if (snapshot.exists()) {
+                                    int count = 0;
+                                    for (DataSnapshot snapshot2 : snapshot.getChildren()) {
+                                        Story story = snapshot2.getValue(Story.class);
+                                        assert story != null;
+                                        if (story.getSid() != null) {
+                                            if (snapshot.getChildrenCount() == 1) {
+                                                HashMap<String, Object> user = new HashMap<>();
+                                                user.put("lastStory", story.getUrl());
+                                                storyRef.child(users.getUserId()).updateChildren(user);
+                                                break;
+                                            } else if (story.getSeen().equals("false")) {
+                                                HashMap<String, Object> user = new HashMap<>();
+                                                user.put("lastStory", story.getUrl());
+                                                storyRef.child(users.getUserId()).updateChildren(user);
+                                                break;
+                                            } else if (story.getSeen().equals("true")) {
+                                                count = (int) ((count + 1) % snapshot.getChildrenCount());
+                                            }
                                         }
                                     }
+                                    HashMap<String, Object> user = new HashMap<>();
+                                    user.put("seenCount", count);
+                                    storyRef.child(users.getUserId()).updateChildren(user);
                                 }
-                                HashMap<String, Object> user = new HashMap<>();
-                                user.put("seenCount", count);
-                                storyRef.child(users.getUserId()).updateChildren(user);
                             }
 
                             @Override
@@ -431,7 +439,7 @@ public class ChatsFragment extends Fragment {
                 pp = admin.getProfilePic();
                 name = admin.getUserName();
                 if (getActivity() != null) {
-                    Glide.with(getActivity()).load(pp).placeholder(R.drawable.avatar)
+                    Glide.with(getActivity()).load(pp).placeholder(R.drawable.placeholder)
                             .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(binding.imgPp);
                 }
             }
@@ -547,25 +555,30 @@ public class ChatsFragment extends Fragment {
                 ttlRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                            Users users = snapshot1.getValue(Users.class);
-                            assert users != null;
-                            if (users.getUserId() != null) {
-                                DatabaseReference infoRef = database.getReference().child("Stories").child(auth.getUid()).child(users.getUserId()).child("medias");
-                                Query oldItems = infoRef.orderByChild("timestamp").endAt(cutoff);
-                                oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                                            itemSnapshot.getRef().removeValue();
+                        if (snapshot.exists()) {
+                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                                Users users = snapshot1.getValue(Users.class);
+                                assert users != null;
+                                if (users.getUserId() != null) {
+                                    DatabaseReference infoRef = database.getReference().child("Stories").child(auth.getUid()).child(users.getUserId()).child("medias");
+                                    Query oldItems = infoRef.orderByChild("timestamp").endAt(cutoff);
+                                    oldItems.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                                                itemSnapshot.getRef().removeValue();
+                                            }
                                         }
-                                    }
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                                        throw databaseError.toException();
-                                    }
-                                });
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            throw databaseError.toException();
+                                        }
+                                    });
+                                }
+                                if (!snapshot1.hasChild("medias")) {
+                                    snapshot1.getRef().removeValue();
+                                }
                             }
                         }
                     }
@@ -698,10 +711,14 @@ public class ChatsFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         if (storyRef != null) {
-            storyRef.removeEventListener(storyListener);
             storyRef.removeEventListener(mediaListener);
         }
-        query.removeEventListener(eventListener);
+        if (story != null) {
+            story.removeEventListener(storyListener);
+        }
+        if (query != null) {
+            query.removeEventListener(eventListener);
+        }
         d1.keepSynced(false);
     }
 }

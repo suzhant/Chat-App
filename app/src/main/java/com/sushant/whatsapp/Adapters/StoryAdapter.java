@@ -230,7 +230,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.viewHolder> 
     public void updateStoryList(ArrayList<Users> users) {
         final StoriesDiffUtil diffCallback = new StoriesDiffUtil(this.stories, users);
         final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
-
         this.stories.clear();
         this.stories.addAll(users);
         diffResult.dispatchUpdatesTo(this);
