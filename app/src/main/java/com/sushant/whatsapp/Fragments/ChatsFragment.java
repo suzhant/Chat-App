@@ -39,6 +39,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
@@ -148,8 +149,10 @@ public class ChatsFragment extends Fragment {
         //story adapter
         storyAdapter = new StoryAdapter(oldStoryList, getContext());
         binding.storyRecycler.setAdapter(storyAdapter);
+        storyAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         storyLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.storyRecycler.setLayoutManager(storyLayoutManager);
+        binding.horizontal.setSmoothScrollingEnabled(true);
 
 
         d1 = database.getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
@@ -649,7 +652,10 @@ public class ChatsFragment extends Fragment {
 
         AlertDialog alertDialog = builder.create();
         // dialog.setCustomTitle(titleView);
-        alertDialog.show();
+        if (!alertDialog.isShowing()) {
+            alertDialog.show();
+        }
+
 
         imgCapture.setOnClickListener(new View.OnClickListener() {
             @Override

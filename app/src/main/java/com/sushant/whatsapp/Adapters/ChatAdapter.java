@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -28,6 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.cardview.widget.CardView;
@@ -383,9 +386,11 @@ public class ChatAdapter extends RecyclerView.Adapter {
         }
         setReaction(holder, message, popup);
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+
+        final GestureDetector mDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onLongClick(View view) {
+            public void onLongPress(MotionEvent e) {
+                super.onLongPress(e);
                 Dialog shareDialog = new Dialog(context);
                 shareDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 shareDialog.setContentView(R.layout.fragment_bottom_sheet);
@@ -494,35 +499,51 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 txtRemove.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Toast.makeText(context, "remove", Toast.LENGTH_SHORT).show();
+                        new AlertDialog.Builder(context).setTitle("Delete")
+                                .setMessage("Do you want to delete this message?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        shareDialog.dismiss();
+                                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                        String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
+                                        database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).setValue(null)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        database.getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).setValue(null);
+                                                    }
+                                                });
+                                    }
+                                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                shareDialog.dismiss();
+                            }
+                        }).show();
                     }
                 });
+            }
 
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                super.onDoubleTap(e);
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("reaction", 1);
 
-//                new AlertDialog.Builder(context).setTitle("Delete")
-//                        .setMessage("Do you want to delete this message?")
-//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-////                                FirebaseDatabase database = FirebaseDatabase.getInstance();
-////                                String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
-////                                database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).setValue(null);
-//                            }
-//                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int i) {
-//                        dialogInterface.dismiss();
-//                    }
-//                }).show();
+                FirebaseDatabase.getInstance().getReference().child("Chats").child(senderRoom).child(message.getMessageId()).updateChildren(map)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                FirebaseDatabase.getInstance().getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(map);
+                            }
+                        });
                 return false;
             }
 
-
-        });
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public boolean onSingleTapConfirmed(MotionEvent e) {
                 if ("photo".equals(message.getType())) {
                     Intent fullScreenImage = new Intent(context, FullScreenImage.class);
                     fullScreenImage.putExtra("UserId", recId);
@@ -532,8 +553,20 @@ public class ChatAdapter extends RecyclerView.Adapter {
                     fullScreenImage.putExtra("UserName", receiverName);
                     context.startActivity(fullScreenImage);
                 }
+                return false;
             }
         });
+
+        mDetector.setIsLongpressEnabled(true);
+        View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mDetector.onTouchEvent(event);
+                return true;
+            }
+        };
+
+        holder.itemView.setOnTouchListener(onTouchListener);
 
         popup.setReactionSelectedListener(new Function1<Integer, Boolean>() {
             @Override

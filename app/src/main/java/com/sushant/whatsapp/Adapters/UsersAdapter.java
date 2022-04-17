@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +28,10 @@ import com.sushant.whatsapp.ChatDetailsActivity;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.R;
 import com.sushant.whatsapp.Utils.ChatDiffCallback;
+import com.sushant.whatsapp.Utils.Encryption;
 
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +41,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
     ArrayList<Users> list;
     Context context;
-    String lastMsg;
-    ArrayList<String> lastMessages;
 
     public UsersAdapter(ArrayList<Users> list, Context context) {
         this.list = list;
@@ -68,9 +70,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                         Glide.with(context).load(bundle.getString("newPic")).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .into(holder.image);
                         break;
-                    case "newLastMessage":
-                        holder.lastMessage.setText(bundle.getString("newLastMessage"));
-                        break;
                 }
             }
         }
@@ -80,37 +79,38 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
     @Override
     public void onBindViewHolder(@NonNull UsersAdapter.viewHolder holder, @SuppressLint("RecyclerView") int position) {
         Users users = list.get(position);
-//        Picasso.get().load(users.getProfilePic()).placeholder(R.drawable.avatar).into(holder.image);
         Glide.with(context).load(users.getProfilePic()).placeholder(R.drawable.avatar).diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.image);
         holder.userName.setText(users.getUserName());
-        if (users.getLastMessage() != null) {
-            holder.lastMessage.setText(users.getLastMessage());
-        }
 
-//        DatabaseReference reference2=FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId());
-//        Query message=reference2.orderByChild("timestamp").limitToLast(1);
-//        message.addValueEventListener(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        if (snapshot.hasChildren()) {
-//                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-//                                lastMsg=snapshot1.child("message").getValue(String.class);
-//                                holder.lastMessage.setText(lastMsg);
-//                                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//
-//                    }
-//                });
+        DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("Chats").child(FirebaseAuth.getInstance().getUid() + users.getUserId());
+        Query message = reference2.orderByKey().limitToLast(1);
+        message.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                        String lastMsg = snapshot1.child("message").getValue(String.class);
+                        try {
+                            holder.lastMessage.setText(Encryption.decryptMessage(lastMsg));
+                        } catch (GeneralSecurityException | UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    holder.lastMessage.setText("Say Hi!!");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         if (users.getSeen() != null) {
             if (users.getSeen().equals("false")) {
-              //  holder.userName.setTextColor(Color.BLACK);
+                //  holder.userName.setTextColor(Color.BLACK);
                 holder.userName.setTypeface(null, Typeface.BOLD);
                 holder.lastMessage.setTypeface(null, Typeface.BOLD);
                 //   holder.lastMessage.setTextColor(Color.BLACK);

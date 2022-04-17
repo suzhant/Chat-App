@@ -294,7 +294,6 @@ public class ConnectingActivity extends AppCompatActivity {
         model.setType("videoCall");
         model.setSenderName(sendername);
         model.setMessageId(key);
-        updateLastMessage(message);
 
 
         assert key != null;
@@ -336,16 +335,6 @@ public class ConnectingActivity extends AppCompatActivity {
         timer.cancel();
     }
 
-    private void updateLastMessage(String message) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("lastMessage", message);
-        database.getReference().child("Users").child(auth.getUid()).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                database.getReference().child("Users").child(receiverId).child("Friends").child(auth.getUid()).updateChildren(map);
-            }
-        });
-    }
 
     private void updateSeen(String seen, String ID1, String ID2) {
         HashMap<String, Object> map = new HashMap<>();

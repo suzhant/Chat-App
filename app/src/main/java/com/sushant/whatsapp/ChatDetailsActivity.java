@@ -365,8 +365,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }
-                // chatAdapter.notifyDataSetChanged();
-                chatAdapter.notifyItemInserted(messageModel.size());
+
                 chatAdapter.updateUserList(messageModel);
                 oldList.clear();
                 oldList.addAll(messageModel);
@@ -401,7 +400,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                 chatRef.keepSynced(true);
             }
         };
-        chatHandler.postDelayed(chatRunnable, 500);
+        chatHandler.postDelayed(chatRunnable, 300);
 
 
         binding.swipeChatRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -699,8 +698,9 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             model.setVideoFile(encryptedMessage);
                             model.setType("video");
                             model.setMessageId(key);
+                            model.setMessage(Encryption.getVideoLast());
                             binding.editMessage.getText().clear();
-                            updateLastMessage(Encryption.getVideoLast());
+                            //      updateLastMessage(Encryption.getVideoLast());
                             updateTimestamp(date);
 
                             if (notify) {
@@ -931,8 +931,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             model.setAudioFile(encryptedMessage);
                             model.setType("audio");
                             model.setMessageId(key);
+                            model.setMessage(Encryption.getAudioLast());
                             binding.editMessage.getText().clear();
-                            updateLastMessage(Encryption.getAudioLast());
                             updateTimestamp(date);
 
                             if (notify) {
@@ -1048,8 +1048,8 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                             model.setImageUrl(encryptedMessage);
                             model.setType("photo");
                             model.setMessageId(key);
+                            model.setMessage(Encryption.getPhotoLast());
                             binding.editMessage.getText().clear();
-                            updateLastMessage(Encryption.getPhotoLast());
                             updateTimestamp(date);
 
                             if (notify) {
@@ -1138,7 +1138,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             model.setType("text");
             model.setMessageId(key);
             binding.editMessage.getText().clear();
-            updateLastMessage(message);
             updateTimestamp(date);
 
             if (notify) {
@@ -1180,7 +1179,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             Date date = new Date();
             model1.setTimestamp(date.getTime());
             model1.setMessageId(key);
-            updateLastMessage(heart);
             updateTimestamp(date);
 
             if (notify) {
@@ -1218,16 +1216,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         database.getReference().child("Users").child(receiverId).child("Friends").child(auth.getUid()).updateChildren(map);
     }
 
-    private void updateLastMessage(String message) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("lastMessage", message);
-        database.getReference().child("Users").child(senderId).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
-            }
-        });
-    }
 
     private void updateSeen(String seen, String ID1, String ID2) {
         HashMap<String, Object> map = new HashMap<>();

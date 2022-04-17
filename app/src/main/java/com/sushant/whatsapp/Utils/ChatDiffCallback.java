@@ -47,13 +47,11 @@ public class ChatDiffCallback extends DiffUtil.Callback {
         final Users newUsers = mNewUsers.get(newItemPosition);
 
         Bundle bundle = new Bundle();
-            if (!oldUser.getLastMessage().equals(newUsers.getLastMessage())) {
-                bundle.putString("newLastMessage", newUsers.getLastMessage());
-            } else if (!oldUser.getProfilePic().equals(newUsers.getProfilePic())) {
-                bundle.putString("newPic", newUsers.getProfilePic());
-            } else if (!oldUser.getUserName().equals(newUsers.getUserName())) {
-                bundle.putString("newUserName", newUsers.getUserName());
-            }
+             if (!oldUser.getProfilePic().equals(newUsers.getProfilePic())) {
+                 bundle.putString("newPic", newUsers.getProfilePic());
+             } else if (!oldUser.getUserName().equals(newUsers.getUserName())) {
+                 bundle.putString("newUserName", newUsers.getUserName());
+             }
 
 
         if (bundle.size() == 0) {

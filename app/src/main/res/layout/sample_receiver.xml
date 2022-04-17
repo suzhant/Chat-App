@@ -78,10 +78,10 @@
             android:id="@+id/receiverCardVideoPlayer"
             android:layout_width="270dp"
             android:layout_height="250dp"
-            app:cardElevation="@dimen/dp_8"
             android:layout_gravity="center"
             android:visibility="gone"
-            app:cardCornerRadius="@dimen/dp_24">
+            app:cardCornerRadius="@dimen/dp_24"
+            app:cardElevation="@dimen/dp_8">
 
             <ImageView
                 android:id="@+id/videoThumbnail1"

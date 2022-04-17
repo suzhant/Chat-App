@@ -43,15 +43,15 @@ public class Encryption {
     }
 
     public static String getAudioLast() {
-        return ("Recorded Audio");
+        return Encryption.encryptMessage("Recorded Audio");
     }
 
     public static String getVideoLast() {
-        return ("video.mp4");
+        return Encryption.encryptMessage("video.mp4");
     }
 
     public static String getPhotoLast() {
-        return ("photo.jpg");
+        return Encryption.encryptMessage("photo.jpg");
     }
 
 }

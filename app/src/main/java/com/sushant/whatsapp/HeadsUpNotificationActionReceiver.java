@@ -109,7 +109,6 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
         model.setTimestamp(date.getTime());
         model.setMessageId(key);
         model.setType("videoCall");
-        updateLastMessage(message);
 
         assert key != null;
         database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model)
@@ -122,15 +121,5 @@ public class HeadsUpNotificationActionReceiver extends BroadcastReceiver {
 
     }
 
-    private void updateLastMessage(String message) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("lastMessage", message);
-        database.getReference().child("Users").child(senderId).child("Friends").child(auth.getUid()).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                database.getReference().child("Users").child(auth.getUid()).child("Friends").child(senderId).updateChildren(map);
-            }
-        });
-    }
 
 }

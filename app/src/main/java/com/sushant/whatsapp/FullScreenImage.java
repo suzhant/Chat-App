@@ -62,7 +62,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class FullScreenImage extends AppCompatActivity {
@@ -335,7 +334,7 @@ public class FullScreenImage extends AppCompatActivity {
                             String encryptedMessage = Encryption.encryptMessage(filePath);
                             model.setImageUrl(encryptedMessage);
                             model.setType("photo");
-                            updateLastMessage();
+                            model.setMessage(Encryption.getPhotoLast());
 
 
                             if (notify) {
@@ -383,16 +382,6 @@ public class FullScreenImage extends AppCompatActivity {
         });
     }
 
-    private void updateLastMessage() {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("lastMessage", Encryption.getPhotoLast());
-        database.getReference().child("Users").child(senderId).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
-            }
-        });
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private void sendNotification(String receiver, String userName, String msg, String image, String email, String senderId) {

@@ -47,7 +47,6 @@ import com.sushant.whatsapp.databinding.ActivityShareBinding;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -337,7 +336,7 @@ public class ShareActivity extends AppCompatActivity {
         model.setImageUrl(image);
         model.setType("photo");
         model.setMessageId(key);
-        updateLastMessage(receiverId, "photo.jpg");
+        model.setMessage(Encryption.getPhotoLast());
 
         sendNotification(receiverId, sendername, image, senderPP, email, senderId, "photo");
 
@@ -385,7 +384,7 @@ public class ShareActivity extends AppCompatActivity {
                             model.setImageUrl(encryptedMessage);
                             model.setType("photo");
                             model.setMessageId(key);
-                            updateLastMessage(receiverId, "photo.jpg");
+                            model.setMessage(Encryption.getPhotoLast());
 
                             sendNotification(receiverId, sendername, filePath, senderPP, email, senderId, "photo");
 
@@ -432,7 +431,6 @@ public class ShareActivity extends AppCompatActivity {
                 String encryptedImage = Encryption.encryptMessage(thumbnail);
                 model.setImageUrl(encryptedImage);
             }
-            updateLastMessage(receiverId, lastmessage);
 
             sendNotification(receiverId, sendername, message, senderPP, email, senderId, type);
 
@@ -453,16 +451,6 @@ public class ShareActivity extends AppCompatActivity {
         }
     }
 
-    private void updateLastMessage(String receiverId, String message) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("lastMessage", message);
-        database.getReference().child("Users").child(senderId).child("Friends").child(receiverId).updateChildren(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                database.getReference().child("Users").child(receiverId).child("Friends").child(senderId).updateChildren(map);
-            }
-        });
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private void sendNotification(String receiver, String userName, String msg, String image, String email, String senderId, String msgType) {
