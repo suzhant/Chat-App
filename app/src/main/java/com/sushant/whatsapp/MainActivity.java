@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -63,6 +62,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import timber.log.Timber;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DefaultLifecycleObserver {
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DatabaseReference reference, infoConnected, NavDrawer, friendReqRef;
     ValueEventListener eventListener1, eventListener, friendReqListener;
     SharedPreferences sharedPreferences;
-    TextView txtConnection, txtFriendReq;
+    TextView txtFriendReq;
     Boolean conn;
     int friendCounter;
     ProgressDialog dialog;
@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-        txtConnection = findViewById(R.id.txtNoConnection);
 
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPurple));
         getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.mainNavColor));
@@ -109,11 +108,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         broadcastReceiver = new InternetCheckServices();
         registerBroadcastReceiver();
-        CheckConnection checkConnection = new CheckConnection();
-        conn = !checkConnection.isConnected(getApplicationContext());
-        if (!conn) {
-            txtConnection.setVisibility(View.VISIBLE);
-        }
 
 
         sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
@@ -305,12 +299,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onStart(@NonNull LifecycleOwner owner) {
         DefaultLifecycleObserver.super.onStart(owner);
         // app moved to foreground
-        CheckConnection checkConnection = new CheckConnection();
-        if (checkConnection.isConnected(getApplicationContext())) {
-            txtConnection.setVisibility(View.VISIBLE);
-        } else {
-            txtConnection.setVisibility(View.GONE);
-        }
         if (auth.getCurrentUser() != null) {
             NavDrawer.addValueEventListener(eventListener1);
             friendReqRef.addValueEventListener(friendReqListener);
@@ -405,8 +393,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //                break;
 
             case R.id.nav_logout:
-                Log.d("TAG", "onSuccess: logout started");
-                Log.d("TAG", "onNavigationItemSelected: destroyed");
                 updateStatus("offline");
                 CheckConnection checkConnection = new CheckConnection();
                 if (checkConnection.isConnected(getApplicationContext())) {
@@ -423,12 +409,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 GoogleSignIn.getClient(this, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()).signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Log.d("SingOut", "onSuccess: ");
+                        Timber.tag("SingOut").d("onSuccess: ");
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d("SingOut", e.getMessage());
+                        Timber.tag("SingOut").d(e);
                         Toast.makeText(MainActivity.this, "SignOut failed", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -476,7 +462,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         infoConnected.removeEventListener(eventListener);
         friendReqRef.removeEventListener(friendReqListener);
         NavDrawer.removeEventListener(eventListener1);
-        Log.d("Drawer", "onDestroy: eventDeleted");
+        Timber.tag("Drawer").d("onDestroy: eventDeleted");
     }
 
     @Override

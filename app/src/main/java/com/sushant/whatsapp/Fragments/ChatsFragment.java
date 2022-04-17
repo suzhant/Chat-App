@@ -7,10 +7,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -111,6 +115,8 @@ public class ChatsFragment extends Fragment {
     android.app.AlertDialog.Builder alertDialog;
     Uri selectedImage;
     Query story;
+    BroadcastReceiver br;
+    boolean offline;
 
     public ChatsFragment() {
         // Required empty public constructor
@@ -131,6 +137,10 @@ public class ChatsFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getContext());
         binding.chatRecyclerView.setLayoutManager(layoutManager);
 
+        br = new MyBroadcastReceiver();
+        if (getActivity() != null) {
+            getActivity().registerReceiver(br, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
 
         //getting pic from the db
         getUserDetails();
@@ -345,14 +355,11 @@ public class ChatsFragment extends Fragment {
         binding.createStoryCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Handler handler = new Handler();
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        showCaptureDialog();
-                    }
-                };
-                handler.postDelayed(runnable, 100);
+                if (!offline) {
+                    showCaptureDialog();
+                } else {
+                    Toast.makeText(getContext(), "No internet Connection", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -594,21 +601,33 @@ public class ChatsFragment extends Fragment {
         handler.postDelayed(runnable, 2000);
     }
 
-    private void showCaptureDialog() {
-
-        if (getActivity() != null) {
-            CheckConnection checkConnection = new CheckConnection();
-            if (checkConnection.isConnected(getActivity()) || !checkConnection.isInternet()) {
-                Toast.makeText(getActivity(), "Please connect to the internet", Toast.LENGTH_SHORT).show();
-                return;
+    private class MyBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean isOnline;
+            try {
+                CheckConnection checkConnection = new CheckConnection();
+                isOnline = !checkConnection.isConnected(context) || checkConnection.isInternet();
+                offline = !isOnline;
+                if (offline) {
+                    binding.txtNoConnection.setVisibility(View.VISIBLE);
+                } else {
+                    binding.txtNoConnection.setVisibility(View.GONE);
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
             }
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogCustom);
+    }
+
+    private void showCaptureDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogCustom);
         builder.setCancelable(true);
         builder.setTitle("Choose");
 
 
-        View viewInflated = LayoutInflater.from(getActivity()).inflate(R.layout.story_item_dialog, getActivity().findViewById(android.R.id.content), false);
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.story_item_dialog, getActivity().findViewById(android.R.id.content), false);
 
         final ImageView imgCapture = viewInflated.findViewById(R.id.imgCapture);
         final ImageView imgGallery = viewInflated.findViewById(R.id.imgGallery);
@@ -718,6 +737,9 @@ public class ChatsFragment extends Fragment {
         }
         if (query != null) {
             query.removeEventListener(eventListener);
+        }
+        if (getActivity() != null) {
+            getActivity().unregisterReceiver(br);
         }
         d1.keepSynced(false);
     }

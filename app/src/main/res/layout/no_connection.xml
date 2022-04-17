@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/red"
+        android:visibility="gone"
         android:gravity="center"
         android:text="No Connection"
         android:textColor="@color/white"
@@ -18,7 +19,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"
         app:layout_constraintVertical_bias="0.0" />
 
 </LinearLayout>
