@@ -273,6 +273,7 @@ public class ChatsFragment extends Fragment {
                         }
                     }
                     Collections.reverse(selectedUsers);
+                    binding.storyRecycler.smoothScrollToPosition(0);
                     storyAdapter.updateStoryList(selectedUsers);
                     oldStoryList.clear();
                     oldStoryList.addAll(selectedUsers);
