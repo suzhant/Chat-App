@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -75,6 +76,7 @@ import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.ProfileActivity;
 import com.sushant.whatsapp.R;
 import com.sushant.whatsapp.ShareActivity;
+import com.sushant.whatsapp.Utils.Encryption;
 import com.sushant.whatsapp.Utils.MessageDiffUtils;
 
 import java.io.File;
@@ -270,6 +272,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         }
                     });
                 }
+            } else if ("unsent".equals(message.getType())) {
+                ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
+                ((SenderViewHolder) holder).txtSender.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
             } else {
                 if (message.getAudioFile() != null) {
                     ((SenderViewHolder) holder).txtSender.setVisibility(View.GONE);
@@ -340,6 +345,9 @@ public class ChatAdapter extends RecyclerView.Adapter {
                         }
                     });
                 }
+            } else if ("unsent".equals(message.getType())) {
+                ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
+                ((ReceiverViewHolder) holder).txtReceiver.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
             } else {
                 if (message.getAudioFile() != null) {
                     ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.GONE);
@@ -507,11 +515,14 @@ public class ChatAdapter extends RecyclerView.Adapter {
                                         shareDialog.dismiss();
                                         FirebaseDatabase database = FirebaseDatabase.getInstance();
                                         String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
-                                        database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).setValue(null)
+                                        HashMap<String, Object> delete = new HashMap<>();
+                                        delete.put("type", "unsent");
+                                        delete.put("message", Encryption.encryptMessage("message unsent"));
+                                        database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).updateChildren(delete)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void unused) {
-                                                        database.getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).setValue(null);
+                                                        database.getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(delete);
                                                     }
                                                 });
                                     }

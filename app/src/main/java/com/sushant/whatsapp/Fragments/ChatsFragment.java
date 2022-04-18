@@ -602,7 +602,7 @@ public class ChatsFragment extends Fragment {
 
             }
         };
-        handler.postDelayed(runnable, 2000);
+        handler.postDelayed(runnable, 1000);
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {

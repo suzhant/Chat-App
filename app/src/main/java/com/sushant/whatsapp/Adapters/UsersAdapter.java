@@ -98,7 +98,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
                         }
                     }
                 } else {
-                    holder.lastMessage.setText("Say Hi!!");
+                    holder.lastMessage.setText("Say Hi !!");
                 }
             }
 
