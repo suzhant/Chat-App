@@ -55,6 +55,7 @@
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:text="User Name"
+            style="@style/TextAppearance.AppCompat.Title"
             android:textSize="14sp" />
 
         <TextView
@@ -66,6 +67,7 @@
             android:text="Say Hi!!"
             android:fontFamily="@font/alice"
             android:ellipsize="end"
+            style="@style/TextAppearance.AppCompat.Small"
             android:singleLine="true"/>
 
 

@@ -3,7 +3,6 @@ package com.sushant.whatsapp.Adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -110,15 +109,17 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.viewHolder> 
 
         if (users.getSeen() != null) {
             if (users.getSeen().equals("false")) {
-                //  holder.userName.setTextColor(Color.BLACK);
-                holder.userName.setTypeface(null, Typeface.BOLD);
-                holder.lastMessage.setTypeface(null, Typeface.BOLD);
-                //   holder.lastMessage.setTextColor(Color.BLACK);
+//                holder.userName.setTypeface(null, Typeface.BOLD);
+//                holder.lastMessage.setTypeface(null, Typeface.BOLD);
+                holder.userName.setTextAppearance(R.style.boldText);
+                holder.userName.setAlpha(1);
+                holder.lastMessage.setTextAppearance(R.style.boldText);
+                holder.lastMessage.setAlpha(1);
             } else {
-                //   holder.userName.setTextColor(Color.parseColor("#757575"));
-                //   holder.lastMessage.setTextColor(Color.parseColor("#757575"));
-                holder.userName.setTypeface(null, Typeface.NORMAL);
-                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+//                holder.userName.setTypeface(null, Typeface.NORMAL);
+//                holder.lastMessage.setTypeface(null, Typeface.NORMAL);
+                holder.userName.setTextAppearance(R.style.normalText);
+                holder.lastMessage.setTextAppearance(R.style.normalText);
             }
         }
 
