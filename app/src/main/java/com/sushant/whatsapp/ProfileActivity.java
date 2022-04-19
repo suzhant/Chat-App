@@ -38,6 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
     Runnable runnable;
     ValueEventListener eventListener;
     DatabaseReference reference;
+    String Receiverid, receiverEmail, receiverStatus, receiverName, receiverProfilePic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,19 +51,39 @@ public class ProfileActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
 
-        String userName = getIntent().getStringExtra("UserNamePA");
-        String profilePic = getIntent().getStringExtra("ProfilePicPA");
-        String email = getIntent().getStringExtra("EmailPA");
-        String Receiverid = getIntent().getStringExtra("UserIdPA");
-        String status = getIntent().getStringExtra("StatusPA");
+        Receiverid = getIntent().getStringExtra("UserIdPA");
+//       receiverName = getIntent().getStringExtra("UserNamePA");
+//        receiverProfilePic = getIntent().getStringExtra("ProfilePicPA");
+//        receiverEmail = getIntent().getStringExtra("EmailPA");
+//        receiverStatus = getIntent().getStringExtra("StatusPA");
 
-        Glide.with(this).load(profilePic).placeholder(R.drawable.avatar).into(binding.imgProfile);
-        binding.txtEmail.setText(email);
-        binding.txtUserName.setText(userName);
-        binding.txtAbout.setText(status);
+        //receiverInfo
+        database.getReference().child("Users").child(Receiverid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Users users = snapshot.getValue(Users.class);
+                        assert users != null;
+                        receiverName = users.getUserName();
+                        receiverProfilePic = users.getProfilePic();
+                        receiverStatus = users.getStatus();
+                        receiverEmail = users.getMail();
+                        Glide.with(getApplicationContext()).load(receiverProfilePic).placeholder(R.drawable.avatar).into(binding.imgProfile);
+                        binding.txtEmail.setText(receiverEmail);
+                        binding.txtUserName.setText(receiverName);
+                        binding.txtAbout.setText(receiverStatus);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         assert user != null;
+        //senderInfo
         database.getReference().child("Users").child(Objects.requireNonNull(user.getUid()))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -182,11 +203,11 @@ public class ProfileActivity extends AppCompatActivity {
                 } else {
                     notify = true;
                     Users user1 = new Users();
-                    user1.setMail(email);
-                    user1.setUserName(userName);
+                    user1.setMail(receiverEmail);
+                    user1.setUserName(receiverName);
                     user1.setUserId(Receiverid);
-                    user1.setProfilePic(profilePic);
-                    user1.setStatus(status);
+                    user1.setProfilePic(receiverProfilePic);
+                    user1.setStatus(receiverStatus);
                     user1.setTyping("Not Typing");
                     user1.setLastMessage("Say Hi!!");
                     user1.setRequest("Req_Sent");
@@ -213,7 +234,7 @@ public class ProfileActivity extends AppCompatActivity {
                             database.getReference().child("Users").child(Receiverid).child("Friends").child(user.getUid()).setValue(user2).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(@NonNull Void unused) {
-                                    Toast.makeText(getApplicationContext(), "Friend request sent to " + userName, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Friend request sent to " + receiverName, Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -249,7 +270,8 @@ public class ProfileActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, "sent you a Friend Request", image, "text", "FriendRequest", "true", ".FriendRequestActivity", getApplicationContext(), ProfileActivity.this);
+                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(userToken, userName, "sent you a friend request.", image, Receiverid, receiverEmail, FirebaseAuth.getInstance().getUid(), "request",
+                        "FriendRequest", ".ProfileActivity", getApplicationContext(), ProfileActivity.this);
                 fcmNotificationsSender.SendNotifications();
             }
         };

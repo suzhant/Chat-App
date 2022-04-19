@@ -507,32 +507,36 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 txtRemove.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        new AlertDialog.Builder(context).setTitle("Delete")
-                                .setMessage("Do you want to delete this message?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        shareDialog.dismiss();
-                                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                                        String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
-                                        HashMap<String, Object> delete = new HashMap<>();
-                                        delete.put("type", "unsent");
-                                        delete.put("message", Encryption.encryptMessage("message unsent"));
-                                        database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).updateChildren(delete)
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void unused) {
-                                                        database.getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(delete);
-                                                    }
-                                                });
-                                    }
-                                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                                shareDialog.dismiss();
-                            }
-                        }).show();
+                        if (holder.getClass() == SenderViewHolder.class) {
+                            new AlertDialog.Builder(context).setTitle("Delete")
+                                    .setMessage("Do you want to delete this message?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            shareDialog.dismiss();
+                                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                            String senderRoom = FirebaseAuth.getInstance().getUid() + recId;
+                                            HashMap<String, Object> delete = new HashMap<>();
+                                            delete.put("type", "unsent");
+                                            delete.put("message", Encryption.encryptMessage("message unsent"));
+                                            database.getReference().child("Chats").child(senderRoom).child(message.getMessageId()).updateChildren(delete)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            database.getReference().child("Chats").child(receiverRoom).child(message.getMessageId()).updateChildren(delete);
+                                                        }
+                                                    });
+                                        }
+                                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    shareDialog.dismiss();
+                                }
+                            }).show();
+                        } else {
+                            Toast.makeText(context, "You cannot delete Friend's Message!!!", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             }

@@ -39,8 +39,8 @@
         android:theme="@style/Theme.WhatsApp">
         <activity
             android:name=".FullScreenVideo"
-            android:exported="false"
-            android:configChanges="orientation|screenSize|layoutDirection" />
+            android:configChanges="orientation|screenSize|layoutDirection"
+            android:exported="false" />
         <activity
             android:name=".NickName"
             android:exported="false" />
@@ -135,7 +135,13 @@
         </activity>
         <activity
             android:name=".ProfileActivity"
-            android:exported="false" />
+            android:exported="false">
+            <intent-filter>
+                <action android:name=".ProfileActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".FindFriendActivity"
             android:exported="false"
@@ -233,6 +239,9 @@
         </receiver>
         <receiver
             android:name=".HeadsUpNotificationActionReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".FriendRequestActionReceiver"
             android:exported="false" />
 
         <meta-data

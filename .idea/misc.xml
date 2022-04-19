@@ -13,6 +13,7 @@
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/horizontal_divider.xml" value="0.2545" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_add_reaction_24.xml" value="0.2815" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_arrow_downward.xml" value="0.2815" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_call_green.xml" value="0.2875" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_chat.xml" value="0.2295" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_check_circle.xml" value="0.3703125" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/drawable/ic_circle_notifications.xml" value="0.3703125" />
@@ -57,7 +58,7 @@
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_delete_acccount.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_emoji_application.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_final_create_group.xml" value="0.3541666666666667" />
-        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_find_friend.xml" value="0.3541666666666667" />
+        <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_find_friend.xml" value="0.25" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_for_group_chat_fragment.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_friend_request.xml" value="0.3541666666666667" />
         <entry key="..\:/Andriod studio projects/SusIna/app/src/main/res/layout/activity_full_screen_image.xml" value="0.33" />

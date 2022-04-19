@@ -74,6 +74,12 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         int resourceImage = getResources().getIdentifier(icon, "drawable", getPackageName());
         videoSoundPath = "android.resource://" + getPackageName() + "/" + R.raw.incoming_sound;
 
+        String path = "android.resource://" + getPackageName() + "/" + R.raw.iphone;
+        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            r.setLooping(false);
+        }
+
         switch (Type) {
             case "Chat": {
                 senderId = data.get("UserId");
@@ -191,6 +197,36 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 mNotificationManager.notify(101, note);
                 break;
             }
+            case "FriendRequest": {
+                senderId = data.get("UserId");
+                profilePic = data.get("ProfilePic");
+                Bitmap bitmap2 = getBitmapFromUrl(String.valueOf(profilePic));
+                builder = new NotificationCompat.Builder(this, "CHANNEL_ID5");
+                Intent acceptFriendAction = new Intent(this, FriendRequestActionReceiver.class);
+                acceptFriendAction.putExtra("UserId", senderId);
+                acceptFriendAction.putExtra("ACTION", "ACCEPT_FRIEND");
+
+                Intent rejectFriendAction = new Intent(this, FriendRequestActionReceiver.class);
+                rejectFriendAction.putExtra("ACTION", "REJECT_FRIEND");
+                rejectFriendAction.putExtra("UserId", senderId);
+
+                PendingIntent acceptFriendPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 112, acceptFriendAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                PendingIntent rejectFriendPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, rejectFriendAction, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+                Intent resultIntent = new Intent(this, ProfileActivity.class);
+                resultIntent.putExtra("UserIdPA", senderId);
+                resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                builder.setContentTitle(title);
+                builder.addAction(R.drawable.ic_call_green, getActionText(R.string.accept_friend, R.color.colorPrimary), acceptFriendPendingIntent)
+                        .addAction(R.drawable.ic_cancel_sexy, getActionText(R.string.reject_friend, R.color.red), rejectFriendPendingIntent);
+                builder.setContentText(message);
+                builder.setLargeIcon(bitmap2);
+                builder.setContentIntent(pendingIntent);
+                break;
+            }
+
             default: {
                 isNotification = data.get("Notification");
                 profilePic = data.get("ProfilePic");
@@ -207,12 +243,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
 
         if (!Type.equals("videoCall")) {
-            String path = "android.resource://" + getPackageName() + "/" + R.raw.iphone;
-            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
             r.play();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                r.setLooping(false);
-            }
             builder.setSound(Uri.parse(path), AudioManager.STREAM_NOTIFICATION);
             builder.setAutoCancel(true);
             builder.setPriority(Notification.PRIORITY_MAX);

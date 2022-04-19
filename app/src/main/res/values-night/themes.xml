@@ -39,13 +39,17 @@
         <item name="cornerSize">4dp</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Title" parent="">
+    <style name="TextAppearance.AppCompat.Title." parent="">
         <item name="android:textColor">@color/white</item>
         <item name="android:alpha">0.7</item>
     </style>
 
-    <style name="TextAppearance.AppCompat.Small" parent="">
+    <style name="TextAppearance.AppCompat.Small." parent="">
         <item name="android:textColor">@color/white</item>
         <item name="android:alpha">0.7</item>
+    </style>
+
+    <style name="customBG" parent="">
+        <item name="android:background">@color/black</item>
     </style>
 </resources>

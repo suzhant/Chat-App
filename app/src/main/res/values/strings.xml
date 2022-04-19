@@ -6,4 +6,6 @@
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
     <string name="accept_call">Accept call</string>
     <string name="decline_call">Decline call</string>
+    <string name="accept_friend">Accept</string>
+    <string name="reject_friend">Reject</string>
 </resources>
