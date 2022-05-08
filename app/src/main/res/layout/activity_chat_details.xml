@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:indeterminateTint="@color/fcm_test_color" />
+            android:indeterminateTint="@color/fb_color" />
     </RelativeLayout>
 
     <TextView

@@ -32,7 +32,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     NavigationView navigationView;
     TabLayout tabLayout;
-    ViewPager viewPager;
+    ViewPager2 viewPager;
     TextView nav_username, nav_email, nav_verify, txtUserName;
     CircleImageView nav_profile;
     FirebaseAuth auth;
@@ -164,9 +165,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuItem menu = navigationView.getMenu().findItem(R.id.nav_friendRequest);
         txtFriendReq = (TextView) menu.getActionView();
 
-
-        viewPager.setAdapter(new FragmentsAdapter(getSupportFragmentManager()));
-        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setAdapter(new FragmentsAdapter(getSupportFragmentManager(), getLifecycle()));
+        //      tabLayout.setupWithViewPager(viewPager);
+        String[] titles = {"Chats", "Group Chats", "Calls"};
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> tab.setText(titles[position])
+        ).attach();
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);

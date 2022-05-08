@@ -49,8 +49,15 @@ public class MessageDiffUtils extends DiffUtil.Callback {
     @Nullable
     @Override
     public Object getChangePayload(int oldItemPosition, int newItemPosition) {
-        final Messages oldMessage = mOldMessages.get(oldItemPosition);
-        final Messages newMessage = mNewMessages.get(newItemPosition);
+        Messages oldMessage = null;
+        Messages newMessage = null;
+        if (oldItemPosition == newItemPosition) {
+            oldMessage = mOldMessages.get(oldItemPosition);
+            newMessage = mNewMessages.get(newItemPosition);
+        } else {
+            return null;
+        }
+
 
         Bundle bundle = new Bundle();
 

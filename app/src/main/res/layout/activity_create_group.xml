@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ActivityCreateGroup">
 
@@ -24,7 +24,7 @@
                 app:tint="@color/white" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
@@ -57,9 +57,12 @@
                 android:layout_marginRight="5dp"
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
+                android:textColorHint="@color/black_95"
+                android:textColor="@color/black"
                 android:background="@drawable/bg_et_message"
                 android:ems="10"
                 android:drawableEnd="@drawable/ic_search"
+                android:drawableTint="@color/black"
                 android:hint="Search"
                 android:inputType="textPersonName"
                 android:padding="10dp"
@@ -67,11 +70,10 @@
 
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/participantRecycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/participantRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
     <TextView
         android:id="@+id/txtNoFriend"
         android:layout_width="match_parent"

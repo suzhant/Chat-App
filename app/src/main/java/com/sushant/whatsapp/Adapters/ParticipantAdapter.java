@@ -75,7 +75,7 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
         return super.getItemId(position);
     }
 
-    public class viewHolder extends RecyclerView.ViewHolder {
+    public static class viewHolder extends RecyclerView.ViewHolder {
 
         public CircleImageView image;
         public ImageView blackCircle, checkbox;

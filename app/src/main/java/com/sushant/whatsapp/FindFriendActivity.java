@@ -72,12 +72,11 @@ public class FindFriendActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (!TextUtils.isEmpty(query.trim())) {
-                    ref.removeEventListener(valueEventListener1);
-                    searchUser(query);
-                } else {
-                    getAllUsers();
-                }
+//                if (!TextUtils.isEmpty(query.trim())) {
+//                    searchUser(query);
+//                } else {
+//                    getAllUsers();
+//                }
 
                 return false;
             }
@@ -85,7 +84,6 @@ public class FindFriendActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (!TextUtils.isEmpty(newText.trim())) {
-                    ref.removeEventListener(valueEventListener1);
                     searchUser(newText);
                 } else {
                     getAllUsers();
@@ -111,7 +109,6 @@ public class FindFriendActivity extends AppCompatActivity {
                     }
                 }
                 adapter.notifyDataSetChanged();
-                findFriendBinding.findFriendRecycleView.scheduleLayoutAnimation();
             }
 
             @Override
@@ -137,7 +134,7 @@ public class FindFriendActivity extends AppCompatActivity {
                     if (users.getUserId() != null) {
                         assert user != null;
                         if (!users.getUserId().equals(user.getUid())) {
-                            if (users.getUserName().contains(query.toLowerCase()) || users.getMail().contains(query.toLowerCase())) {
+                            if (users.getUserName().toLowerCase().contains(query.toLowerCase().trim()) || users.getMail().toLowerCase().equals(query.toLowerCase().trim())) {
                                 list.add(users);
                             }
                         }

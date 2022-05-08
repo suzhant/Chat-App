@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +25,6 @@ import com.sushant.whatsapp.Interface.isClicked;
 import com.sushant.whatsapp.Models.Users;
 import com.sushant.whatsapp.databinding.ActivityCreateGroupBinding;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -35,6 +33,7 @@ public class ActivityCreateGroup extends AppCompatActivity {
     ActivityCreateGroupBinding binding;
     ArrayList<Users> list = new ArrayList<>();
     FirebaseDatabase database;
+    FirebaseAuth auth;
     LinearLayoutManager layoutManager;
     ParticipantAdapter adapter;
     DatabaseReference ref;
@@ -52,6 +51,7 @@ public class ActivityCreateGroup extends AppCompatActivity {
 
         getSupportActionBar().hide();
         database = FirebaseDatabase.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         clicked = new isClicked() {
             @Override
@@ -155,8 +155,7 @@ public class ActivityCreateGroup extends AppCompatActivity {
     }
 
     private void searchUser(String query) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("Friends");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(Objects.requireNonNull(auth.getUid())).child("Friends");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -164,10 +163,11 @@ public class ActivityCreateGroup extends AppCompatActivity {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
                     assert users != null;
-                    assert user != null;
-                    if (!users.getUserId().equals(user.getUid()) && users.getUserId() != null) {
-                        if (users.getRequest() != null && users.getUserName().contains(query.toLowerCase()) || users.getMail().contains(query.toLowerCase())) {
-                            list.add(users);
+                    if (!auth.getUid().equals(users.getUserId()) && users.getUserId() != null) {
+                        if (users.getRequest() != null) {
+                            if (users.getUserName().toLowerCase().contains(query.toLowerCase().trim()) || users.getMail().toLowerCase().contains(query.toLowerCase().trim())) {
+                                list.add(users);
+                            }
                         }
                     }
                 }

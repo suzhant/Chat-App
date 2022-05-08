@@ -96,7 +96,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.viewHolder> 
                 .placeholder(R.drawable.placeholder).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(holder.storyImg);
         holder.txtName.setText(users.getUserName());
         holder.circularStatusView.setPortionsCount(users.getStoriesCount());
-        holder.circularStatusView.setPortionsColor(ContextCompat.getColor(context, R.color.fcm_test_color));
+        holder.circularStatusView.setPortionsColor(ContextCompat.getColor(context, R.color.fb_color));
         ArrayList<MyStory> myStories = new ArrayList<>();
         FirebaseDatabase.getInstance().getReference().child("Stories").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child(users.userId).child("medias")
                 .addListenerForSingleValueEvent(new ValueEventListener() {

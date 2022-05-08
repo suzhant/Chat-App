@@ -221,6 +221,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             } else if ("text".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.VISIBLE);
+                ((SenderViewHolder) holder).txtSender.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
                 ((SenderViewHolder) holder).txtSender.setText(message.getMessage());
                 ((SenderViewHolder) holder).txtSender.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -293,6 +294,7 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 }
             } else if ("text".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.VISIBLE);
+                ((ReceiverViewHolder) holder).txtReceiver.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
                 ((ReceiverViewHolder) holder).txtReceiver.setText(message.getMessage());
                 ((ReceiverViewHolder) holder).txtReceiver.setOnClickListener(new View.OnClickListener() {
                     @Override

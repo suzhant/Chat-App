@@ -136,13 +136,15 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     private MediaRecorder recorder = null;
     private static final String LOG_TAG = "AudioRecordTest";
     CountDownTimer timer;
-    int pos, numItems;
+    int pos, numItems, firstPos;
     ArrayList<Messages> messageModel;
     ActivityResultLauncher<Intent> imageLauncher, videoLauncher, videoRecorderLauncher, audioLauncher;
     ArrayList<Uri> videos = new ArrayList<>();
     ArrayList<Messages> oldList = new ArrayList<>();
     Uri audioUri = null;
     AudioInterface audioInterface;
+    private int ITEMS_TO_LOAD = 20, totalChild;
+    Query first, next;
 
 
 //    private static final String APPLICATION_NAME = "com.sushant.whatsapp";
@@ -319,12 +321,24 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
 
         updateSeen(seen, senderId, receiverId);
 
+
         chatRef = database.getReference().child("Chats").child(senderRoom);
+        senderListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                totalChild = (int) snapshot.getChildrenCount();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        chatRef.addValueEventListener(senderListener);
         chatListener = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int count = messageModel.size();
                 messageModel.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Messages model = dataSnapshot.getValue(Messages.class);
@@ -365,7 +379,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                     model.setProfilePic(profilePic);
                     messageModel.add(model);
                 }
-
+                int count = messageModel.size();
                 chatAdapter.updateUserList(messageModel);
                 oldList.clear();
                 oldList.addAll(messageModel);
@@ -391,23 +405,32 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
 
             }
         };
+        first = chatRef.limitToLast(ITEMS_TO_LOAD);
 
         chatHandler = new Handler();
         chatRunnable = new Runnable() {
             @Override
             public void run() {
-                chatRef.addValueEventListener(chatListener);
+                first.addValueEventListener(chatListener);
                 chatRef.keepSynced(true);
             }
         };
         chatHandler.postDelayed(chatRunnable, 300);
 
-
         binding.swipeChatRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Toast.makeText(ChatDetailsActivity.this, "No more data to load", Toast.LENGTH_SHORT).show();
-                binding.swipeChatRefresh.setRefreshing(false);
+                if (binding.swipeChatRefresh.isRefreshing()) {
+                    if (ITEMS_TO_LOAD < totalChild) {
+                        ITEMS_TO_LOAD += (totalChild - (totalChild - ITEMS_TO_LOAD)) % totalChild;
+                        next = chatRef.limitToLast(ITEMS_TO_LOAD);
+                        next.addListenerForSingleValueEvent(chatListener);
+                    } else {
+                        Toast.makeText(ChatDetailsActivity.this, "No more data to load", Toast.LENGTH_SHORT).show();
+                    }
+                    binding.swipeChatRefresh.setRefreshing(false);
+                }
+
             }
         });
 
@@ -1356,7 +1379,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         }
         if (chatRef != null) {
             chatRef.keepSynced(false);
-            chatRef.removeEventListener(chatListener);
+            chatRef.removeEventListener(senderListener);
+        }
+        if (first != null) {
+            first.removeEventListener(chatListener);
+        }
+        if (next != null) {
+            next.removeEventListener(chatListener);
         }
         if (senderNickNameRef != null) {
             senderNickNameRef.removeEventListener(senderNickNameListener);
@@ -1389,7 +1418,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         }
         if (chatRef != null) {
             chatRef.keepSynced(false);
-            chatRef.removeEventListener(chatListener);
+            chatRef.removeEventListener(senderListener);
         }
         if (senderNickNameRef != null) {
             senderNickNameRef.removeEventListener(senderNickNameListener);
@@ -1414,7 +1443,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         }
         if (chatRef != null) {
             chatRef.keepSynced(true);
-            chatRef.addValueEventListener(chatListener);
+            chatRef.addValueEventListener(senderListener);
         }
         if (receiverRef != null) {
             receiverRef.addValueEventListener(receiverListener);

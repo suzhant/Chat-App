@@ -45,6 +45,7 @@ public class AddParticipant extends AppCompatActivity {
     isClicked clicked;
     String Gid, Gname, GPP, CreatedOn, CreatedBy;
     DatabaseReference databaseReference;
+    FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class AddParticipant extends AppCompatActivity {
 
         getSupportActionBar().hide();
         database = FirebaseDatabase.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         Gid = getIntent().getStringExtra("GId1");
         Gname = getIntent().getStringExtra("GName1");
@@ -61,7 +63,7 @@ public class AddParticipant extends AppCompatActivity {
         CreatedOn = getIntent().getStringExtra("CreatedOn1");
         CreatedBy = getIntent().getStringExtra("CreatedBy1");
 
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Groups").child(FirebaseAuth.getInstance().getUid())
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("Groups").child(auth.getUid())
                 .child(Gid)
                 .child("participant");
 

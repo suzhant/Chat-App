@@ -175,7 +175,6 @@ public class ChatSettings extends AppCompatActivity {
         TextView messageView = dialog.findViewById(android.R.id.message);
         if (messageView != null) {
             messageView.setGravity(Gravity.START);
-            messageView.setTextColor(Color.BLACK);
             messageView.setTypeface(Typeface.SANS_SERIF);
         }
 
