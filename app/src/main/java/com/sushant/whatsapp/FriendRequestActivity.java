@@ -69,7 +69,7 @@ public class FriendRequestActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                 } else {
-                    finish();
+                    finishAfterTransition();
                 }
             }
         });

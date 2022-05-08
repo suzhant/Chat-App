@@ -77,8 +77,9 @@ public class SettingsActivity extends AppCompatActivity {
         binding.backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+//                startActivity(intent);
+                onBackPressed();
             }
         });
 
@@ -174,24 +175,28 @@ public class SettingsActivity extends AppCompatActivity {
                                 if (snapshot.exists()) {
                                     for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                                         Users users = snapshot1.getValue(Users.class);
-                                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
-                                        Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
-                                        checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                if (snapshot.exists()) {
-                                                    HashMap<String, Object> obj1 = new HashMap<>();
-                                                    obj1.put("userName", username);
-                                                    obj1.put("status", about);
-                                                    reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                        assert users != null;
+                                        if (users.getUserId() != null) {
+                                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(users.getUserId()).child("Friends");
+                                            Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
+                                            checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                    if (snapshot.exists()) {
+                                                        HashMap<String, Object> obj1 = new HashMap<>();
+                                                        obj1.put("userName", username);
+                                                        obj1.put("status", about);
+                                                        reference.child(FirebaseAuth.getInstance().getUid()).updateChildren(obj1);
+                                                    }
                                                 }
-                                            }
 
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
 
-                                            }
-                                        });
+                                                }
+                                            });
+                                        }
+
 
                                         database.getReference().child("Groups").child(FirebaseAuth.getInstance().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
@@ -199,7 +204,7 @@ public class SettingsActivity extends AppCompatActivity {
                                                 for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                                                     Groups groups = snapshot1.getValue(Groups.class);
                                                     assert groups != null;
-                                                    if (groups.getGroupId() != null) {
+                                                    if (groups.getGroupId() != null && users.getUserId() != null) {
                                                         DatabaseReference reference = database.getReference().child("Groups").child(users.getUserId()).child(groups.getGroupId()).child("participant");
                                                         Query checkStatus = reference.orderByChild("userId").equalTo(FirebaseAuth.getInstance().getUid());
                                                         checkStatus.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -414,4 +419,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }

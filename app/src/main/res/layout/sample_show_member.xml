@@ -40,7 +40,6 @@
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/profile_image"
-        style="@style/TextAppearance.AppCompat.Small."
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView

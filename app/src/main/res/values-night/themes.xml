@@ -13,6 +13,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">@color/colorPurple</item>
         <item name="android:navigationBarColor" tools:targetApi="l">@color/navColor</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <style name="AlertDialogCustom" parent="Theme.AppCompat.DayNight.Dialog.Alert">

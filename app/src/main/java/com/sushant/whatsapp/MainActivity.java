@@ -1,6 +1,7 @@
 package com.sushant.whatsapp;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
@@ -13,10 +14,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.transition.Fade;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +58,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.sushant.whatsapp.Adapters.FragmentsAdapter;
 import com.sushant.whatsapp.Models.Users;
+import com.sushant.whatsapp.Utils.DepthPageTransformer;
 import com.sushant.whatsapp.databinding.ActivityMainBinding;
 
 import java.util.HashMap;
@@ -92,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        getWindow().setExitTransition(new Fade());
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         toolbar = findViewById(R.id.toolbar);
@@ -171,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> tab.setText(titles[position])
         ).attach();
+        viewPager.setPageTransformer(new DepthPageTransformer());
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -241,8 +247,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //checking users presence
             showErrorDialog();
             nav_verify.setVisibility(View.VISIBLE);
-            Menu nav_Menu = navigationView.getMenu();
-            nav_Menu.findItem(R.id.nav_link).setVisible(false);
             nav_verify.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -373,8 +377,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
             case R.id.nav_setting:
                 Intent setting = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(setting);
-                Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+                startActivity(setting, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
                 break;
 
 //            case R.id.nav_groupChat:
@@ -384,12 +387,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.nav_findFriend:
                 Intent intent2 = new Intent(MainActivity.this, FindFriendActivity.class);
-                startActivity(intent2);
+                startActivity(intent2, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
                 break;
 
             case R.id.nav_friendRequest:
                 Intent intent3 = new Intent(MainActivity.this, FriendRequestActivity.class);
-                startActivity(intent3);
+                startActivity(intent3, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
                 break;
 
 //            case R.id.nav_delete:
@@ -409,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 Intent intentLogout = new Intent(getApplicationContext(), SignInActivity.class);
                 intentLogout.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intentLogout);
+                startActivity(intentLogout, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
                 GoogleSignIn.getClient(this, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()).signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {

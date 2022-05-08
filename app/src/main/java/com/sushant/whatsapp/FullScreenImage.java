@@ -85,6 +85,7 @@ public class FullScreenImage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setAllowEnterTransitionOverlap(true);
         binding = ActivityFullScreenImageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         getSupportActionBar().hide();
@@ -426,7 +427,7 @@ public class FullScreenImage extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        finish();
+        finishAfterTransition();
         super.onBackPressed();
     }
 }

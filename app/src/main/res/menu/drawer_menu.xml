@@ -7,27 +7,21 @@
         <item
             android:id="@+id/nav_setting"
             android:icon="@drawable/ic_setting"
-            android:title="Setting" />
+            android:title="Setting"
+            android:checkable="false" />
         <item
             android:id="@+id/nav_findFriend"
             android:icon="@drawable/ic_find_friend"
-            android:checked="false"
-            android:checkable="true"
+            android:checkable="false"
             android:title="Find Friend" />
 
         <item
             android:id="@+id/nav_friendRequest"
             android:icon="@drawable/ic_friend_request"
-            android:checked="false"
-            android:checkable="true"
+            android:checkable="false"
             app:actionViewClass="android.widget.TextView"
             android:title="Friend Request" />
-
-        <item
-            android:id="@+id/nav_link"
-            android:icon="@drawable/ic_google"
-            android:visible="false"
-            android:title="Link your account to Google" />
+        
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_logout"

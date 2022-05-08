@@ -45,6 +45,7 @@
                 android:layout_height="match_parent"
                 android:backgroundTint="@color/white"
                 android:inputType="text|textShortMessage"
+                android:textColor="@color/black"
                 android:maxLength="20" />
         </com.google.android.material.textfield.TextInputLayout>
 

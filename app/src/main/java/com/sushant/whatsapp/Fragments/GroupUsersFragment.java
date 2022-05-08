@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -129,15 +130,22 @@ public class GroupUsersFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 participant.clear();
-                binding.groupRecyclerView.setAdapter(new RemoveUserAdapter(list,getContext(),clicked));
+                binding.groupRecyclerView.setAdapter(new RemoveUserAdapter(list, getContext(), clicked));
             }
         });
-        dialog=builder.create();
+        dialog = builder.create();
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.show();
+            }
+        });
+        binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getAllUsers();
+                binding.swipeRefreshLayout.setRefreshing(false);
             }
         });
 

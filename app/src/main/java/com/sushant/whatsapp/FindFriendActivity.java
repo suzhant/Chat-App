@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
@@ -44,9 +44,9 @@ public class FindFriendActivity extends AppCompatActivity {
         setContentView(findFriendBinding.getRoot());
         toolbar = findViewById(R.id.topAppBar);
         setSupportActionBar(toolbar);
-        ActionBar ab = getSupportActionBar();
-        assert ab != null;
-        ab.setDisplayHomeAsUpEnabled(true);
+//        ActionBar ab = getSupportActionBar();
+//        assert ab != null;
+//        ab.setDisplayHomeAsUpEnabled(true);
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.colorPurple));
         getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.mainNavColor));
 
@@ -58,6 +58,12 @@ public class FindFriendActivity extends AppCompatActivity {
         findFriendBinding.findFriendRecycleView.setLayoutManager(layoutManager);
         getAllUsers();
 
+        findFriendBinding.topAppBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
     }
 
@@ -149,5 +155,11 @@ public class FindFriendActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        finishAfterTransition();
+        super.onBackPressed();
     }
 }

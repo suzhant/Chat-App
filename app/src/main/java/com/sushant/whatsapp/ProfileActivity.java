@@ -149,7 +149,7 @@ public class ProfileActivity extends AppCompatActivity {
         binding.topAppBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                onBackPressed();
             }
         });
 
@@ -291,7 +291,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        finish();
+        finishAfterTransition();
         super.onBackPressed();
     }
 }

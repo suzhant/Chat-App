@@ -13,6 +13,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">@color/colorPurple</item>
         <item name="android:navigationBarColor" tools:targetApi="l">@color/mainNavColor</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowActivityTransitions">true</item>
     </style>
 
     <style name="Theme.MaterialComponents.Light.NoActionBar">
@@ -58,20 +59,4 @@
         <item name="android:background">@color/white</item>
     </style>
 
-    <style name="BaseAppTheme" parent="android:Theme.Material">
-        <!-- enable window content transitions -->
-        <item name="android:windowActivityTransitions">true</item>
-
-        <!-- specify enter and exit transitions -->
-        <item name="android:windowEnterTransition">@transition/explode</item>
-        <item name="android:windowExitTransition">@transition/explode</item>
-
-        <!-- specify shared element transitions -->
-        <item name="android:windowSharedElementEnterTransition">
-            @transition/change_image_transform
-        </item>
-        <item name="android:windowSharedElementExitTransition">
-            @transition/change_image_transform
-        </item>
-    </style>
 </resources>

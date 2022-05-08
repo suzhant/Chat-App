@@ -1,7 +1,10 @@
 package com.sushant.whatsapp.Adapters;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,6 +62,8 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
+                            Pair[] pairs = new Pair[1];
+                            pairs[0] = new Pair(holder.image, "pp");
                             String StatusFromDB = snapshot.child(users.getUserId()).child("status").getValue(String.class);
                             Intent intent = new Intent(context, ProfileActivity.class);
                             intent.putExtra("UserIdPA", users.getUserId());
@@ -66,7 +71,9 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.viewHold
                             intent.putExtra("UserNamePA", users.getUserName());
                             intent.putExtra("StatusPA", StatusFromDB);
                             intent.putExtra("EmailPA", users.getMail());
-                            context.startActivity(intent);
+                            ActivityOptions options = ActivityOptions
+                                    .makeSceneTransitionAnimation((Activity) context, pairs);
+                            context.startActivity(intent, options.toBundle());
                         }
                     }
 

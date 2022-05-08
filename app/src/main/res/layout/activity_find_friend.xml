@@ -20,6 +20,7 @@
                 app:title="Find Friend"
                 app:menu="@menu/top_app_bar"
                 android:background="@color/colorPurple"
+                app:navigationIcon="@drawable/ic_backarrow"
                 style="@style/Widget.MaterialComponents.Toolbar.Primary"
                 />
 

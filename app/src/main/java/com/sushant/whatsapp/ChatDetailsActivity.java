@@ -6,13 +6,13 @@ import static com.sushant.whatsapp.R.color.white;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -29,6 +29,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -145,7 +146,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     AudioInterface audioInterface;
     private int ITEMS_TO_LOAD = 20, totalChild;
     Query first, next;
-
+    int shortAnimationDuration;
 
 //    private static final String APPLICATION_NAME = "com.sushant.whatsapp";
 //    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
@@ -302,17 +303,21 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                 finish();//Method finish() will destroy your activity and show the one that started it.
             }
         });
-
+        final View androidRobotView = findViewById(R.id.imgProfile);
         binding.profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Pair[] pairs = new Pair[1];
+                pairs[0] = new Pair(binding.profileImage, "pp");
                 Intent intent = new Intent(ChatDetailsActivity.this, ProfileActivity.class);
                 intent.putExtra("UserIdPA", receiverId);
                 intent.putExtra("UserNamePA", receiverName);
                 intent.putExtra("ProfilePicPA", profilePic);
                 intent.putExtra("EmailPA", email);
                 intent.putExtra("StatusPA", Status);
-                startActivity(intent);
+                ActivityOptions options = ActivityOptions
+                        .makeSceneTransitionAnimation(ChatDetailsActivity.this, pairs);
+                startActivity(intent, options.toBundle());
             }
         });
 
@@ -335,6 +340,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             }
         };
         chatRef.addValueEventListener(senderListener);
+
         chatListener = new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -407,12 +413,12 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
         };
         first = chatRef.limitToLast(ITEMS_TO_LOAD);
 
+
         chatHandler = new Handler();
         chatRunnable = new Runnable() {
             @Override
             public void run() {
                 first.addValueEventListener(chatListener);
-                chatRef.keepSynced(true);
             }
         };
         chatHandler.postDelayed(chatRunnable, 300);
@@ -1378,7 +1384,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
             infoConnected.removeEventListener(eventListener);
         }
         if (chatRef != null) {
-            chatRef.keepSynced(false);
             chatRef.removeEventListener(senderListener);
         }
         if (first != null) {
@@ -1676,90 +1681,5 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
 
 
     }
-
-    private String getFilePath(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(projection[0]);
-            String picturePath = cursor.getString(columnIndex); // returns null
-            cursor.close();
-            return picturePath;
-        }
-        return null;
-    }
-
-    /**
-     * Creates an authorized Credential object.
-     *
-     * @param HTTP_TRANSPORT The network HTTP Transport.
-     * @return An authorized Credential object.
-     * @throws IOException If the credentials.json file cannot be found.
-     */
-//    private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-//        // Load client secrets.
-//        InputStream in = ChatDetailsActivity.class.getResourceAsStream("/client_secret.json");
-//        if (in == null) {
-//            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
-//        }
-//        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-//
-//        File tokenFolder = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) +
-//                File.separator + TOKENS_DIRECTORY_PATH);
-//        if (!tokenFolder.exists()) {
-//            tokenFolder.mkdirs();
-//        }
-//        // Build flow and trigger user authorization request.
-//        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-//                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-//                .setDataStoreFactory(new FileDataStoreFactory(tokenFolder))
-//                .setAccessType("offline")
-//                .build();
-//        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-//        //returns an authorized Credential object.
-//        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()) {
-//            protected void onAuthorization(AuthorizationCodeRequestUrl authorizationUrl) throws IOException {
-//                String url = (authorizationUrl.build());
-//                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-//                startActivity(browserIntent);
-//            }
-//        }.authorize("sushantshrestha62@gmail.com");
-//    }
-//
-//    private void uploadVideoToGoogleDrive(Uri uri) {
-//        // Build a new authorized API client service.
-//
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    final NetHttpTransport HTTP_TRANSPORT;
-//                    HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-//                    service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-//                            .setApplicationName(APPLICATION_NAME)
-//                            .build();
-//                } catch (GeneralSecurityException | IOException e) {
-//                    e.printStackTrace();
-//                }
-//                com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
-//                fileMetadata.setName("video.mp4");
-//                java.io.File filePath = new java.io.File(String.valueOf(uri));
-//                FileContent mediaContent = new FileContent("video/mp4", filePath);
-//                com.google.api.services.drive.model.File file = null;
-//                try {
-//                    file = service.files().create(fileMetadata, mediaContent)
-//                            .setFields("id")
-//                            .execute();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                System.out.println("File ID: " + file.getId());
-//            }
-//        });
-//        thread.start();
-//    }
 
 }
