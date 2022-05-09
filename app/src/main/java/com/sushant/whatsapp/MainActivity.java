@@ -412,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 Intent intentLogout = new Intent(getApplicationContext(), SignInActivity.class);
                 intentLogout.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intentLogout, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+                startActivity(intentLogout);
                 GoogleSignIn.getClient(this, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()).signOut().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
@@ -426,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 });
                 Toast.makeText(this, "Logged Out", Toast.LENGTH_SHORT).show();
-                finish();
+                finishAfterTransition();
                 break;
         }
         drawerLayout.closeDrawer(GravityCompat.START);

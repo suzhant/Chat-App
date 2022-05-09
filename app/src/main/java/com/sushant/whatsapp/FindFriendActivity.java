@@ -40,6 +40,8 @@ public class FindFriendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setAllowEnterTransitionOverlap(true);
+        getWindow().setAllowReturnTransitionOverlap(true);
         findFriendBinding = ActivityFindFriendBinding.inflate(getLayoutInflater());
         setContentView(findFriendBinding.getRoot());
         toolbar = findViewById(R.id.topAppBar);

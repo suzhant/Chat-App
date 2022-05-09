@@ -63,7 +63,9 @@
             android:background="@drawable/bg_et_message"
             android:ems="10"
             android:drawableEnd="@drawable/ic_search"
+            android:drawableTint="@color/black"
             android:hint="Search"
+            android:textColor="@color/black"
             android:inputType="textPersonName"
             android:padding="10dp"
             app:stackFromEnd="true" />

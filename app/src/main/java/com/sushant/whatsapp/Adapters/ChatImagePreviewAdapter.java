@@ -1,7 +1,10 @@
 package com.sushant.whatsapp.Adapters;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,10 +49,14 @@ public class ChatImagePreviewAdapter extends RecyclerView.Adapter<ChatImagePrevi
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Pair[] pairs = new Pair[1];
+                pairs[0] = new Pair(holder.image, "img");
                 Intent intent = new Intent(context, FullScreenImage.class);
                 intent.putExtra("UserId", recId);
                 intent.putExtra("messageImage", image.getImageUrl());
-                context.startActivity(intent);
+                ActivityOptions options = ActivityOptions
+                        .makeSceneTransitionAnimation((Activity) context, pairs);
+                context.startActivity(intent, options.toBundle());
             }
         });
 

@@ -222,6 +222,13 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 if (message.getImageUrl() != null) {
                     setPhoto(holder, message);
                 }
+                ((SenderViewHolder) holder).imgSender.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onImageClick(((SenderViewHolder) holder).imgSender, message);
+                    }
+                });
+
             } else if ("text".equals(message.getType())) {
                 ((SenderViewHolder) holder).txtSender.setVisibility(View.VISIBLE);
                 ((SenderViewHolder) holder).txtSender.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
@@ -295,6 +302,12 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 if (message.getImageUrl() != null) {
                     setPhoto(holder, message);
                 }
+                ((ReceiverViewHolder) holder).imgReceiver.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onImageClick(((ReceiverViewHolder) holder).imgReceiver, message);
+                    }
+                });
             } else if ("text".equals(message.getType())) {
                 ((ReceiverViewHolder) holder).txtReceiver.setVisibility(View.VISIBLE);
                 ((ReceiverViewHolder) holder).txtReceiver.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
@@ -562,26 +575,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
                 return false;
             }
 
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-//                if ("photo".equals(message.getType())) {
-//                    android.util.Pair[] pairs=new Pair[1];
-//                    assert holder instanceof SenderViewHolder;
-//                    pairs[0] = new android.util.Pair(((SenderViewHolder)holder).imgSender,"img");
-////                    FullScreenImage img= new FullScreenImage();
-////                    TouchImageView imageView=img.findViewById(R.id.fullScreenImage);
-//                    Intent fullScreenImage = new Intent(context, FullScreenImage.class);
-//                    fullScreenImage.putExtra("UserId", recId);
-//                    fullScreenImage.putExtra("messageImage", message.getImageUrl());
-//                    fullScreenImage.putExtra("ProfilePic", profilePic);
-//                    fullScreenImage.putExtra("userEmail", email);
-//                    fullScreenImage.putExtra("UserName", receiverName);
-//                    ActivityOptions options = ActivityOptions
-//                            .makeSceneTransitionAnimation((Activity) context, pairs);
-//                    context.startActivity(fullScreenImage,options.toBundle());
-//                }
-                return false;
-            }
         });
 
         mDetector.setIsLongpressEnabled(true);
@@ -595,23 +588,6 @@ public class ChatAdapter extends RecyclerView.Adapter {
 
         holder.itemView.setOnTouchListener(onTouchListener);
 
-        if (holder.getClass() == SenderViewHolder.class) {
-            ImageView img = ((SenderViewHolder) holder).imgSender;
-            ((SenderViewHolder) holder).imgSender.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onImageClick(img, message);
-                }
-            });
-        } else {
-            ImageView img = ((ReceiverViewHolder) holder).imgReceiver;
-            ((ReceiverViewHolder) holder).imgReceiver.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onImageClick(img, message);
-                }
-            });
-        }
 
         popup.setReactionSelectedListener(new Function1<Integer, Boolean>() {
             @Override

@@ -24,7 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 
-public class ChatImagesActivity extends AppCompatActivity {
+public class
+ChatImagesActivity extends AppCompatActivity {
 
     ActivityChatImagesBinding binding;
     FirebaseDatabase database;

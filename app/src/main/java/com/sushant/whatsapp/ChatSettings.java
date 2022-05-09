@@ -92,6 +92,7 @@ public class ChatSettings extends AppCompatActivity {
                 Intent intent = new Intent(ChatSettings.this, ChatImagesActivity.class);
                 intent.putExtra("UserId", receiverId);
                 startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
 

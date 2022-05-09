@@ -91,6 +91,7 @@ public class SignInActivity extends AppCompatActivity {
         if (auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified()) {
             Intent intent = new Intent(SignInActivity.this, MainActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
 
         dialog = new ProgressDialog(this);
@@ -349,6 +350,7 @@ public class SignInActivity extends AppCompatActivity {
 
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                             Toast.makeText(SignInActivity.this, "Sign In Successful", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(SignInActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();

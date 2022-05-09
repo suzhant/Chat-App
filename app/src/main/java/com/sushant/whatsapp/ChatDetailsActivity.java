@@ -146,14 +146,6 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
     AudioInterface audioInterface;
     private int ITEMS_TO_LOAD = 20, totalChild;
     Query first, next;
-    int shortAnimationDuration;
-
-//    private static final String APPLICATION_NAME = "com.sushant.whatsapp";
-//    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-//    private static final String TOKENS_DIRECTORY_PATH = "tokens";
-//    private static final String CREDENTIALS_FILE_PATH = "/client_secret.json";
-//    private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_FILE);
-//    Drive service;
 
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -303,7 +295,7 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                 finish();//Method finish() will destroy your activity and show the one that started it.
             }
         });
-        final View androidRobotView = findViewById(R.id.imgProfile);
+
         binding.profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1094,7 +1086,13 @@ public class ChatDetailsActivity extends AppCompatActivity implements DefaultLif
                                             database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
-                                                    database.getReference().child("Images").child(senderRoom).child(key).setValue(model);
+                                                    database.getReference().child("Images").child(senderRoom).child(key).setValue(model)
+                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void unused) {
+                                                                    database.getReference().child("Images").child(receiverRoom).child(key).setValue(model);
+                                                                }
+                                                            });
                                                     String path = "android.resource://" + getPackageName() + "/" + R.raw.google_notification;
                                                     Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), Uri.parse(path));
                                                     r.play();

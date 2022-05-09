@@ -80,7 +80,6 @@ public class FullScreenImage extends AppCompatActivity {
     String data;
     ValueEventListener senderDetailsListener, TokenListener;
     DatabaseReference senderRef, TokenRef;
-    int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

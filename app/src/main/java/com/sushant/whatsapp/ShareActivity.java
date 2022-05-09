@@ -348,9 +348,16 @@ public class ShareActivity extends AppCompatActivity {
                         database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                if (i == receiver.size()) {
-                                    dialog.dismiss();
-                                }
+                                database.getReference().child("Images").child(senderRoom).child(key).setValue(model)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                database.getReference().child("Images").child(receiverRoom).child(key).setValue(model);
+                                                if (i == receiver.size()) {
+                                                    dialog.dismiss();
+                                                }
+                                            }
+                                        });
                             }
                         });
                     }
@@ -395,9 +402,16 @@ public class ShareActivity extends AppCompatActivity {
                                             database.getReference().child("Chats").child(receiverRoom).child(key).setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
-                                                    if (i == receiver.size()) {
-                                                        dialog.dismiss();
-                                                    }
+                                                    database.getReference().child("Images").child(senderRoom).child(key).setValue(model)
+                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void unused) {
+                                                                    database.getReference().child("Images").child(receiverRoom).child(key).setValue(model);
+                                                                    if (i == receiver.size()) {
+                                                                        dialog.dismiss();
+                                                                    }
+                                                                }
+                                                            });
                                                 }
                                             });
                                         }
